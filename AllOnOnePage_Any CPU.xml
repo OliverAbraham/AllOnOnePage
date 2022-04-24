@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<iasettings>
+  <projectproperties>
+    <manufacturer>Abraham Beratung</manufacturer>
+    <productname>All On One Page</productname>
+    <productversion>1.0.0</productversion>
+    <productcode>{8b8ce7a0-7f28-4f54-a814-ba7a28bc91f6}</productcode>
+    <upgradecode>{1749521c-69d2-48d5-9dad-d1a972259c7b}</upgradecode>
+    <language>0</language>
+    <languagename>English</languagename>
+  </projectproperties>
+  <summary>
+    <title>AllOnOnePage</title>
+    <subject>AllOnOnePage</subject>
+    <author>Abraham Beratung</author>
+    <summarycomments>AllOnOnePage</summarycomments>
+    <revisioncode>{0be5b72d-d930-4781-a446-9b8035edd84d}</revisioncode>
+    <uacelevation>highestAvailable</uacelevation>
+  </summary>
+  <addremove>
+    <publishername>Abraham Beratung</publishername>
+    <contactname>Abraham Beratung</contactname>
+    <helplink>http://www.mywebsite.com</helplink>
+    <productupdatelink>http://www.mywebsite.com</productupdatelink>
+    <addremovecomments>All Rights Reserved</addremovecomments>
+    <iconfile />
+  </addremove>
+  <codegen>
+    <generateincludefiles>0</generateincludefiles>
+    <generatefeatures>1</generatefeatures>
+    <refreshscript>0</refreshscript>
+  </codegen>
+  <compilervariables>
+    <variables />
+  </compilervariables>
+  <build>
+    <buildtype>0</buildtype>
+    <buildasmsi>False</buildasmsi>
+    <cachesources>1</cachesources>
+  </build>
+  <targetfolders />
+  <files>
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Abraham.Encoding.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\AllOnOnePage.exe" targetlocation="$PROGRAMFILES$" type="2" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Abraham.PluginManager.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Abraham.ProgramSettings.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Abraham.Threading.Std20.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Abraham.Weather.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\AllOnOnePage.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Hjson.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\HtmlAgilityPack.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Newtonsoft.Json.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Models.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\PluginBase.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\System.Runtime.CompilerServices.Unsafe.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\System.Text.Encoding.CodePages.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\System.Xml.XPath.XmlDocument.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Xceed.Wpf.AvalonDock.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Xceed.Wpf.AvalonDock.Themes.Aero.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Xceed.Wpf.AvalonDock.Themes.Metro.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Xceed.Wpf.AvalonDock.Themes.VS2010.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\Xceed.Wpf.Toolkit.dll" targetlocation="$PROGRAMFILES$" type="3" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\AllOnOnePage.deps.json" targetlocation="$PROGRAMFILES$" type="0" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+    <filedetails filename="C:\TFS\AllOnOnePage\AllOnOnePage\bin\publish\AllOnOnePage.runtimeconfig.json" targetlocation="$PROGRAMFILES$" type="0" generatenativeimage="0" registerassembly="0" runinstallerclass="0" createshortcut="0" runprogram="0" installfilecommand="1" />
+  </files>
+  <dependencies />
+  <registry />
+  <dialogtheme>
+    <themename>Swoosh</themename>
+  </dialogtheme>
+  <authenticode>
+    <sign>0</sign>
+    <mode>0</mode>
+    <certificatefile />
+    <keyfile />
+    <pfxfile />
+    <productinfourl />
+    <authpassword />
+    <timestampurl />
+    <signall>0</signall>
+  </authenticode>
+  <compression>
+    <compressiontype>8</compressiontype>
+    <encrypt>0</encrypt>
+    <compressionpassword />
+  </compression>
+  <output>
+    <outputtype>0</outputtype>
+    <location />
+    <filename>AllOnOnePage_Setup</filename>
+    <calculatefilehash>0</calculatefilehash>
+    <refreshrevisioncode>1</refreshrevisioncode>
+  </output>
+</iasettings>

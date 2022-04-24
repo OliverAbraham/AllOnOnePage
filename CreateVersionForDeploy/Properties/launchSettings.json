@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CreateVersionForDeploy": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\TFS\\LongTermArchive\\LongTermArchive"
+    }
+  }
+}

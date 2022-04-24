@@ -1,0 +1,81 @@
+﻿<Window x:Class="AllOnOnePage.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AllOnOnePage"
+        mc:Ignorable="d"
+        WindowState="Normal"
+        Background="FloralWhite"
+        Title="All on one page !" Height="873" Width="1280"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing"
+        Closed="Window_Closed"
+        FontFamily="Yu Gothic UI Light" FontSize="90" Foreground="AntiqueWhite" 
+        MouseDoubleClick="Window_MouseDoubleClick"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        MouseLeftButtonUp="Window_MouseLeftButtonUp"
+        MouseMove="Window_MouseMove" 
+        Icon="/Icons/AllOnOnePage_80x80.ico">
+    <Grid Name="MainGrid">
+        <Grid Name="VisualEditor" Margin="0,0,0,0">
+            <Canvas x:Name="canvas" Background="Transparent" IsHitTestVisible="False"/>
+
+            <Label Content="{Binding EditControlName, Mode=OneWay}" IsHitTestVisible="False"
+                   Visibility="{Binding EditModeControlsVisibility, Mode=OneWay}"
+                   FontSize="18" 
+                   HorizontalAlignment="Left" Margin="328,10,0,0" 
+                   VerticalAlignment="Top" 
+                   HorizontalContentAlignment="Left"
+                   Foreground="AntiqueWhite" Width="838" Height="40"/>
+
+            <Image Name="Button_Close" Margin="0,30,30,0" Stretch="Fill" Source="Icons/ExitIconSolid.png" 
+                   HorizontalAlignment="Right" VerticalAlignment="Top" 
+                   Width="40" Height="40" MouseLeftButtonUp="Button_Close_Click" />
+            <Image Name="Button_Add" Margin="0,90,30,0"  Stretch="Fill" Source="Icons/PlusIconSolid.png" 
+                   HorizontalAlignment="Right" VerticalAlignment="Top"
+                   Width="40" Height="40" MouseLeftButtonUp="Button_Plus_Click"/>
+            <Image Name="Button_Fullscreen" Margin="0,150,30,0" Stretch="Fill" Source="Icons/FullscreenIconSolid.png" 
+                   HorizontalAlignment="Right" VerticalAlignment="Top"  
+                   Width="40" Height="40" MouseLeftButtonUp="Button_Fullscreen_Click"/>
+            <Image Name="Button_Info" Margin="0,210,30,0" Stretch="Fill" Source="Icons/InfoIconSolid.png" 
+                   HorizontalAlignment="Right" VerticalAlignment="Top"  
+                   Width="40" Height="40" MouseLeftButtonUp="Button_Info_Click"/>
+            <Image Name="Button_Settings" Margin="0,270,30,0"  Stretch="Fill" Source="Icons/SettingsIconSolid.png" 
+                   HorizontalAlignment="Right" VerticalAlignment="Top"
+                   Width="40" Height="40" MouseLeftButtonUp="Button_Settings_Click"/>
+            <Image Name="Button_Wastebasket" Margin="0,330,30,0"  Stretch="Fill" Source="Icons/WastebasketIconSolid.png" 
+                   HorizontalAlignment="Right" VerticalAlignment="Top"
+                   Width="40" Height="40" MouseLeftButtonUp="Button_Wastebasket_Click"/>
+            <Image Name="Button_EditMode" Margin="0,390,30,0"  Stretch="Fill" Source="Icons/EditModeIconSolid.png" 
+                   HorizontalAlignment="Right" VerticalAlignment="Top"
+                   Width="40" Height="40" MouseLeftButtonUp="Button_Editmode_Click"
+                   Visibility="{Binding EditModeControlsVisibility, Mode=OneWay}" />
+
+            <Label Name="HelpText1"   Content="hier klicken zum Beenden"          IsHitTestVisible="False" FontSize="24" Margin="0,30,85,0"  Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Right" Width="337" />
+            <Label Name="HelpText2"   Content="hier klicken zum Bearbeiten"       IsHitTestVisible="False" FontSize="24" Margin="0,90,85,0"  Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
+            <Label Name="HelpText3"   Content="hier klicken für Vollbild"         IsHitTestVisible="False" FontSize="24" Margin="0,150,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
+            <Label Name="HelpText4"   Content="Versionsinfo"                      IsHitTestVisible="False" FontSize="24" Margin="0,210,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
+            <Label Name="HelpText5"   Content="Einstellungen"                     IsHitTestVisible="False" FontSize="24" Margin="0,270,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
+            <Label Name="HelpText6"   Content="Kachel zum Löschen hierhin ziehen" IsHitTestVisible="False" FontSize="24" Margin="0,330,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="448" HorizontalContentAlignment="Right"/>
+            <Label Name="HelpText7"   Content="Bearbeitung beenden"               IsHitTestVisible="False" FontSize="24" Margin="0,390,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
+            <Label Name="VersionInfo" Content="Version"                           IsHitTestVisible="False" FontSize="24" Margin="10,0,10,10" Foreground="DeepSkyBlue"  Height="40" HorizontalContentAlignment="Right" VerticalAlignment="Bottom"/>
+        </Grid>
+
+        <Grid Name="Error_Message_Grid" IsHitTestVisible="False">
+            <TextBlock  Name="ErrorMessage" 
+                        Text="{Binding ErrorMessage, Mode=OneWay}" 
+                        Visibility="{Binding ErrorMessageVisibility, Mode=OneWay}"
+                        FontFamily="Yu Gothic UI Light" FontSize="90" 
+                        Foreground="AntiqueWhite" Background="Transparent"
+                        HorizontalAlignment="Left" VerticalAlignment="Top" 
+                        Margin="96,99,0,0" TextWrapping="Wrap" 
+                        Height="301" Width="997"/>
+        </Grid>
+
+        <Image Name="BackgroundImage" Source="Pictures/Paper.jpg"  
+               Stretch="UniformToFill" IsHitTestVisible="False"
+               Panel.ZIndex="-2" Visibility="Visible" 
+               HorizontalAlignment="Left" VerticalAlignment="Top"  />
+    </Grid>
+</Window>

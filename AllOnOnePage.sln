@@ -1,0 +1,224 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30517.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllOnOnePage", "AllOnOnePage\AllOnOnePage.csproj", "{53B69204-2D39-4C10-B7EE-4A9DFDA6638D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 UI", "1 UI", "{464D9AEC-AB0F-431F-A729-001197524E14}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Domain logic", "2 Domain logic", "{648845D5-D4F6-430C-BF85-E7EB558B5907}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 Plugins", "3 Plugins", "{44DD5028-23B7-4F28-92CC-922CFFBF2F55}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 Crosscutting", "4 Crosscutting", "{88DCD24C-D482-4E25-9AA4-DB440D5F6A09}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 Deploy", "5 Deploy", "{91B17C59-0906-4D30-95F5-43375EA6A3FE}"
+	ProjectSection(SolutionItems) = preProject
+		Deploy\Deploy_to_website_via_FTP.cmd = Deploy\Deploy_to_website_via_FTP.cmd
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{91DFD299-D7C8-4BBF-B20F-0433E85FEA15}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 UI Libs", "2 UI Libs", "{11C73C62-8481-494F-A43B-4978AFD6E968}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abraham.Threading.Std20", "Abraham.Threading.Std20\Abraham.Threading.Std20.csproj", "{A0C7BBE5-911E-407D-BC69-9D374D5861FA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abraham.Encoding", "Abraham.Encoding\Abraham.Encoding.csproj", "{BBABD355-6E35-4D0C-B43D-CB6B9D0F6F0A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abraham.ProgramSettings", "Abraham.ProgramSettings\Abraham.ProgramSettings.csproj", "{D4A41341-EF9A-4387-860A-4E96FE1124DE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModText", "ModText\ModText.csproj", "{121C3AF8-DF6B-490D-A5CF-C94A3B8AD1AA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abraham.PluginManager", "Abraham.PluginManager\Abraham.PluginManager.csproj", "{6FF272A6-ED36-4BF4-9311-C0E0E894FDE7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginBase", "PluginBase\PluginBase.csproj", "{6FEC5D3C-AA4D-4396-B22F-3F8FB21CD917}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModExcel", "ModExcel\ModExcel.csproj", "{068928F1-14EA-459C-B21E-EAD127F7CFBE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6 Installer", "6 Installer", "{45F9C9D6-B539-4A5C-A5B4-890275BD3A1F}"
+	ProjectSection(SolutionItems) = preProject
+		Setup\AllOnOnePage_Setup_deutsch_version_1.exe = Setup\AllOnOnePage_Setup_deutsch_version_1.exe
+		Setup\AllOnOnePageSetup.ifp = Setup\AllOnOnePageSetup.ifp
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModWeather", "ModWeather\ModWeather.csproj", "{FC012344-66A6-4879-ADC8-365AD7D1E2FE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abraham.AutoUpdater", "Abraham.AutoUpdater\Abraham.AutoUpdater.csproj", "{1E12D83E-21C9-4C76-A010-30F49CF474DB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModWeatherForecast", "ModWeatherForecast\ModWeatherForecast.csproj", "{CE9DAA67-1761-4C94-9D00-D7E455EDA438}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModBankAccount", "ModBankAccount\ModBankAccount.csproj", "{84699967-ADB9-4134-A189-7E120648C427}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "libfintx", "libfintx\libfintx.csproj", "{A4EB23E8-BF11-42F0-B406-FBDA40DDEA00}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModEmail", "ModEmail\ModEmail.csproj", "{D34BAE83-A22C-46B5-BA7E-08680533C7D0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreateVersionForDeploy", "CreateVersionForDeploy\CreateVersionForDeploy.csproj", "{F52A54E3-195E-4636-A465-67D2F329CD15}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{53B69204-2D39-4C10-B7EE-4A9DFDA6638D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53B69204-2D39-4C10-B7EE-4A9DFDA6638D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53B69204-2D39-4C10-B7EE-4A9DFDA6638D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53B69204-2D39-4C10-B7EE-4A9DFDA6638D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91DFD299-D7C8-4BBF-B20F-0433E85FEA15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91DFD299-D7C8-4BBF-B20F-0433E85FEA15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91DFD299-D7C8-4BBF-B20F-0433E85FEA15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91DFD299-D7C8-4BBF-B20F-0433E85FEA15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0C7BBE5-911E-407D-BC69-9D374D5861FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0C7BBE5-911E-407D-BC69-9D374D5861FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0C7BBE5-911E-407D-BC69-9D374D5861FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0C7BBE5-911E-407D-BC69-9D374D5861FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBABD355-6E35-4D0C-B43D-CB6B9D0F6F0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBABD355-6E35-4D0C-B43D-CB6B9D0F6F0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBABD355-6E35-4D0C-B43D-CB6B9D0F6F0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBABD355-6E35-4D0C-B43D-CB6B9D0F6F0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4A41341-EF9A-4387-860A-4E96FE1124DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4A41341-EF9A-4387-860A-4E96FE1124DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4A41341-EF9A-4387-860A-4E96FE1124DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4A41341-EF9A-4387-860A-4E96FE1124DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{121C3AF8-DF6B-490D-A5CF-C94A3B8AD1AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{121C3AF8-DF6B-490D-A5CF-C94A3B8AD1AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{121C3AF8-DF6B-490D-A5CF-C94A3B8AD1AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{121C3AF8-DF6B-490D-A5CF-C94A3B8AD1AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FF272A6-ED36-4BF4-9311-C0E0E894FDE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FF272A6-ED36-4BF4-9311-C0E0E894FDE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FF272A6-ED36-4BF4-9311-C0E0E894FDE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FF272A6-ED36-4BF4-9311-C0E0E894FDE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FEC5D3C-AA4D-4396-B22F-3F8FB21CD917}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FEC5D3C-AA4D-4396-B22F-3F8FB21CD917}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FEC5D3C-AA4D-4396-B22F-3F8FB21CD917}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FEC5D3C-AA4D-4396-B22F-3F8FB21CD917}.Release|Any CPU.Build.0 = Release|Any CPU
+		{068928F1-14EA-459C-B21E-EAD127F7CFBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{068928F1-14EA-459C-B21E-EAD127F7CFBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{068928F1-14EA-459C-B21E-EAD127F7CFBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{068928F1-14EA-459C-B21E-EAD127F7CFBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC012344-66A6-4879-ADC8-365AD7D1E2FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC012344-66A6-4879-ADC8-365AD7D1E2FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC012344-66A6-4879-ADC8-365AD7D1E2FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC012344-66A6-4879-ADC8-365AD7D1E2FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E12D83E-21C9-4C76-A010-30F49CF474DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E12D83E-21C9-4C76-A010-30F49CF474DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E12D83E-21C9-4C76-A010-30F49CF474DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E12D83E-21C9-4C76-A010-30F49CF474DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE9DAA67-1761-4C94-9D00-D7E455EDA438}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE9DAA67-1761-4C94-9D00-D7E455EDA438}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE9DAA67-1761-4C94-9D00-D7E455EDA438}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE9DAA67-1761-4C94-9D00-D7E455EDA438}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84699967-ADB9-4134-A189-7E120648C427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84699967-ADB9-4134-A189-7E120648C427}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84699967-ADB9-4134-A189-7E120648C427}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84699967-ADB9-4134-A189-7E120648C427}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4EB23E8-BF11-42F0-B406-FBDA40DDEA00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4EB23E8-BF11-42F0-B406-FBDA40DDEA00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4EB23E8-BF11-42F0-B406-FBDA40DDEA00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4EB23E8-BF11-42F0-B406-FBDA40DDEA00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D34BAE83-A22C-46B5-BA7E-08680533C7D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D34BAE83-A22C-46B5-BA7E-08680533C7D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D34BAE83-A22C-46B5-BA7E-08680533C7D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D34BAE83-A22C-46B5-BA7E-08680533C7D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F52A54E3-195E-4636-A465-67D2F329CD15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F52A54E3-195E-4636-A465-67D2F329CD15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F52A54E3-195E-4636-A465-67D2F329CD15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F52A54E3-195E-4636-A465-67D2F329CD15}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{53B69204-2D39-4C10-B7EE-4A9DFDA6638D} = {464D9AEC-AB0F-431F-A729-001197524E14}
+		{91DFD299-D7C8-4BBF-B20F-0433E85FEA15} = {88DCD24C-D482-4E25-9AA4-DB440D5F6A09}
+		{A0C7BBE5-911E-407D-BC69-9D374D5861FA} = {11C73C62-8481-494F-A43B-4978AFD6E968}
+		{BBABD355-6E35-4D0C-B43D-CB6B9D0F6F0A} = {11C73C62-8481-494F-A43B-4978AFD6E968}
+		{D4A41341-EF9A-4387-860A-4E96FE1124DE} = {11C73C62-8481-494F-A43B-4978AFD6E968}
+		{121C3AF8-DF6B-490D-A5CF-C94A3B8AD1AA} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
+		{6FF272A6-ED36-4BF4-9311-C0E0E894FDE7} = {11C73C62-8481-494F-A43B-4978AFD6E968}
+		{6FEC5D3C-AA4D-4396-B22F-3F8FB21CD917} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
+		{068928F1-14EA-459C-B21E-EAD127F7CFBE} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
+		{FC012344-66A6-4879-ADC8-365AD7D1E2FE} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
+		{1E12D83E-21C9-4C76-A010-30F49CF474DB} = {11C73C62-8481-494F-A43B-4978AFD6E968}
+		{CE9DAA67-1761-4C94-9D00-D7E455EDA438} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
+		{84699967-ADB9-4134-A189-7E120648C427} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
+		{A4EB23E8-BF11-42F0-B406-FBDA40DDEA00} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
+		{D34BAE83-A22C-46B5-BA7E-08680533C7D0} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
+		{F52A54E3-195E-4636-A465-67D2F329CD15} = {91B17C59-0906-4D30-95F5-43375EA6A3FE}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {487D0146-B39B-4379-823C-8ED3CA383038}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 17
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://oliverabraham.visualstudio.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Abraham.ProgramSettings\\Abraham.ProgramSettings.csproj
+		SccProjectTopLevelParentUniqueName1 = AllOnOnePage.sln
+		SccProjectName1 = Abraham.ProgramSettings
+		SccLocalPath1 = Abraham.ProgramSettings
+		SccProjectUniqueName2 = Abraham.Encoding\\Abraham.Encoding.csproj
+		SccProjectTopLevelParentUniqueName2 = AllOnOnePage.sln
+		SccProjectName2 = Abraham.Encoding
+		SccLocalPath2 = Abraham.Encoding
+		SccProjectUniqueName3 = Abraham.Threading.Std20\\Abraham.Threading.Std20.csproj
+		SccProjectTopLevelParentUniqueName3 = AllOnOnePage.sln
+		SccProjectName3 = Abraham.Threading.Std20
+		SccLocalPath3 = Abraham.Threading.Std20
+		SccProjectUniqueName4 = AllOnOnePage\\AllOnOnePage.csproj
+		SccProjectTopLevelParentUniqueName4 = AllOnOnePage.sln
+		SccProjectName4 = AllOnOnePage
+		SccLocalPath4 = AllOnOnePage
+		SccProjectUniqueName5 = Models\\Models.csproj
+		SccProjectTopLevelParentUniqueName5 = AllOnOnePage.sln
+		SccProjectName5 = Models
+		SccLocalPath5 = Models
+		SccProjectUniqueName6 = ModText\\ModText.csproj
+		SccProjectTopLevelParentUniqueName6 = AllOnOnePage.sln
+		SccProjectName6 = ModText
+		SccLocalPath6 = ModText
+		SccProjectUniqueName7 = Abraham.PluginManager\\Abraham.PluginManager.csproj
+		SccProjectTopLevelParentUniqueName7 = AllOnOnePage.sln
+		SccProjectName7 = Abraham.PluginManager
+		SccLocalPath7 = Abraham.PluginManager
+		SccProjectUniqueName8 = PluginBase\\PluginBase.csproj
+		SccProjectTopLevelParentUniqueName8 = AllOnOnePage.sln
+		SccProjectName8 = PluginBase
+		SccLocalPath8 = PluginBase
+		SccProjectUniqueName9 = ModExcel\\ModExcel.csproj
+		SccProjectTopLevelParentUniqueName9 = AllOnOnePage.sln
+		SccProjectName9 = ModExcel
+		SccLocalPath9 = ModExcel
+		SccProjectUniqueName10 = ModWeather\\ModWeather.csproj
+		SccProjectTopLevelParentUniqueName10 = AllOnOnePage.sln
+		SccProjectName10 = ModWeather
+		SccLocalPath10 = ModWeather
+		SccProjectUniqueName11 = Abraham.AutoUpdater\\Abraham.AutoUpdater.csproj
+		SccProjectTopLevelParentUniqueName11 = AllOnOnePage.sln
+		SccProjectName11 = Abraham.AutoUpdater
+		SccLocalPath11 = Abraham.AutoUpdater
+		SccProjectUniqueName12 = ModWeatherForecast\\ModWeatherForecast.csproj
+		SccProjectTopLevelParentUniqueName12 = AllOnOnePage.sln
+		SccProjectName12 = ModWeatherForecast
+		SccLocalPath12 = ModWeatherForecast
+		SccProjectUniqueName13 = ModBankAccount\\ModBankAccount.csproj
+		SccProjectTopLevelParentUniqueName13 = AllOnOnePage.sln
+		SccProjectName13 = ModBankAccount
+		SccLocalPath13 = ModBankAccount
+		SccProjectUniqueName14 = libfintx\\libfintx.csproj
+		SccProjectTopLevelParentUniqueName14 = AllOnOnePage.sln
+		SccProjectName14 = libfintx
+		SccLocalPath14 = libfintx
+		SccProjectUniqueName15 = ModEmail\\ModEmail.csproj
+		SccProjectTopLevelParentUniqueName15 = AllOnOnePage.sln
+		SccProjectName15 = ModEmail
+		SccLocalPath15 = ModEmail
+		SccProjectUniqueName16 = CreateVersionForDeploy\\CreateVersionForDeploy.csproj
+		SccProjectTopLevelParentUniqueName16 = AllOnOnePage.sln
+		SccProjectName16 = CreateVersionForDeploy
+		SccLocalPath16 = CreateVersionForDeploy
+	EndGlobalSection
+EndGlobal

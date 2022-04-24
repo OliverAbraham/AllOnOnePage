@@ -1,0 +1,40 @@
+﻿<Window x:Class="AllOnOnePage.DialogWindows.MessageBoxWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AllOnOnePage.DialogWindows"
+        mc:Ignorable="d"
+        Title="All on one page" Height="381" Width="500"
+        ResizeMode="NoResize"
+        Background="FloralWhite">
+    <Grid>
+        <TextBlock Name="ContentBox" FontSize="16" Margin="30,31,36,138" TextWrapping="Wrap" />
+                   
+
+        <CheckBox Name="checkboxDontShowAgain" 
+                  Content="Diesen Text nicht mehr anzeigen" 
+                  FontSize="16"
+                  HorizontalAlignment="center" 
+                  Margin="0,200,0,100" VerticalAlignment="Bottom" Width="268"/>
+
+        <StackPanel Name="PanelOk" Orientation="Horizontal" 
+                    HorizontalAlignment="Left" VerticalAlignment="Bottom"  
+                    Height="36" Margin="187,0,0,40">
+            <Button Content="OK" FontSize="16" HorizontalAlignment="Center" 
+                    Height="36" Width="106" 
+                    Click="Button_OK_Click"/>
+        </StackPanel>
+
+        <StackPanel Name="PanelYesNo" Orientation="Horizontal" Visibility="Hidden"
+                    HorizontalAlignment="center"  VerticalAlignment="Bottom" Height="36" 
+                    Margin="0,266,0,40">
+            <Button Content="Ja" FontSize="16" 
+                    HorizontalAlignment="Center" VerticalAlignment="Bottom" 
+                    Height="36" Width="106" Margin="0,0,20,0" 
+                    Click="Button_Yes_Click"/>
+            <Button Content="Nein" FontSize="16" HorizontalAlignment="Center" Height="36" Width="106"
+                    Click="Button_No_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

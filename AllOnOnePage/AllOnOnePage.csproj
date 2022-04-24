@@ -1,0 +1,111 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Resources\**" />
+    <EmbeddedResource Remove="Resources\**" />
+    <None Remove="Resources\**" />
+    <Page Remove="Resources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="AllOnOnePage.ico" />
+    <None Remove="AllOnOnePage.png" />
+    <None Remove="AllOnOnePage_16x16.png" />
+    <None Remove="AllOnOnePage_32x32.png" />
+    <None Remove="AllOnOnePage_64x64.png" />
+    <None Remove="Icons\AllOnOnePage.ico" />
+    <None Remove="Icons\AllOnOnePage.png" />
+    <None Remove="Icons\AllOnOnePage_32x32.png" />
+    <None Remove="Icons\AllOnOnePage_64x64.png" />
+    <None Remove="Icons\AllOnOnePage_80x80.ico" />
+    <None Remove="Icons\AllOnOnePage_80x80.png" />
+    <None Remove="Icons\EditModeIconSolid.png" />
+    <None Remove="Icons\ExitIcon.png" />
+    <None Remove="Icons\ExitIconSolid.png" />
+    <None Remove="Icons\FullscreenIconSolid.png" />
+    <None Remove="Icons\InfoIcon.png" />
+    <None Remove="Icons\InfoIconSolid.png" />
+    <None Remove="Icons\PlusIconSolid.png" />
+    <None Remove="Icons\SettingsIcon.png" />
+    <None Remove="Icons\SettingsIconSolid.png" />
+    <None Remove="Icons\WastebasketIconSolid.png" />
+    <None Remove="Pictures\Autumn.jpg" />
+    <None Remove="Pictures\circular-arrow-in-a-circle.png" />
+    <None Remove="Pictures\Halloween.jpg" />
+    <None Remove="Pictures\Icon_car.png" />
+    <None Remove="Pictures\Icon_car.pspimage" />
+    <None Remove="Pictures\Paper.jpg" />
+    <None Remove="Pictures\sky.jpg" />
+    <None Remove="Pictures\sunset.jpg" />
+    <None Remove="Pictures\sunset2.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.0.1" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Abraham.AutoUpdater\Abraham.AutoUpdater.csproj" />
+    <ProjectReference Include="..\Abraham.Encoding\Abraham.Encoding.csproj" />
+    <ProjectReference Include="..\Abraham.PluginManager\Abraham.PluginManager.csproj" />
+    <ProjectReference Include="..\Abraham.ProgramSettings\Abraham.ProgramSettings.csproj" />
+    <ProjectReference Include="..\Abraham.Threading.Std20\Abraham.Threading.Std20.csproj" />
+    <ProjectReference Include="..\libfintx\libfintx.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\PluginBase\PluginBase.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icons\AllOnOnePage_80x80.ico" />
+    <Resource Include="Icons\AllOnOnePage_80x80.png" />
+    <Resource Include="Icons\circular-arrow-in-a-circle.png" />
+    <Resource Include="Icons\EditModeIconSolid.png" />
+    <Resource Include="Icons\ExitIcon.png" />
+    <Resource Include="Icons\ExitIconSolid.png" />
+    <Resource Include="Icons\FullscreenIconSolid.png" />
+    <Resource Include="Icons\InfoIcon.png" />
+    <Resource Include="Icons\InfoIconSolid.png" />
+    <Resource Include="Icons\PlusIconSolid.png" />
+    <Resource Include="Icons\SettingsIcon.png" />
+    <Resource Include="Icons\SettingsIconSolid.png" />
+    <Resource Include="Icons\WastebasketIconSolid.png" />
+    <Resource Include="Pictures\Halloween.jpg" />
+    <Resource Include="Pictures\Autumn.jpg" />
+    <Resource Include="Pictures\Icon_car.png" />
+    <Resource Include="Pictures\Icon_car.pspimage" />
+    <Resource Include="Pictures\sky.jpg" />
+    <Resource Include="Pictures\Paper.jpg" />
+    <Resource Include="Pictures\sunset.jpg" />
+    <Resource Include="Pictures\sunset2.jpg" />
+  </ItemGroup>
+
+  <Target Name="Ftp_Upload_After_Publish" AfterTargets="_CopyResolvedFilesToPublishPreserveNewest">
+    <Message Text="." Importance="high" />
+    <Message Text="." Importance="high" />
+    <Message Text="---------------------------------------------------------------" Importance="high" />
+    <Message Text="Deploy wird ausgeführt: ..\Deploy\Deploy_to_website_via_FTP.cmd" Importance="high" />
+    <Exec Command="..\Deploy\Deploy_to_website_via_FTP.cmd" />
+    <Message Text="---------------------------------------------------------------" Importance="high" />
+    <Message Text="." Importance="high" />
+    <Message Text="." Importance="high" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="..\CreateVersionForDeploy\bin\debug\netcoreapp3.1\CreateVersionForDeploy.exe" />
+  </Target>
+
+</Project>

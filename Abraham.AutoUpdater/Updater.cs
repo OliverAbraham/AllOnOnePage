@@ -1,5 +1,4 @@
-﻿using Abraham.Threading;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -8,33 +7,33 @@ using System.Threading.Tasks;
 
 namespace Abraham.AutoUpdater
 {
-	/// <summary>
-	/// Monitor a source directory and update the program automatically.
-	/// </summary>
-	/// 
-	/// <remarks>
-	/// This class installs a thread that monitors a given URL permanently.
-	/// If so, it generates and calls a separate updater process to update all program files.
-	/// 
-	/// 
-	/// UPDATE ALGORITHM:
-	/// 1) new files are copied into bin bin subfolder of the source directory.
-	/// 2) a new file "Force_application_close.dat" is created in source directory.
-	/// 3) The updater checks periodically for the existence of "Force_application_close.dat"
-	/// 4) The updater gives the signal to end the application.
-	/// 5) The application can ask the user if he wants to update
-	/// 6) If so, application calls the the updater method "StartUpdate"
-	/// 7) Updater creates and starts a new batch file. 
-	/// 8) Several parameters are passed to the batch file, also the command line
-	///    parameters the application was originally started with.
-	/// 9) Application ends
-	/// 10) Batch file waits until the application has ended. (after 10 seconds, he kills the app)
-	/// 11) Batch file copies the new files from "bin" to the destination directory.
-	/// 12) Batch file deletes "Force_application_close.dat".
-	/// 13) Batch file restarts the application.
-	/// 
-	/// </remarks>
-	public class Updater
+    /// <summary>
+    /// Monitor a source directory and update the program automatically.
+    /// </summary>
+    /// 
+    /// <remarks>
+    /// This class installs a thread that monitors a given URL permanently.
+    /// If so, it generates and calls a separate updater process to update all program files.
+    /// 
+    /// 
+    /// UPDATE ALGORITHM:
+    /// 1) new files are copied into bin bin subfolder of the source directory.
+    /// 2) a new file "Force_application_close.dat" is created in source directory.
+    /// 3) The updater checks periodically for the existence of "Force_application_close.dat"
+    /// 4) The updater gives the signal to end the application.
+    /// 5) The application can ask the user if he wants to update
+    /// 6) If so, application calls the the updater method "StartUpdate"
+    /// 7) Updater creates and starts a new batch file. 
+    /// 8) Several parameters are passed to the batch file, also the command line
+    ///    parameters the application was originally started with.
+    /// 9) Application ends
+    /// 10) Batch file waits until the application has ended. (after 10 seconds, he kills the app)
+    /// 11) Batch file copies the new files from "bin" to the destination directory.
+    /// 12) Batch file deletes "Force_application_close.dat".
+    /// 13) Batch file restarts the application.
+    /// 
+    /// </remarks>
+    public class Updater
     {
         #region ------------- Properties ----------------------------------------------------------
 
@@ -126,11 +125,11 @@ namespace Abraham.AutoUpdater
 
 
 		#region ------------- Fields --------------------------------------------------------------
-		private int _httpTimeoutInSeconds = 60;
-		private Abraham.Threading.ThreadExtensions _Thread;
-        private DateTime _LastWriteTimeOfAll;
-        private string _VersionInfoFilename;
-		private string _DownloadUrl;
+		private int                 _httpTimeoutInSeconds = 60;
+		private Scheduler.Scheduler _schleduler;
+        private DateTime            _lastWriteTimeOfAll;
+        private string              _versionInfoFilename;
+		private string              _downloadUrl;
 		#endregion
 
 
@@ -152,18 +151,20 @@ namespace Abraham.AutoUpdater
             Log($"");
             Log($"");
             Log($"Updater started");
-            _VersionInfoFilename = DestinationDirectory + Path.DirectorySeparatorChar + "version";
+            _versionInfoFilename = DestinationDirectory + Path.DirectorySeparatorChar + "version";
 
-            _Thread = new ThreadExtensions(UpdaterThreadProc, "UpdaterThread");
-            _Thread.Timeout_Seconds = 2;
-            _Thread.thread.Start();
+            _schleduler = new Scheduler.Scheduler()
+                .UseFirstInterval(TimeSpan.FromSeconds(10))
+                .UseInterval(TimeSpan.FromHours(1))
+                .UseAction(()=> CheckforUpdates())
+                .Start();
         }
 
         public void Stop()
         {
             Log($"Updater stopped");
-            if (_Thread != null && _Thread.Run)
-                _Thread.SendStopSignalAndWait();
+            if (_schleduler != null && _schleduler.IsRunning)
+                _schleduler.Stop();
         }
 
         public bool StartUpdate()
@@ -182,7 +183,7 @@ namespace Abraham.AutoUpdater
             Log($"SearchForNewerVersionOnHomepage: manual request");
             if (SearchForDownloadUrlOnHomepage())
 			{
-                var newVersion = ExtractVersionNumberOutOfLink(_DownloadUrl);
+                var newVersion = ExtractVersionNumberOutOfLink(_downloadUrl);
                 if (newVersion.CompareTo(CurrentVersion) > 0)
 				{
                     NewVersion = newVersion;
@@ -196,37 +197,11 @@ namespace Abraham.AutoUpdater
 
 
 		#region ------------- Implementation ------------------------------------------------------
-		private void UpdaterThreadProc()
+        private void CheckforUpdates()
         {
-            Log("UpdaterThreadProc: Starting update check loop");
-
-			while (_Thread.Run)
-			{
-				try
-				{
-					if (UpdateNotificationExists())
-						OnUpdateAvailable();
-				}
-				catch (Exception ex)
-				{
-					Log("UpdaterThreadProc: " + ex.ToString());
-				}
-
-                if (PollingIntervalInSeconds == 0)
-				{
-                    Log("UpdaterThreadProc: Exiting update check loop after the first check because PollingInterval is not set");
-                    break;
-				}
-
-				for (int second = 0; second < PollingIntervalInSeconds; second++)
-				{
-					_Thread.Sleep(1000);
-					if (!_Thread.Run)
-						break;
-				}
-			}
-            Log("UpdaterThreadProc: Exiting update check loop");
-		}
+            if (UpdateNotificationExists())
+                OnUpdateAvailable();
+        }
 
         private bool UpdateNotificationExists()
         {
@@ -234,7 +209,7 @@ namespace Abraham.AutoUpdater
             {
                 if (SearchForDownloadUrlOnHomepage())
 				{
-                    var newVersion = ExtractVersionNumberOutOfLink(_DownloadUrl);
+                    var newVersion = ExtractVersionNumberOutOfLink(_downloadUrl);
                     if (newVersion.CompareTo(CurrentVersion) > 0)
 				    {
                         NewVersion = newVersion;
@@ -293,9 +268,9 @@ namespace Abraham.AutoUpdater
                     Log($"SearchForDownloadUrlOnHomepage: no download link found on page");
                     return false;
 			    }
-                _DownloadUrl = match.Value.Substring( "<a href=".Length+1 );
+                _downloadUrl = match.Value.Substring( "<a href=".Length+1 );
 
-                Log($"SearchForDownloadUrlOnHomepage: download link found on page: '{_DownloadUrl}'");
+                Log($"SearchForDownloadUrlOnHomepage: download link found on page: '{_downloadUrl}'");
             }
             catch (Exception ex)
 			{
@@ -356,25 +331,25 @@ namespace Abraham.AutoUpdater
             Log($"DownloadInstallPackageFromHomepage");
 
             var client = new HttpClient();
-			var task = client.GetByteArrayAsync(_DownloadUrl);
+			var task = client.GetByteArrayAsync(_downloadUrl);
             var success = task.Wait(_httpTimeoutInSeconds * 1000);
 			if (!success && task == null)
 			{
-                Log($"Cannot download '{_DownloadUrl}'");
+                Log($"Cannot download '{_downloadUrl}'");
                 return false;
 			}
             
             var bytes = task.Result;
             if (bytes == null || bytes.Length == 0)
 			{
-                Log($"Cannot download, zero length '{_DownloadUrl}'");
+                Log($"Cannot download, zero length '{_downloadUrl}'");
                 return false;
 			}
 
             Directory.CreateDirectory("Update");
             File.WriteAllBytes(@"Update\updatepackage.zip", bytes);
 
-            Log($"File successfully downloaded: '{_DownloadUrl}'");
+            Log($"File successfully downloaded: '{_downloadUrl}'");
             return true;
 		}
 
@@ -480,7 +455,7 @@ exit
 
         private bool StartUpdater()
         {
-            LastWriteTimeOfPreviousUpdate = _LastWriteTimeOfAll;
+            LastWriteTimeOfPreviousUpdate = _lastWriteTimeOfAll;
             SaveDataToFile();
             return StartProcess("cmd.exe", $@"/k ""{Directory.GetCurrentDirectory()}\\update\\updater.cmd"" ");
         }

@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Abraham.Threading.Std20\Abraham.Threading.Std20.csproj" />
+    <PackageReference Include="Abraham.Scheduler" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

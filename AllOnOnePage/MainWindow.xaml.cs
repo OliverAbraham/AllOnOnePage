@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Timers;
 using System.Windows;
@@ -13,7 +12,7 @@ using AllOnOnePage.Plugins;
 
 namespace AllOnOnePage
 {
-	public partial class MainWindow : Window
+    public partial class MainWindow : Window
     {
         private const string VERSION = "2022-09-23";
 

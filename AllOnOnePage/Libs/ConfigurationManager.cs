@@ -1,4 +1,4 @@
-﻿using Abraham.ProgramSettings;
+﻿using Abraham.ProgramSettingsManager;
 using AllOnOnePage.Plugins;
 using System;
 using System.IO;
@@ -43,14 +43,15 @@ namespace AllOnOnePage.Libs
 		#region ------------- Methods -------------------------------------------------------------
 		public bool Load()
         {
-			_configurationManager = new ProgramSettingsManager<Configuration>(_configurationFilename)
-				.UseDotNetJsonSerializer();
+			_configurationManager = new ProgramSettingsManager<Configuration>()
+				.UseFilename(_configurationFilename);
 
 			CreateSeedData();
 
-			_config = _configurationManager.Load();
+			_configurationManager.Load();
+			_config = _configurationManager.Data;
 			if (_config == null)
-				throw new Exception($"No valid configuration found!\nExpecting file '{_configurationManager.FileName}'");
+				throw new Exception($"No valid configuration found!\nExpecting file '{_configurationManager.ConfigFilename}'");
 
 			int enumerator = 1;
 			foreach (var module in _config.Modules)

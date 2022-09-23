@@ -54,16 +54,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Abraham.ProgramSettingsManager" Version="1.0.1" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.4.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Abraham.AutoUpdater\Abraham.AutoUpdater.csproj" />
-    <ProjectReference Include="..\Abraham.Encoding\Abraham.Encoding.csproj" />
     <ProjectReference Include="..\Abraham.PluginManager\Abraham.PluginManager.csproj" />
-    <ProjectReference Include="..\Abraham.ProgramSettings\Abraham.ProgramSettings.csproj" />
-    <ProjectReference Include="..\Abraham.Threading.Std20\Abraham.Threading.Std20.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\PluginBase\PluginBase.csproj" />
   </ItemGroup>

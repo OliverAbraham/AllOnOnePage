@@ -1,4 +1,4 @@
-﻿using Abraham.ProgramSettings;
+﻿using Abraham.ProgramSettingsManager;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,8 +15,8 @@ namespace AllOnOnePage.Libs
 
 
 		#region ------------- Fields --------------------------------------------------------------
-		private ProgramSettingsManager<List<ModuleDefinition>> _StateManager;
-		private List<ModuleDefinition> _ActiveModules;
+		private ProgramSettingsManager<List<ModuleDefinition>> _stateManager;
+		private List<ModuleDefinition> _activeModules;
 		#endregion
 
 
@@ -29,11 +29,12 @@ namespace AllOnOnePage.Libs
         {
             try
             {
-                _StateManager = new ProgramSettingsManager<List<ModuleDefinition>>(StateFilename)
-                    .UseDotNetJsonSerializer();
-                var Temp  = _StateManager.Load();
+                _stateManager = new ProgramSettingsManager<List<ModuleDefinition>>()
+                    .UseFilename(StateFilename)
+                    .Load();
+                var Temp  = _stateManager.Data;
                 if (Temp != null)
-                    _ActiveModules = Temp;
+                    _activeModules = Temp;
             }
             catch (Exception)
             {
@@ -44,8 +45,8 @@ namespace AllOnOnePage.Libs
 
 		public void Save_state_to_disk()
         {
-            if (_StateManager != null)
-                _StateManager.Save(_ActiveModules);
+            if (_stateManager != null)
+                _stateManager.Save(_activeModules);
         }
 		#endregion
 	}

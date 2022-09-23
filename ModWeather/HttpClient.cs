@@ -27,7 +27,7 @@ namespace Abraham.Internet
                 Stream httpContentData = httpResponse.GetResponseStream();
                 using (httpContentData)
                 {
-                    Encoding enc = Encoding.UTF8;
+                    System.Text.Encoding enc = System.Text.Encoding.UTF8;
                     int AnzahlGelesen;
                     byte[] seiteninhalt = new byte[10000];
                     do

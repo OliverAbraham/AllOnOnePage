@@ -10,7 +10,11 @@
         Background="FloralWhite" FontSize="16" 
         Closed="Window_Closed">
     <Grid>
-        <xctk:PropertyGrid x:Name="_propertyGrid" Margin="10,10,10,91" AutoGenerateProperties="True"
+        <xctk:PropertyGrid x:Name="_propertyGrid" 
+                           Margin="10,10,10,91" 
+                           AutoGenerateProperties="True"
+                           ShowSearchBox="False"
+                           ShowSortOptions="False"
                            SelectedPropertyItemChanged="_propertyGrid_SelectedPropertyItemChanged">
         </xctk:PropertyGrid>
 

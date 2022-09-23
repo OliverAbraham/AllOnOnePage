@@ -122,13 +122,13 @@ namespace AllOnOnePage.DialogWindows
             Close();
         }
 
-		private void _propertyGrid_SelectedPropertyItemChanged(object sender, RoutedPropertyChangedEventArgs<Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemBase> e)
-		{
+        private void _propertyGrid_SelectedPropertyItemChanged(object sender, RoutedPropertyChangedEventArgs<Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemBase> e)
+        {
             _plugin.Validate();
             _plugin.UpdateLayout();
-		}
+        }
 
-		private void Button_Info_Click(object sender, RoutedEventArgs e)
+        private void Button_Info_Click(object sender, RoutedEventArgs e)
 		{
             var wnd = new MessageBoxWindow(this);
             wnd.Title = _texts[HelpTexts.ID.MODULE_HELP];

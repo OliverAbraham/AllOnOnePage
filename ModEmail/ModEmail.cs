@@ -33,6 +33,7 @@ namespace AllOnOnePage.Plugins
 		private const int          ONE_MINUTE = 60 * 1000;
 		private int                _updateIntervalInMinutes = 240;
 		private static string      _messages;
+		private bool _readError;
 		private List<Message>      _emails;
 		#endregion
 
@@ -91,6 +92,24 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 ");
             return texts;
         }
+
+		public override (bool,string) Validate()
+		{
+            return (true, "");
+        }
+
+		public override (bool,string) Test()
+		{
+			try
+			{
+				ReadNewEmailsNow();
+				return (true, $"{_emails.Count} Emails gelesen!");
+			}
+			catch (Exception) 
+			{
+				return (false, _messages);
+			}
+		}
 		#endregion
 
 
@@ -112,25 +131,41 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 
 		private void UpdateDisplay()
 		{
-			if (!string.IsNullOrWhiteSpace(_messages))
+            if (_readError)
 			{
-				Value = "";
+				Value = "???";
 				NotifyPropertyChanged(nameof(Value));
 				return;
 			}
 
-			int anzahlDhlPakete = 0;
-			var emails = (from e in _emails orderby e.Headers.DateSent select e).ToList();
-			foreach (var email in emails)
+			try
 			{
-				if (email.Headers.Subject.Contains("Ihr DHL Paket kommt bald"))
+				if (!string.IsNullOrWhiteSpace(_messages) || _emails is null)
 				{
-					anzahlDhlPakete++;
-					var rawMessage = Encoding.ASCII.GetString(email.RawMessage);
+					Value = "";
+					NotifyPropertyChanged(nameof(Value));
+					return;
 				}
+
+				var emails = (from e in _emails orderby e.Headers.DateSent select e).ToList();
+				Value = emails.FirstOrDefault()?.Headers?.Subject;
+
+				//int anzahlDhlPakete = 0;
+				//foreach (var email in emails)
+				//{
+				//	if (email.Headers.Subject.Contains("Ihr DHL Paket kommt bald"))
+				//	{
+				//		anzahlDhlPakete++;
+				//		var rawMessage = Encoding.ASCII.GetString(email.RawMessage);
+				//	}
+				//}
+				//Value = $"{anzahlDhlPakete} DHL-{((anzahlDhlPakete > 1) ? "Pakete" : "Paket")}";
 			}
-				
-			Value = $"{anzahlDhlPakete} DHL-{((anzahlDhlPakete > 1) ? "Pakete" : "Paket")}";
+			catch (Exception ex)
+			{
+				Value = "???";
+			}
+
 			NotifyPropertyChanged(nameof(Value));
 		}
 
@@ -142,18 +177,24 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 
 		private void ReadNewEmails()
 		{
-			if (_stopwatch == null)
+			try
 			{
-				_stopwatch = Stopwatch.StartNew();
-				ReadNewEmailsNow();
-			}
-			else
-			{
-				if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * ONE_MINUTE)
+				if (_stopwatch == null)
 				{
-					ReadNewEmailsNow();
-					_stopwatch.Restart();
+					_stopwatch = Stopwatch.StartNew();
 				}
+				else
+				{
+					if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * ONE_MINUTE)
+					{
+						ReadNewEmailsNow();
+						_stopwatch.Restart();
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				System.Diagnostics.Debug.WriteLine(ex.ToString());
 			}
 		}
 
@@ -163,7 +204,10 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 				string.IsNullOrWhiteSpace(_myConfiguration.Username  ) ||
 				string.IsNullOrWhiteSpace(_myConfiguration.Passwort  ) ||
 				string.IsNullOrWhiteSpace(_myConfiguration.Email     ))
+			{
+				_readError = false;
                 return;
+			}
 
 			try
 			{
@@ -172,11 +216,16 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 										_myConfiguration.UseSSL, 
 										_myConfiguration.Username, 
 										_myConfiguration.Passwort);
+				if (_emails is null)
+					throw new Exception("Kein Zugriff auf das Postfach!");
+
 				_messages = "";
+				_readError = false;
 			}
 			catch (Exception ex)
 			{
 				_messages = ex.ToString();
+				_readError = true;
 			}
 		}
 
@@ -189,14 +238,20 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
                 client.Authenticate(username, password);
 
                 int messageCount = client.GetMessageCount();
-                List<Message> allMessages = new List<Message>(messageCount);
+                var allMessages = new List<Message>(messageCount);
 
                 // Messages are numbered in the interval: [1, messageCount]
                 // Ergo: message numbers are 1-based.
                 // Most servers give the latest message the highest number
                 for (int i = messageCount; i > 0; i--)
                 {
-                    allMessages.Add(client.GetMessage(i));
+					try
+					{
+	                    allMessages.Add(client.GetMessage(i));
+					}
+					catch (Exception ex)
+					{
+					}
                 }
                 return allMessages;
             }

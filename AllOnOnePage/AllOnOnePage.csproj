@@ -54,7 +54,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.0.1" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.4.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
   </ItemGroup>
 
@@ -64,7 +64,6 @@
     <ProjectReference Include="..\Abraham.PluginManager\Abraham.PluginManager.csproj" />
     <ProjectReference Include="..\Abraham.ProgramSettings\Abraham.ProgramSettings.csproj" />
     <ProjectReference Include="..\Abraham.Threading.Std20\Abraham.Threading.Std20.csproj" />
-    <ProjectReference Include="..\libfintx\libfintx.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\PluginBase\PluginBase.csproj" />
   </ItemGroup>
@@ -98,7 +97,7 @@
     <Message Text="." Importance="high" />
     <Message Text="---------------------------------------------------------------" Importance="high" />
     <Message Text="Deploy wird ausgeführt: ..\Deploy\Deploy_to_website_via_FTP.cmd" Importance="high" />
-    <Exec Command="..\Deploy\Deploy_to_website_via_FTP.cmd" />
+    <Exec Command="REM ..\Deploy\Deploy_to_website_via_FTP.cmd" />
     <Message Text="---------------------------------------------------------------" Importance="high" />
     <Message Text="." Importance="high" />
     <Message Text="." Importance="high" />

@@ -3,6 +3,7 @@ using System.Windows;
 using System.ComponentModel;
 using System.Windows.Media;
 using AllOnOnePage.Plugins;
+using Xceed.Wpf.Toolkit.PropertyGrid;
 
 namespace AllOnOnePage.DialogWindows
 {
@@ -14,6 +15,7 @@ namespace AllOnOnePage.DialogWindows
 
 
 		#region ------------- Control Properties --------------------------------------------------
+		public string  Name           { get { return _plugin?.GetName(); } }
 		public string  ModuleName     { get { return C.ModuleName;     } set {C.ModuleName     = value; } }
         public string  Type           { get { return C.TileType;       } set {C.TileType       = value; } }
         public int     ModuleFontSize { get { return C.FontSize;       } set {C.FontSize       = value; } }
@@ -179,10 +181,10 @@ namespace AllOnOnePage.DialogWindows
             Close();
 		}
 
-		private void _propertyGrid_SelectedPropertyItemChanged(object sender, RoutedPropertyChangedEventArgs<Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemBase> e)
-		{
+        private void _propertyGrid_SelectedPropertyItemChanged(object sender, RoutedPropertyChangedEventArgs<Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemBase> e)
+        {
             _plugin.UpdateLayout();
-		}
-		#endregion
-	}
+        }
+        #endregion
+    }
 }

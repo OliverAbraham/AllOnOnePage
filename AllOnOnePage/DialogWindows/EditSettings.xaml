@@ -10,10 +10,16 @@
         ResizeMode="CanResizeWithGrip"
         Background="FloralWhite">
     <Grid>
-        <xctk:PropertyGrid x:Name="_propertyGrid" Margin="10,10,10,91" AutoGenerateProperties="True">
+        
+        <xctk:PropertyGrid x:Name="_propertyGrid" 
+                           Margin="10,10,10,91" 
+                           AutoGenerateProperties="True"
+                           ShowSearchBox="False"
+                           ShowSortOptions="False">
         </xctk:PropertyGrid>
 
         <Button Content="Speichern" HorizontalAlignment="Left" Margin="43,0,0,35"  VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_Save_Click"/>
         <Button Content="Abbruch"   HorizontalAlignment="Right" Margin="0,0,41,35" VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_Cancel_Click"/>
+        <ContentControl Content="ContentControl" HorizontalAlignment="Left" Margin="-192,146,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

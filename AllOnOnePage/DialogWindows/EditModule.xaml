@@ -14,6 +14,7 @@
                            Margin="10,10,10,91" 
                            AutoGenerateProperties="False"
                            ShowSearchBox="False"
+                           ShowSortOptions="False"
                            SelectedPropertyItemChanged="_propertyGrid_SelectedPropertyItemChanged">
             <!-- Only the following properties will be displayed in the PropertyGrid -->
             <xctk:PropertyGrid.PropertyDefinitions>

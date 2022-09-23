@@ -80,12 +80,19 @@ namespace AllOnOnePage.Plugins
 
         public override void UpdateContent()
         {
-			Value = ExcelReader.ReadCellValueFromExcelFile(_myConfiguration.Filename, _myConfiguration.CellName);
-
-			if (!string.IsNullOrWhiteSpace(_myConfiguration.Format) &&
-				_myConfiguration.Format.Contains("{0}"))
+			try
 			{
-				Value = _myConfiguration.Format.Replace("{0}", Value);
+				Value = ExcelReader.ReadCellValueFromExcelFile(_myConfiguration.Filename, _myConfiguration.CellName);
+
+				if (!string.IsNullOrWhiteSpace(_myConfiguration.Format) &&
+					_myConfiguration.Format.Contains("{0}"))
+				{
+					Value = _myConfiguration.Format.Replace("{0}", Value);
+				}
+			}
+			catch (Exception ex) 
+			{
+				Value = "???";
 			}
 
 			NotifyPropertyChanged(nameof(Value));
@@ -107,6 +114,42 @@ Um hier das Gewicht mit dem Zusatz 'kg' anzuzeigen, geben sie bei Format ein:
 ");
             return texts;
         }
+
+		public override (bool,string) Validate()
+		{
+			if (!File.Exists(_myConfiguration.Filename))
+			{
+				return (false, $"Die angegebene Datei existiert nicht!");
+			}
+            return (true, "");
+        }
+
+		public override (bool,string) Test()
+		{
+			try
+			{
+				Value = ExcelReader.ReadCellValueFromExcelFile(_myConfiguration.Filename, _myConfiguration.CellName);
+			}
+			catch (Exception) 
+			{
+				return (false, $"Die angegebene Datei konnte nicht gelesen werden!");
+			}
+
+			try
+			{
+				if (!string.IsNullOrWhiteSpace(_myConfiguration.Format) &&
+					_myConfiguration.Format.Contains("{0}"))
+				{
+					Value = _myConfiguration.Format.Replace("{0}", Value);
+				}
+			}
+			catch (Exception) 
+			{
+				return (false, $"Das angegebene Format funktioniert nicht!");
+			}
+
+            return (true, $"Inhalt der Zelle: {Value}");
+		}
         #endregion
 
 

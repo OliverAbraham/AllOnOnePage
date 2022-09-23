@@ -315,14 +315,15 @@ namespace AllOnOnePage
 
 		public void Window_MouseLeftButtonDown(Window sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (!_EditMode) 
-                return;
+            //if (!_EditMode) 
+            //    return;
             if (_runtimeModules == null) 
                 return;
             var module = FindModuleUnderMouse(sender, e);
             if (module == null)
                 return;
 
+            _EditMode = true;
             _InitialModulePositionAndSize = module.Plugin.GetPositionAndSize();
             _InitialMouse = e.GetPosition(sender);
 

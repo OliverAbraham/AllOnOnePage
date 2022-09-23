@@ -81,6 +81,7 @@ namespace AllOnOnePage
 			//StopSupervisorThread();
 			Stop_date_time_update_timer();
 			//Stop_periodic_UI_update_timer();
+            _Updater.Stop();
 			_configurationManager.Save();
 		}
 
@@ -180,10 +181,7 @@ namespace AllOnOnePage
         {
             Dispatcher.Invoke(() =>
             {
-                //SSLog("Shutdown request from SignalR!");
                 //File.WriteAllText("restart-request.dat", "Program requested a hard restart");
-                //SSLog("File restart-request.dat created for process kill by an external program!");
-
                 _vm.DisplayHardError("restarting...!");
                 ShutdownTheApp();
             });
@@ -191,11 +189,10 @@ namespace AllOnOnePage
 
         private void ShutdownTheApp()
 		{
-			//SSLog("Now trying to end normally");
 			Stop_periodic_UI_update_timer();
 			Stop_LayoutManager();
+            _Updater.Stop();
 			Close();
-			//SSLog("Close method called, hopefully the program ends...");
 		}
 		#endregion
 		#region ------------- Global exception handler ------------------------
@@ -348,7 +345,7 @@ namespace AllOnOnePage
                 return;
             if (!_config.EditModeWasEntered)
                 return;
-            WaitAndThenCallMethod(wait_time_seconds:5, action:FadeOutHelpTexts);
+            WaitAndThenCallMethod(wait_time_seconds:10, action:FadeOutHelpTexts);
             WaitAndThenCallMethod(wait_time_seconds:10, action:FadeOutButtons);
         }
 

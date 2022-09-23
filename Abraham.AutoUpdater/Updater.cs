@@ -126,7 +126,7 @@ namespace Abraham.AutoUpdater
 
 		#region ------------- Fields --------------------------------------------------------------
 		private int                 _httpTimeoutInSeconds = 60;
-		private Scheduler.Scheduler _schleduler;
+		private Scheduler.Scheduler _scheduler;
         private DateTime            _lastWriteTimeOfAll;
         private string              _versionInfoFilename;
 		private string              _downloadUrl;
@@ -153,7 +153,7 @@ namespace Abraham.AutoUpdater
             Log($"Updater started");
             _versionInfoFilename = DestinationDirectory + Path.DirectorySeparatorChar + "version";
 
-            _schleduler = new Scheduler.Scheduler()
+            _scheduler = new Scheduler.Scheduler()
                 .UseFirstInterval(TimeSpan.FromSeconds(10))
                 .UseInterval(TimeSpan.FromHours(1))
                 .UseAction(()=> CheckforUpdates())
@@ -163,8 +163,8 @@ namespace Abraham.AutoUpdater
         public void Stop()
         {
             Log($"Updater stopped");
-            if (_schleduler != null && _schleduler.IsRunning)
-                _schleduler.Stop();
+            if (_scheduler != null && _scheduler.IsRunning)
+                _scheduler.Stop();
         }
 
         public bool StartUpdate()

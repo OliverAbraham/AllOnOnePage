@@ -15,7 +15,7 @@ namespace AllOnOnePage
 {
 	public partial class MainWindow : Window
     {
-        private const string VERSION = "2020-12-12";
+        private const string VERSION = "2022-09-23";
 
 		#region ------------- Fields --------------------------------------------------------------
 		#region Configuration

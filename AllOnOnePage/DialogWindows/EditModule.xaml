@@ -10,7 +10,10 @@
         Background="FloralWhite" FontSize="16" 
         Loaded="Window_Loaded">
     <Grid>
-        <xctk:PropertyGrid x:Name="_propertyGrid" Margin="10,10,10,91" AutoGenerateProperties="False"
+        <xctk:PropertyGrid x:Name="_propertyGrid" 
+                           Margin="10,10,10,91" 
+                           AutoGenerateProperties="False"
+                           ShowSearchBox="False"
                            SelectedPropertyItemChanged="_propertyGrid_SelectedPropertyItemChanged">
             <!-- Only the following properties will be displayed in the PropertyGrid -->
             <xctk:PropertyGrid.PropertyDefinitions>

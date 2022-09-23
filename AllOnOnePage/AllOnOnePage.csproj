@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
@@ -105,7 +105,7 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="..\CreateVersionForDeploy\bin\debug\netcoreapp3.1\CreateVersionForDeploy.exe" />
+	  <Exec Command="..\CreateVersionForDeploy\bin\debug\net6.0\CreateVersionForDeploy.exe" />
   </Target>
 
 </Project>

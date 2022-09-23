@@ -8,19 +8,19 @@ namespace CreateVersionForDeploy
 		static void Main(string[] args)
 		{
 			const string quelldatei      = "MainWindow.xaml.cs";
-			const string zielverzeichnis = @"bin\debug\netcoreapp3.1";
-			const string zieldatei       = @"bin\debug\netcoreapp3.1\setversion.cmd";
+			const string zielverzeichnis = @"bin\debug\net6.0-windows";
+			const string zieldatei       = @"bin\debug\net6.0-windows\setversion.cmd";
 
 
 			Console.WriteLine("Create version file for deploy");
 			if (!File.Exists(quelldatei))
 			{
-				Console.WriteLine($"CreateVersionForDeploy ERROR: Kann Quelldatei nicht finden: {quelldatei}");
+				Console.WriteLine($"CreateVersionForDeploy ERROR: Kann Quelldatei nicht finden: {quelldatei} Dieses Verzeichnis ist im Quellcode hart verdrahtet!");
 				return;
 			}
 			if (!Directory.Exists(zielverzeichnis))
 			{
-				Console.WriteLine($"CreateVersionForDeploy ERROR: Kann Zielverzeichnis nicht finden: {zielverzeichnis}");
+				Console.WriteLine($"CreateVersionForDeploy ERROR: Kann Zielverzeichnis nicht finden: {zielverzeichnis} Dieses Verzeichnis ist im Quellcode hart verdrahtet!");
 				return;
 			}
 

@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="md                               &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\netcoreapp3.1\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\netcoreapp3.1\plugins&quot;&#xD;&#xA;&#xD;&#xA;md                               &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="md                               &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;&#xD;&#xA;md                               &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;&#xD;&#xA;" />
   </Target>
 
   <ItemGroup>

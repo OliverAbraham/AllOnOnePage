@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="set DESTINATION=&quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\netcoreapp3.1\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION%25 md %25DESTINATION%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                              %25DESTINATION%25&#xD;&#xA;copy &quot;%25USERPROFILE%25\.nuget\packages\openpop.net\2.0.6.1120\lib\net20\OpenPop.dll&quot; %25DESTINATION%25&#xD;&#xA;&#xD;&#xA;set DESTINATION2=&quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION2%25 md %25DESTINATION2%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                               %25DESTINATION2%25&#xD;&#xA;copy %25DESTINATION%25  %25DESTINATION2%25&#xD;&#xA;" />
+    <Exec Command="set DESTINATION=&quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION%25 md %25DESTINATION%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                              %25DESTINATION%25&#xD;&#xA;copy &quot;%25USERPROFILE%25\.nuget\packages\openpop.net\2.0.6.1120\lib\net20\OpenPop.dll&quot; %25DESTINATION%25&#xD;&#xA;&#xD;&#xA;set DESTINATION2=&quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION2%25 md %25DESTINATION2%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                               %25DESTINATION2%25&#xD;&#xA;copy %25DESTINATION%25  %25DESTINATION2%25&#xD;&#xA;" />
   </Target>
 
   <ItemGroup>

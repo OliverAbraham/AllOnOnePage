@@ -50,6 +50,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModEmail", "ModEmail\ModEma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreateVersionForDeploy", "CreateVersionForDeploy\CreateVersionForDeploy.csproj", "{F52A54E3-195E-4636-A465-67D2F329CD15}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModPrtg", "ModPrtg\ModPrtg.csproj", "{B6A2C6A1-CD5C-433C-9D71-59BBB1A2B329}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -108,6 +110,10 @@ Global
 		{F52A54E3-195E-4636-A465-67D2F329CD15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F52A54E3-195E-4636-A465-67D2F329CD15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F52A54E3-195E-4636-A465-67D2F329CD15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6A2C6A1-CD5C-433C-9D71-59BBB1A2B329}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6A2C6A1-CD5C-433C-9D71-59BBB1A2B329}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6A2C6A1-CD5C-433C-9D71-59BBB1A2B329}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6A2C6A1-CD5C-433C-9D71-59BBB1A2B329}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,6 +132,7 @@ Global
 		{A4EB23E8-BF11-42F0-B406-FBDA40DDEA00} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
 		{D34BAE83-A22C-46B5-BA7E-08680533C7D0} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
 		{F52A54E3-195E-4636-A465-67D2F329CD15} = {91B17C59-0906-4D30-95F5-43375EA6A3FE}
+		{B6A2C6A1-CD5C-433C-9D71-59BBB1A2B329} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {487D0146-B39B-4379-823C-8ED3CA383038}

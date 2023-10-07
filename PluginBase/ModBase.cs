@@ -82,7 +82,7 @@ namespace AllOnOnePage.Plugins
 
 		public virtual (bool,string) Validate()
 		{
-            return (false, "");
+            return (true, "");
 		}
 
 		public virtual (bool success, string messages) Test()
@@ -104,12 +104,12 @@ namespace AllOnOnePage.Plugins
 		}
 
         public virtual void UpdateLayout()
-        { 
-   //         Delete();
-			//CreateBackground();
-   //         SetPositionAndSize();
-   //         CreateValueControl();
-   //         CreateNameControl();
+        {
+            Delete();
+            CreateBackground();
+            SetPositionAndSize();
+            CreateValueControl();
+            CreateNameControl();
         }
 
         public virtual void Recreate()

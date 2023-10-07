@@ -89,6 +89,9 @@ namespace AllOnOnePage
 				"Paper.jpg",
 				"sunset.jpg",
 				"sunset2.jpg",
+				"abstract-5719419_1280.jpg",
+				"fog-6559957_1280.jpg",
+				"stars-2367421_1280.jpg",
 			};
 
 			I1.Source = CreateBitmapImage(0);
@@ -96,6 +99,9 @@ namespace AllOnOnePage
 			I3.Source = CreateBitmapImage(2);
 			I4.Source = CreateBitmapImage(3);
 			I5.Source = CreateBitmapImage(4);
+			I6.Source = CreateBitmapImage(5);
+			I7.Source = CreateBitmapImage(6);
+			I8.Source = CreateBitmapImage(7);
 		}
 
 		private void Image1_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -121,6 +127,21 @@ namespace AllOnOnePage
 		private void Image5_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
 		{
 			SetBackgroundImage(4);
+		}
+
+		private void Image6_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+		{
+			SetBackgroundImage(5);
+		}
+
+		private void Image7_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+		{
+			SetBackgroundImage(6);
+		}
+
+		private void Image8_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+		{
+			SetBackgroundImage(7);
 		}
 
 		private void SetBackgroundImage(int i)

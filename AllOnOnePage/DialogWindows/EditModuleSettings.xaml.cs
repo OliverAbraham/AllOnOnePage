@@ -8,16 +8,6 @@ namespace AllOnOnePage.DialogWindows
 {
 	public partial class EditModuleSettings : Window, INotifyPropertyChanged
     {
-        #region ------------- Properties ----------------------------------------------------------
-		#endregion
-
-
-
-		#region ------------- Control Properties --------------------------------------------------
-		#endregion
-
-
-
 		#region ------------- INotifyPropertyChanged ----------------------------------------------
 		public event PropertyChangedEventHandler PropertyChanged
         {

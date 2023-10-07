@@ -92,6 +92,8 @@ namespace Abraham.Weather
                 var DayBoxes1 = Body.SelectNodes($".//div[contains(@class, 'box-slider__container')]"); 
                 var DayBoxes2 = Body.SelectNodes(".//div[@class='box-slider__container']");
                 var DayBoxes = Body.SelectNodes(".//div[@class='base-box weather-daybox v-spacing-md base-box--level-0']");
+                if (DayBoxes is null)
+                    throw new Exception("Weather data not found!");
 
                 foreach (var box in DayBoxes)
                 {

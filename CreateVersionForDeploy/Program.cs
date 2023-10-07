@@ -8,8 +8,8 @@ namespace CreateVersionForDeploy
 		static void Main(string[] args)
 		{
 			const string quelldatei      = "MainWindow.xaml.cs";
-			const string zielverzeichnis = @"bin\debug\net6.0-windows";
-			const string zieldatei       = @"bin\debug\net6.0-windows\setversion.cmd";
+			const string zielverzeichnis = @"bin\debug\net8.0-windows";
+			const string zieldatei       = @"bin\debug\net8.0-windows\setversion.cmd";
 
 
 			Console.WriteLine("Create version file for deploy");

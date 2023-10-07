@@ -12,12 +12,15 @@
         <ComboBox Name="comboboxType" FontSize="16" Background="FloralWhite" HorizontalAlignment="Left" Margin="33,65,0,0" VerticalAlignment="Top" Width="224" Height="31"/>
 
         <Label Content="Bild auswählen" FontSize="16" HorizontalAlignment="Left" Margin="33,129,0,0" VerticalAlignment="Top"/>
-        <StackPanel Orientation="Horizontal" Margin="33,165,0,186" HorizontalAlignment="Left" Width="392">
+        <StackPanel Orientation="Horizontal" Margin="33,165,34,259" CanHorizontallyScroll="True">
             <Image Name="I1" HorizontalAlignment="Left" Width="70" Height="70" Margin=" 0,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image1_MouseLeftButtonUp" Source="Pictures/sky.jpg"/>
             <Image Name="I2" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image2_MouseLeftButtonUp" Source="Pictures/Autumn.jpg"/>
             <Image Name="I3" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image3_MouseLeftButtonUp" Source="Pictures/Paper.jpg"/>
             <Image Name="I4" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image4_MouseLeftButtonUp" Source="Pictures/sunset.jpg"/>
             <Image Name="I5" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image5_MouseLeftButtonUp" Source="Pictures/sunset2.jpg"/>
+            <Image Name="I6" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image6_MouseLeftButtonUp" Source="Pictures/abstract-5719419_1280.jpg"/>
+            <Image Name="I7" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image7_MouseLeftButtonUp" Source="Pictures/fog-6559957_1280.jpg"/>
+            <Image Name="I8" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image8_MouseLeftButtonUp" Source="Pictures/stars-2367421_1280.jpg"/>
         </StackPanel>
         <Button IsEnabled="False" Content="Durchsuchen" FontSize="16" HorizontalAlignment="Left" Margin="33,251,0,0" VerticalAlignment="Top" Height="30" Width="112" Click="ButtonBrowse_Click"/>
 

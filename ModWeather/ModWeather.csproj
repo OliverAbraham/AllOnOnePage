@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Globals">
     <SccProjectName>SAK</SccProjectName>
@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="set DESTINATION=&quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION%25 md %25DESTINATION%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                              %25DESTINATION%25&#xD;&#xA;copy &quot;%25USERPROFILE%25\.nuget\packages\htmlagilitypack\1.6.3\lib\netstandard2.0\htmlagilitypack.dll&quot;  %25DESTINATION%25&#xD;&#xA;&#xD;&#xA;set DESTINATION2=&quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION2%25 md %25DESTINATION2%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                               %25DESTINATION2%25&#xD;&#xA;copy %25DESTINATION%25  %25DESTINATION2%25&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="set DESTINATION=&quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net8.0-windows\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION%25 md %25DESTINATION%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                              %25DESTINATION%25&#xD;&#xA;copy &quot;%25USERPROFILE%25\.nuget\packages\htmlagilitypack\1.6.3\lib\netstandard2.0\htmlagilitypack.dll&quot;  %25DESTINATION%25&#xD;&#xA;&#xD;&#xA;set DESTINATION2=&quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION2%25 md %25DESTINATION2%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                               %25DESTINATION2%25&#xD;&#xA;copy %25DESTINATION%25  %25DESTINATION2%25&#xD;&#xA;&#xD;&#xA;" />
   </Target>
 
 </Project>

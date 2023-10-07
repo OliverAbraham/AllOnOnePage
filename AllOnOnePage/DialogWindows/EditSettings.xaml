@@ -6,7 +6,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:AllOnOnePage.DialogWindows"
         mc:Ignorable="d"
-        Title="Einstellungen" Width="430" MinWidth="430" Height="378" MinHeight="378"
+        Title="Einstellungen" Width="430" MinWidth="430" Height="500" MinHeight="500"
         ResizeMode="CanResizeWithGrip"
         Background="FloralWhite">
     <Grid>
@@ -18,8 +18,8 @@
                            ShowSortOptions="False">
         </xctk:PropertyGrid>
 
-        <Button Content="Speichern" HorizontalAlignment="Left" Margin="43,0,0,35"  VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_Save_Click"/>
-        <Button Content="Abbruch"   HorizontalAlignment="Right" Margin="0,0,41,35" VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_Cancel_Click"/>
-        <ContentControl Content="ContentControl" HorizontalAlignment="Left" Margin="-192,146,0,0" VerticalAlignment="Top"/>
+        <Button Content="Speichern"     HorizontalAlignment="Left" Margin="43,0,0,35"  VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_Save_Click"/>
+        <Button Content="PRTG settings" HorizontalAlignment="Right" Margin="0,0,41,35" VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_PrtgSettings_Click"/>
+        <Button Content="Abbruch"       HorizontalAlignment="Right" Margin="0,0,41,35" VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_Cancel_Click"/>
     </Grid>
 </Window>

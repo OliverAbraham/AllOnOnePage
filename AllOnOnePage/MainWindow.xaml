@@ -15,6 +15,7 @@
         MouseDoubleClick="Window_MouseDoubleClick"
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
         MouseLeftButtonUp="Window_MouseLeftButtonUp"
+        MouseRightButtonDown="Window_MouseRightButtonDown"
         MouseMove="Window_MouseMove" 
         Icon="/Icons/AllOnOnePage_80x80.ico">
     <Grid Name="MainGrid">

@@ -49,10 +49,12 @@ namespace AllOnOnePage.Plugins
 		public override void Init(ModuleConfig config, Grid parent, System.Windows.Threading.Dispatcher dispatcher)
 		{
 			base.Init(config, parent, dispatcher);
-			InitConfiguration();
+
 			base.LoadAssembly("RestSharp.dll");
-			base.LoadAssembly("Abraham.Prtgclient.dll");
+			base.LoadAssembly("Abraham.PrtgClient.dll");
 			base.LoadAssembly("Abraham.Scheduler.dll");
+
+			InitConfiguration();
 		}
 		#endregion
 
@@ -85,6 +87,7 @@ namespace AllOnOnePage.Plugins
 
         public override void Recreate()
         {
+            base.Recreate();
         }
 
         public override void UpdateContent()
@@ -112,9 +115,9 @@ namespace AllOnOnePage.Plugins
 				Value = FormatDisplay();
 				return (true, $"Daten vom PRTG Server gelesen!");
 			}
-			catch (Exception) 
+			catch (Exception ex) 
 			{
-				return (false, _messages);
+				return (false, _messages + ex.ToString());
 			}
 		}
 		#endregion

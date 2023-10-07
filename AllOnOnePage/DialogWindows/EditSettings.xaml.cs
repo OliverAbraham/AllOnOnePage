@@ -4,16 +4,6 @@ namespace AllOnOnePage.DialogWindows
 {
 	public partial class EditSettings : Window
 	{
-		#region ------------- Types and constants -------------------------------------------------
-		#endregion
-
-
-
-		#region ------------- Properties ----------------------------------------------------------
-		#endregion
-
-
-
 		#region ------------- Fields --------------------------------------------------------------
 		private Configuration _configuration;
 		private Configuration _configurationBackup;
@@ -40,12 +30,17 @@ namespace AllOnOnePage.DialogWindows
             Close();
         }
 
+        private void Button_PrtgSettings_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         private void Button_Cancel_Click(object sender, RoutedEventArgs e)
         {
             _configuration.CopyPropertiesFrom(_configurationBackup);
             DialogResult = false;
             Close();
         }
-		#endregion
-	}
+        #endregion
+    }
 }

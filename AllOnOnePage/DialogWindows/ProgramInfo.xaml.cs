@@ -19,7 +19,7 @@ namespace AllOnOnePage.DialogWindows
 		{
 			_texts            = texts            ?? throw new ArgumentNullException(nameof(texts           ));
 			_installedVersion = installedVersion ?? throw new ArgumentNullException(nameof(installedVersion));
-			_updater          = updater          ?? throw new ArgumentNullException(nameof(updater         ));
+			_updater          = updater;
 			InitializeComponent();
 		}
 

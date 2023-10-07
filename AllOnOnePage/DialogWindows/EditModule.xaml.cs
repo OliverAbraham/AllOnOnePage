@@ -3,11 +3,10 @@ using System.Windows;
 using System.ComponentModel;
 using System.Windows.Media;
 using AllOnOnePage.Plugins;
-using Xceed.Wpf.Toolkit.PropertyGrid;
 
 namespace AllOnOnePage.DialogWindows
 {
-	public partial class EditModule : Window, INotifyPropertyChanged
+    public partial class EditModule : Window, INotifyPropertyChanged
     {
         #region ------------- Properties ----------------------------------------------------------
 		#endregion

@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
@@ -42,19 +42,22 @@
     <None Remove="Icons\SettingsIcon.png" />
     <None Remove="Icons\SettingsIconSolid.png" />
     <None Remove="Icons\WastebasketIconSolid.png" />
+    <None Remove="Pictures\abstract-5719419_1280.jpg" />
     <None Remove="Pictures\Autumn.jpg" />
     <None Remove="Pictures\circular-arrow-in-a-circle.png" />
+    <None Remove="Pictures\fog-6559957_1280.jpg" />
     <None Remove="Pictures\Halloween.jpg" />
     <None Remove="Pictures\Icon_car.png" />
     <None Remove="Pictures\Icon_car.pspimage" />
     <None Remove="Pictures\Paper.jpg" />
     <None Remove="Pictures\sky.jpg" />
+    <None Remove="Pictures\stars-2367421_1280.jpg" />
     <None Remove="Pictures\sunset.jpg" />
     <None Remove="Pictures\sunset2.jpg" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abraham.ProgramSettingsManager" Version="1.0.1" />
+    <PackageReference Include="Abraham.ProgramSettingsManager" Version="1.0.2" />
     <PackageReference Include="Abraham.Scheduler" Version="1.0.0" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.4.0" />
     <PackageReference Include="RestSharp" Version="108.0.2" />
@@ -82,12 +85,13 @@
     <Resource Include="Icons\SettingsIcon.png" />
     <Resource Include="Icons\SettingsIconSolid.png" />
     <Resource Include="Icons\WastebasketIconSolid.png" />
+    <Resource Include="Pictures\abstract-5719419_1280.jpg" />
+    <Resource Include="Pictures\fog-6559957_1280.jpg" />
     <Resource Include="Pictures\Halloween.jpg" />
     <Resource Include="Pictures\Autumn.jpg" />
-    <Resource Include="Pictures\Icon_car.png" />
-    <Resource Include="Pictures\Icon_car.pspimage" />
     <Resource Include="Pictures\sky.jpg" />
     <Resource Include="Pictures\Paper.jpg" />
+    <Resource Include="Pictures\stars-2367421_1280.jpg" />
     <Resource Include="Pictures\sunset.jpg" />
     <Resource Include="Pictures\sunset2.jpg" />
   </ItemGroup>
@@ -104,7 +108,7 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="..\CreateVersionForDeploy\bin\debug\net6.0\CreateVersionForDeploy.exe" />
+	  <Exec Command="..\CreateVersionForDeploy\bin\debug\net8.0\CreateVersionForDeploy.exe" />
   </Target>
 
 </Project>

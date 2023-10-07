@@ -14,7 +14,7 @@ namespace AllOnOnePage
 {
     public partial class MainWindow : Window
     {
-        private const string VERSION = "2022-09-23";
+        private const string VERSION = "2022-12-16";
 
 		#region ------------- Fields --------------------------------------------------------------
 		#region Configuration
@@ -81,7 +81,7 @@ namespace AllOnOnePage
 			//StopSupervisorThread();
 			Stop_date_time_update_timer();
 			//Stop_periodic_UI_update_timer();
-            _Updater.Stop();
+            if (_Updater is not null) _Updater.Stop();
 			_configurationManager.Save();
 		}
 
@@ -450,6 +450,11 @@ namespace AllOnOnePage
             _vm.MouseDoubleClick(this, e);
         }
 
+        private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _vm.MouseRightButtonDown(this, e);
+        }
+
 		private void Button_Wastebasket_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
             _vm.Button_Wastebasket_Click();
@@ -595,7 +600,8 @@ namespace AllOnOnePage
 				_Updater.Stop();
 			}
 		}
-		#endregion
-	    #endregion
-	}
+        #endregion
+
+        #endregion
+    }
 }

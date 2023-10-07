@@ -459,9 +459,18 @@ namespace AllOnOnePage
             if (wnd.DialogResult == true)
                 SaveConfiguration();
 		}
-		#endregion
-		#region ------------- Implementation ----------------------------------
-		private void NoElementIsUnderMouse()
+
+        public void MouseRightButtonDown(Window sender, MouseButtonEventArgs e)
+        {
+            var module = FindModuleUnderMouse(sender, e);
+            if (module != null)
+            {
+                CopyModule(module, e);
+			}
+        }
+        #endregion
+        #region ------------- Implementation ----------------------------------
+        private void NoElementIsUnderMouse()
         {
             ResetMousePointerOnBorderOfDragRect();
             ResetModuleUnderMouse();
@@ -731,9 +740,28 @@ namespace AllOnOnePage
             int maxID = _runtimeModules.Select(x => x.Config.ID).Max();
             return maxID+1;
 		}
-		#endregion
-		#endregion
+        #endregion
+        #region ------------- Copy module -------------------------------------
+        private void CopyModule(RuntimeModule module, MouseButtonEventArgs e)
+        {
+			//Processor processor = FindProcessorByType(module.Config.TileType);
+			//if (processor != null)
+			//{
+            //    var newConfig = module.Config.Clone();
+            //    newConfig.ID = GenerateUniqueID();
+			//	var newModule = new RuntimeModule(newConfig);
+			//	var newProcessor = _pluginManager.InstantiateProcessor(processor);
+            //    newModule.Plugin = (IPlugin)newProcessor.Instance;
+			//    newModule.Plugin.Init(newConfig, _ParentGrid, Dispatcher);
+            //    newModule.Plugin.CreateSeedData();
+            //    _runtimeModules.Add(newModule);
+			//	_configuration.Modules.Add(newModule.Config);
+			//	SaveConfiguration();
+			//}
+        }
+        #endregion
+        #endregion
 
-		#endregion
-	}
+        #endregion
+    }
 }

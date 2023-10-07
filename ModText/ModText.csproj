@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Globals">
     <SccProjectName>SAK</SccProjectName>
@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="md                               &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;&#xD;&#xA;md                               &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="md                               &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net8.0-windows\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net8.0-windows\plugins&quot;&#xD;&#xA;&#xD;&#xA;md                               &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;&#xD;&#xA;" />
   </Target>
 
   <ItemGroup>

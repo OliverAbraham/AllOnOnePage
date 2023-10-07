@@ -42,18 +42,10 @@
     <None Remove="Icons\SettingsIcon.png" />
     <None Remove="Icons\SettingsIconSolid.png" />
     <None Remove="Icons\WastebasketIconSolid.png" />
-    <None Remove="Pictures\abstract-5719419_1280.jpg" />
-    <None Remove="Pictures\Autumn.jpg" />
-    <None Remove="Pictures\circular-arrow-in-a-circle.png" />
-    <None Remove="Pictures\fog-6559957_1280.jpg" />
-    <None Remove="Pictures\Halloween.jpg" />
-    <None Remove="Pictures\Icon_car.png" />
-    <None Remove="Pictures\Icon_car.pspimage" />
-    <None Remove="Pictures\Paper.jpg" />
-    <None Remove="Pictures\sky.jpg" />
-    <None Remove="Pictures\stars-2367421_1280.jpg" />
-    <None Remove="Pictures\sunset.jpg" />
-    <None Remove="Pictures\sunset2.jpg" />
+    <None Remove="backgrounds\circular-arrow-in-a-circle.png" />
+    <None Remove="backgrounds\Icon_car.png" />
+    <None Remove="backgrounds\Icon_car.pspimage" />
+    <None Remove="Pictures\default.jpg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -85,15 +77,40 @@
     <Resource Include="Icons\SettingsIcon.png" />
     <Resource Include="Icons\SettingsIconSolid.png" />
     <Resource Include="Icons\WastebasketIconSolid.png" />
-    <Resource Include="Pictures\abstract-5719419_1280.jpg" />
-    <Resource Include="Pictures\fog-6559957_1280.jpg" />
-    <Resource Include="Pictures\Halloween.jpg" />
-    <Resource Include="Pictures\Autumn.jpg" />
-    <Resource Include="Pictures\sky.jpg" />
-    <Resource Include="Pictures\Paper.jpg" />
-    <Resource Include="Pictures\stars-2367421_1280.jpg" />
-    <Resource Include="Pictures\sunset.jpg" />
-    <Resource Include="Pictures\sunset2.jpg" />
+    <Resource Include="Pictures\default.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="backgrounds\abstract-5719419_1280.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="backgrounds\Autumn.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="backgrounds\default.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="backgrounds\fog-6559957_1280.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="backgrounds\Halloween.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="backgrounds\Paper.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="backgrounds\sky.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="backgrounds\stars-2367421_1280.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="backgrounds\sunset.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="backgrounds\sunset2.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <Target Name="Ftp_Upload_After_Publish" AfterTargets="_CopyResolvedFilesToPublishPreserveNewest">

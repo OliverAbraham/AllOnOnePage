@@ -74,7 +74,7 @@
                         Height="301" Width="997"/>
         </Grid>
 
-        <Image Name="BackgroundImage" Source="Pictures/Paper.jpg"  
+        <Image Name="BackgroundImage" Source="Pictures/default.jpg"  
                Stretch="UniformToFill" IsHitTestVisible="False"
                Panel.ZIndex="-2" Visibility="Visible" 
                HorizontalAlignment="Left" VerticalAlignment="Top"  />

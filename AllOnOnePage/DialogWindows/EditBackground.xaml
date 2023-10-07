@@ -5,27 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AllOnOnePage"
         mc:Ignorable="d"
-        Title="Hintergrund anpassen" Width="459" MinWidth="459" Height="521" MinHeight="521"
+        Title="Hintergrund anpassen" Width="505" MinWidth="459" Height="548" MinHeight="521"
         Background="FloralWhite">
     <Grid>
         <Label Content="Hintergrund" FontSize="16" HorizontalAlignment="Left" Margin="33,29,0,0" VerticalAlignment="Top"/>
         <ComboBox Name="comboboxType" FontSize="16" Background="FloralWhite" HorizontalAlignment="Left" Margin="33,65,0,0" VerticalAlignment="Top" Width="224" Height="31"/>
 
         <Label Content="Bild auswählen" FontSize="16" HorizontalAlignment="Left" Margin="33,129,0,0" VerticalAlignment="Top"/>
-        <StackPanel Orientation="Horizontal" Margin="33,165,34,259" CanHorizontallyScroll="True">
-            <Image Name="I1" HorizontalAlignment="Left" Width="70" Height="70" Margin=" 0,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image1_MouseLeftButtonUp" Source="Pictures/sky.jpg"/>
-            <Image Name="I2" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image2_MouseLeftButtonUp" Source="Pictures/Autumn.jpg"/>
-            <Image Name="I3" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image3_MouseLeftButtonUp" Source="Pictures/Paper.jpg"/>
-            <Image Name="I4" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image4_MouseLeftButtonUp" Source="Pictures/sunset.jpg"/>
-            <Image Name="I5" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image5_MouseLeftButtonUp" Source="Pictures/sunset2.jpg"/>
-            <Image Name="I6" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image6_MouseLeftButtonUp" Source="Pictures/abstract-5719419_1280.jpg"/>
-            <Image Name="I7" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image7_MouseLeftButtonUp" Source="Pictures/fog-6559957_1280.jpg"/>
-            <Image Name="I8" HorizontalAlignment="Left" Width="70" Height="70" Margin="10,0,0,0" VerticalAlignment="Top" Stretch="Fill" MouseLeftButtonUp="Image8_MouseLeftButtonUp" Source="Pictures/stars-2367421_1280.jpg"/>
-        </StackPanel>
-        <Button IsEnabled="False" Content="Durchsuchen" FontSize="16" HorizontalAlignment="Left" Margin="33,251,0,0" VerticalAlignment="Top" Height="30" Width="112" Click="ButtonBrowse_Click"/>
 
-        <Label Content="Anpassung auswählen" FontSize="16" HorizontalAlignment="Left" Margin="33,324,0,0" VerticalAlignment="Top"/>
-        <ComboBox Name="comboboxStretch" FontSize="16" Background="FloralWhite" HorizontalAlignment="Left" Margin="33,360,0,0" VerticalAlignment="Top" Width="224" Height="31"/>
+        <Grid Margin="33,165,34,234">
+            <ScrollViewer x:Name="SV1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
+                <StackPanel Name="imagesStackPanel" Orientation="Horizontal" 
+                        CanHorizontallyScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                        CanVerticallyScroll="True" ScrollViewer.VerticalScrollBarVisibility="Visible"
+                        IsHitTestVisible="True" MouseLeftButtonUp="OnStackPanelSelectImage">
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <Button Content="Durchsuchen" FontSize="16" HorizontalAlignment="Left" Margin="33,0,0,199" VerticalAlignment="Bottom" Height="30" Width="112" Click="ButtonBrowse_Click"/>
+
+        <Label Content="Anpassung auswählen" FontSize="16" HorizontalAlignment="Left" Margin="33,0,0,150" VerticalAlignment="Bottom"/>
+        <ComboBox Name="comboboxStretch" FontSize="16" Background="FloralWhite" HorizontalAlignment="Left" Margin="33,0,0,114" VerticalAlignment="Bottom" Width="224" Height="31"/>
         <Button Content="Speichern" FontSize="16" HorizontalAlignment="Left"  Margin="34,0,0,39" VerticalAlignment="Bottom" Height="30" Width="95" Click="ButtonSave_Click"/>
         <Button Content="Abbruch"   FontSize="16" HorizontalAlignment="Right" Margin="0,0,34,39" VerticalAlignment="Bottom" Height="30" Width="95" Click="ButtonCancel_Click"/>
     </Grid>

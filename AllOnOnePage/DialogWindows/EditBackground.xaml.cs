@@ -1,19 +1,24 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Timers;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace AllOnOnePage
 {
-	public partial class EditBackground : Window
+    public partial class EditBackground : Window
 	{
 		#region ------------- Fields --------------------------------------------------------------
 		private MainWindow _parent;
 		private Configuration _configuration;
 		private ImageSource _savedBackgroundImage;
-		private string[] _availableBackgrounds;
+		private List<string> _availableBackgrounds;
 		private Configuration.BackgroundType _newBackground;
 		private string _newBackgroundImage;
 		#endregion
@@ -28,10 +33,11 @@ namespace AllOnOnePage
 			_parent = parent;
 			_configuration = configuration;
 
+			_availableBackgrounds = new List<string>();
 			InitializeComponent();
 			ComboboxType_Fill();
 			Combobox_Stretch_Fill();
-			InitPictureButtons();
+			WaitAndThenCallMethod(wait_time_seconds:1, action:InitPictureButtons);
 			SaveCurrentBackgroundImage();
 		}
 		#endregion
@@ -44,8 +50,16 @@ namespace AllOnOnePage
             switch (configuration.Background)
 			{
 				case Configuration.BackgroundType.Image:
-					parent.BackgroundImage.Source = CreateBitmapImage(configuration.BackgroundImage);
-					parent.BackgroundImage.Stretch = Stretch.UniformToFill;
+					try
+					{
+						parent.BackgroundImage.Source = CreateBitmapImageFromFile(configuration.BackgroundImage);
+						parent.BackgroundImage.Stretch = Stretch.UniformToFill;
+					}
+					catch(Exception)
+					{
+						parent.BackgroundImage.Source = CreateBitmapImage("default.jpg");
+						parent.BackgroundImage.Stretch = Stretch.UniformToFill;
+					}
 					break;
 			}
 			if (configuration.FullScreenDisplay)
@@ -81,67 +95,65 @@ namespace AllOnOnePage
 		}
 
 		private void InitPictureButtons()
-		{
-			_availableBackgrounds = new string[]
-			{
-				"sky.jpg",
-				"Autumn.jpg",
-				"Paper.jpg",
-				"sunset.jpg",
-				"sunset2.jpg",
-				"abstract-5719419_1280.jpg",
-				"fog-6559957_1280.jpg",
-				"stars-2367421_1280.jpg",
-			};
+        {
+			CollectAvailableImages();
+            DisplayFoundImagesInStackPanel();
+        }
 
-			I1.Source = CreateBitmapImage(0);
-			I2.Source = CreateBitmapImage(1);
-			I3.Source = CreateBitmapImage(2);
-			I4.Source = CreateBitmapImage(3);
-			I5.Source = CreateBitmapImage(4);
-			I6.Source = CreateBitmapImage(5);
-			I7.Source = CreateBitmapImage(6);
-			I8.Source = CreateBitmapImage(7);
-		}
+        private void CollectAvailableImages()
+        {
+            var userDocumentsImageFolder = GetDocumentsDirectoryImageFolder();
+            if (Directory.Exists(userDocumentsImageFolder))
+            {
+                var imageFilenames = Directory.GetFiles(userDocumentsImageFolder, "*");
+                _availableBackgrounds.AddRange(imageFilenames);
+            }
 
-		private void Image1_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-		{
-			SetBackgroundImage(0);
-		}
+            var programDirectoryImageFolder = GetProgramDirectoryImageFolder();
+            if (Directory.Exists(programDirectoryImageFolder))
+            {
+                var imageFilenames = Directory.GetFiles(programDirectoryImageFolder, "*");
+                _availableBackgrounds.AddRange(imageFilenames);
+            }
+        }
 
-		private void Image2_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-		{
-			SetBackgroundImage(1);
-		}
+        private void DisplayFoundImagesInStackPanel()
+        {
+            foreach (var background in _availableBackgrounds)
+            {
+                AddImageToStackPanel(background);
+            }
+        }
 
-		private void Image3_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-		{
-			SetBackgroundImage(2);
-		}
+        private void AddImageToStackPanel(string filename)
+        {
+            imagesStackPanel.Children.Add(CreateImageControl(filename));
+        }
 
-		private void Image4_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-		{
-			SetBackgroundImage(3);
-		}
+        private static Image CreateImageControl(string filename)
+        {
+			var image = CreateBitmapImageFromFile(filename);
+            return new Image() { Width = 70, Height = 70, Margin = new Thickness(0, 0, 10, 0), Source = image, Tag = filename };
+        }
 
-		private void Image5_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-		{
-			SetBackgroundImage(4);
-		}
+        private string GetDocumentsDirectoryImageFolder()
+        {
+            return "backgrounds";
+        }
 
-		private void Image6_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-		{
-			SetBackgroundImage(5);
-		}
+        private string GetProgramDirectoryImageFolder()
+        {
+			var process = Process.GetCurrentProcess();
+			var fullPath = process.MainModule.FileName;
+			var appDirectory = Path.GetDirectoryName(fullPath);
+			appDirectory = Path.Combine(appDirectory, "backgrounds");
+			return appDirectory;
+        }
 
-		private void Image7_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void OnStackPanelSelectImage(object sender, MouseButtonEventArgs e)
 		{
-			SetBackgroundImage(6);
-		}
-
-		private void Image8_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-		{
-			SetBackgroundImage(7);
+			var filename = (string)((Image)e.Source).Tag;
+			SetBackgroundImage(filename);
 		}
 
 		private void SetBackgroundImage(int i)
@@ -152,6 +164,14 @@ namespace AllOnOnePage
 			_newBackgroundImage = _availableBackgrounds[i];
 		}
 
+		private void SetBackgroundImage(string filename)
+		{
+			_parent.BackgroundImage.Source = CreateBitmapImageFromFile(filename);
+			_parent.BackgroundImage.Stretch = Stretch.UniformToFill;
+			_newBackground = Configuration.BackgroundType.Image;
+			_newBackgroundImage = filename;
+		}
+
 		private BitmapImage CreateBitmapImage(int i)
 		{
 			return CreateBitmapImage(_availableBackgrounds[i]);
@@ -160,6 +180,11 @@ namespace AllOnOnePage
 		private static BitmapImage CreateBitmapImage(string filename)
 		{
 			return new BitmapImage(new Uri($"pack://application:,,/Pictures/{filename}"));
+		}
+
+		private static BitmapImage CreateBitmapImageFromFile(string filename)
+		{
+			return new BitmapImage(new Uri(filename));
 		}
 
 		private void SaveCurrentBackgroundImage()
@@ -175,6 +200,16 @@ namespace AllOnOnePage
 
 		private void ButtonBrowse_Click(object sender, RoutedEventArgs e)
 		{
+			OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "Pictures|*jpg;*png";
+            dlg.Title = "Hintergrundbild auswählen";
+
+            if (dlg.ShowDialog() == true)
+            {
+				var filename = dlg.FileName;
+				AddImageToStackPanel(filename);
+				SetBackgroundImage(filename);
+			}
 		}
 
 		private void ButtonSave_Click(object sender, RoutedEventArgs e)
@@ -190,6 +225,39 @@ namespace AllOnOnePage
 			RestoreSavedBackgroundImage();
 			Close();
 		}
+
+        private Timer CreateAndStartTimer(ElapsedEventHandler timerProc, int interval_in_seconds, bool repeatedly = true)
+        {
+            var timer = new Timer();
+            timer.Interval = interval_in_seconds * 1000;
+            timer.Elapsed += timerProc;
+            timer.AutoReset = repeatedly;
+            timer.Start();
+            return timer;
+        }
+
+        private Timer WaitAndThenCallMethod(int wait_time_seconds, Action action)
+        {
+			return CreateAndStartTimer(
+                delegate(object sender, ElapsedEventArgs e)
+                {
+                    try
+                    {
+						Dispatcher.Invoke(() =>
+						{
+                            try
+							{
+                                action();
+							}
+							catch (Exception ex)
+							{
+                                Debug.WriteLine(ex.ToString());
+							}
+						});
+                    }
+                    catch (Exception) { }
+                }, wait_time_seconds, repeatedly:false);
+        }
 		#endregion
 	}
 }

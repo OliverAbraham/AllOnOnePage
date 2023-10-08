@@ -73,7 +73,7 @@ namespace AllOnOnePage.Plugins
 
         public override void Recreate()
         {
-            _stopwatch = null;
+            //_stopwatch = null;
         }
 
         public override void UpdateContent()

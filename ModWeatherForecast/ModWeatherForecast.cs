@@ -1,18 +1,16 @@
-﻿using Abraham.Internet;
-using Abraham.Weather;
+﻿using Abraham.OpenWeatherMap;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace AllOnOnePage.Plugins
 {
-	public class ModWeatherForecast : ModBase, INotifyPropertyChanged
+    public class ModWeatherForecast : ModBase, INotifyPropertyChanged
 	{
 		#region ------------- Settings ------------------------------------------------------------
 		public class MyConfiguration : ModuleSpecificConfig
@@ -22,16 +20,16 @@ namespace AllOnOnePage.Plugins
 			public string Unit { get; set; }
             public string Latitude { get; set; }
             public string Longitude { get; set; }
-			public TimeSpan TimeMorning { get; set; } = new TimeSpan(6,0,0);
-			public TimeSpan TimeLunch   { get; set; } = new TimeSpan(12,0,0);
-			public TimeSpan TimeEvening { get; set; } = new TimeSpan(18,0,0);
-			public TimeSpan TimeNight   { get; set; } = new TimeSpan(23,0,0);
+			//public TimeSpan TimeMorning { get; set; } = new TimeSpan(6,0,0);
+			//public TimeSpan TimeLunch   { get; set; } = new TimeSpan(12,0,0);
+			//public TimeSpan TimeEvening { get; set; } = new TimeSpan(18,0,0);
+			//public TimeSpan TimeNight   { get; set; } = new TimeSpan(23,0,0);
 		}
 		#endregion
 
 
 
-        #region ------------- Properties ----------------------------------------------------------
+        #region ------------- WPF Properties ------------------------------------------------------
         public Visibility   Visibility              { get; set; } = Visibility.Hidden;
 		public Thickness    Margin                  { get; set; }
         public string       H1                      { get; set; } = "-";
@@ -51,13 +49,13 @@ namespace AllOnOnePage.Plugins
 
 
 		#region ------------- Fields --------------------------------------------------------------
-		private MyConfiguration         _myConfiguration;
-        private static WeatherConverter _logic;
-		private List<Forecast>          _forecasts;
-		private Stopwatch               _stopwatch;
-		private const int               ONE_MINUTE = 60 * 1000;
-		private int                     _updateIntervalInMinutes = 60;
-        private Grid                    _grid;
+		private MyConfiguration                _myConfiguration;
+        private static OpenWeatherMapConnector _connector;
+		private WeatherInfo                    _weatherInfo;
+		private Stopwatch                      _stopwatch;
+		private const int                      ONE_MINUTE = 60 * 1000;
+		private int                            _updateIntervalInMinutes = 60;
+        private Grid                           _grid;
 		#endregion
 
 
@@ -66,6 +64,8 @@ namespace AllOnOnePage.Plugins
 		public override void Init(ModuleConfig config, Grid parent, System.Windows.Threading.Dispatcher dispatcher)
 		{
 			base.Init(config, parent, dispatcher);
+			LoadAssembly("Newtonsoft.Json.dll");
+			LoadAssembly("RestSharp.dll");
             CreateGrid();
 			InitConfiguration();
 			InitWeatherReader();
@@ -100,13 +100,33 @@ namespace AllOnOnePage.Plugins
 
         public override void Recreate()
         {
-            _stopwatch = null;
+            //_stopwatch = null;
+        }
+
+        public override void UpdateLayout()
+        {
+            Delete();
+            CreateBackground();
+            SetPositionAndSize();
+            CreateGrid();
         }
 
         public override void UpdateContent()
 		{
 			ReadNewForecastEveryHour();
 			UpdateForecastValues();
+		}
+
+		public override (bool,string) Validate()
+		{
+            CreateGrid();
+			UpdateForecastValues();
+            return (true, "");
+		}
+
+		public override (bool success, string messages) Test()
+		{
+            return (false, "");
 		}
 
 		private void ReadNewForecastEveryHour()
@@ -130,9 +150,12 @@ namespace AllOnOnePage.Plugins
 		{
             var texts = new Dictionary<string,string>();
             texts.Add("de-DE", 
-@"Dieses Modul zeigt die aktuelle Wettervorhersage von Wetter.de an.
-hier gehen Sie auf die Wetter.de Homepage und suchen nach dem gewünschten Ort.
-Kopieren Sie dann die Adresszeile des Browsers komplett in die Einstellung hier.
+@"Dieses Modul zeigt die aktuelle Temperatur an.
+Die Daten stammen von openweathermap.org.
+Sie brauchen einen API Key von dort. 
+Gehen Sie hierzu auf www.openweathermap.org/api und registrieren Sie sich kostenlos.
+Kopieren Sie dann denn API Key in die Einstellung hier.
+Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 ");
             return texts;
         }
@@ -177,15 +200,14 @@ Kopieren Sie dann die Adresszeile des Browsers komplett in die Einstellung hier.
 
 		private void InitWeatherReader()
 		{
-			LoadAssembly("HtmlAgilityPack.dll");
-			_logic = new WeatherConverter();
+			_connector = new OpenWeatherMapConnector()
+				.UseApiKey(_myConfiguration.ApiKey)
+				.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
 		}
 
 		private void ReadForecast()
 		{
-            var client = new HttpClient();
-            string pageContent = client.DownloadFromUrl(_myConfiguration.URL);
-			_forecasts = _logic.ExtractWeatherDataFromPage(pageContent);
+			_weatherInfo = _connector.ReadCurrentTemperatureAndForecast();
 		}
 
         private void CreateGrid()
@@ -202,13 +224,13 @@ Kopieren Sie dann die Adresszeile des Browsers komplett in die Einstellung hier.
             CreatePropertyBinding(nameof(Height)         , _grid, Grid.HeightProperty);
             CreatePropertyBinding(nameof(ValueVisibility), _grid, Grid.VisibilityProperty);
             
-            int fontSize0 = (int)(Width/22);
-            int fontSize1 = (int)(Width/10);
-            int fontSize2 = (int)(Width/13);
+            int fontSize0 = _config.FontSize/2; //(int)(Width/22);
+            int fontSize1 = _config.FontSize;   //(int)(Width/10);
+            int fontSize2 = _config.FontSize;   //(int)(Width/13);
 
-            int height0   = (int)(Width/16);
-            int height1   = (int)(Width/7);
-            int height2   = (int)(Width/10);
+            int height0   = _config.FontSize*10/10; // (int)(Width/16);
+            int height1   = _config.FontSize*15/10;   // (int)(Width/7);
+            int height2   = _config.FontSize*12/10;   // (int)(Width/10);
 
             CreateRow(0, fontSize0, height0, "H");
             CreateRow(1, fontSize1, height1, "W");
@@ -283,18 +305,18 @@ Kopieren Sie dann die Adresszeile des Browsers komplett in die Einstellung hier.
             H3 = "abends" ;                                      
             H4 = "nachts" ;                           
             
-            var forecast1 = _logic.FindEntry(_forecasts, _myConfiguration.TimeMorning);
-            var forecast2 = _logic.FindEntry(_forecasts, _myConfiguration.TimeLunch);
-            var forecast3 = _logic.FindEntry(_forecasts, _myConfiguration.TimeEvening);
-			var forecast4 = _logic.FindEntry(_forecasts, _myConfiguration.TimeNight);
-            W1 = _logic.ConvertIconToUnicode(forecast1.Icon); 
-            W2 = _logic.ConvertIconToUnicode(forecast2.Icon); 
-            W3 = _logic.ConvertIconToUnicode(forecast3.Icon); 
-            W4 = _logic.ConvertIconToUnicode(forecast4.Icon); 
-            D1 = $"{forecast1.Temp} °";                       
-            D2 = $"{forecast2.Temp} °";                       
-            D3 = $"{forecast3.Temp} °";                       
-            D4 = $"{forecast4.Temp} °";                       
+            var forecast1 = _weatherInfo.Forecast[0]; // _myConfiguration.TimeMorning);
+            var forecast2 = _weatherInfo.Forecast[1]; // _myConfiguration.TimeLunch);
+            var forecast3 = _weatherInfo.Forecast[2]; // _myConfiguration.TimeEvening);
+			var forecast4 = _weatherInfo.Forecast[3]; // _myConfiguration.TimeNight);
+            W1 = char.ConvertFromUtf32(0x2614); //_connector.ConvertIconToUnicode(forecast1.Icon); 
+            W2 = char.ConvertFromUtf32(0x2614); //_connector.ConvertIconToUnicode(forecast2.Icon); 
+            W3 = char.ConvertFromUtf32(0x2614); //_connector.ConvertIconToUnicode(forecast3.Icon); 
+            W4 = char.ConvertFromUtf32(0x2614); //_connector.ConvertIconToUnicode(forecast4.Icon); 
+            D1 = $"{forecast1.Temp}°";                       
+            D2 = $"{forecast2.Temp}°";                       
+            D3 = $"{forecast3.Temp}°";                       
+            D4 = $"{forecast4.Temp}°";                       
 
             NotifyPropertyChanged(nameof(H1)); 
             NotifyPropertyChanged(nameof(H2)); 
@@ -308,19 +330,6 @@ Kopieren Sie dann die Adresszeile des Browsers komplett in die Einstellung hier.
             NotifyPropertyChanged(nameof(D2)); 
             NotifyPropertyChanged(nameof(D3)); 
             NotifyPropertyChanged(nameof(D4)); 
-
-            //System.Diagnostics.Debug.WriteLine($"H1 = {H1}");
-            //System.Diagnostics.Debug.WriteLine($"H2 = {H2}");
-            //System.Diagnostics.Debug.WriteLine($"H3 = {H3}");
-            //System.Diagnostics.Debug.WriteLine($"H4 = {H4}");
-            //System.Diagnostics.Debug.WriteLine($"W1 = {W1}");
-            //System.Diagnostics.Debug.WriteLine($"W2 = {W2}");
-            //System.Diagnostics.Debug.WriteLine($"W3 = {W3}");
-            //System.Diagnostics.Debug.WriteLine($"W4 = {W4}");
-            //System.Diagnostics.Debug.WriteLine($"D1 = {D1}");
-            //System.Diagnostics.Debug.WriteLine($"D2 = {D2}");
-            //System.Diagnostics.Debug.WriteLine($"D3 = {D3}");
-            //System.Diagnostics.Debug.WriteLine($"D4 = {D4}");
         }
 		#endregion
 	}

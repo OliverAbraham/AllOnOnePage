@@ -16,7 +16,7 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.6.3" />
+    <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

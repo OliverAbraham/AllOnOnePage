@@ -111,7 +111,7 @@ namespace AllOnOnePage.Plugins
 		{
 			try
 			{
-				ReadSensorTreeNow();
+				ReadSensorTreeNow().GetAwaiter().GetResult();
 				Value = FormatDisplay();
 				return (true, $"Daten vom PRTG Server gelesen!");
 			}
@@ -165,7 +165,7 @@ namespace AllOnOnePage.Plugins
 				}
 				Value = FormatDisplay();
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				Value = "???";
 			}
@@ -217,7 +217,7 @@ namespace AllOnOnePage.Plugins
 			return string.Format(_myConfiguration.Format, property);
 		}
 
-		private Abraham.Prtg.Models.Sensor? GetSensorById(int id)
+		private Abraham.Prtg.Models.Sensor GetSensorById(int id)
 		{
 			var sensors = GetAllSensors();
 			return sensors.FirstOrDefault(x => x.Ids.Contains(id));

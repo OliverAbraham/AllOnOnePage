@@ -321,9 +321,9 @@ namespace Abraham.AutoUpdater
 			//		}
 			//	}
 			//}
-
-            Log($"ExtractVersionNumberOutOfLink: no version information found");
-            return "";
+            //
+            //Log($"ExtractVersionNumberOutOfLink: no version information found");
+            //return "";
         }
 
 		private bool DownloadInstallPackageFromHomepage()

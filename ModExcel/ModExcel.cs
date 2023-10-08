@@ -90,7 +90,7 @@ namespace AllOnOnePage.Plugins
 					Value = _myConfiguration.Format.Replace("{0}", Value);
 				}
 			}
-			catch (Exception ex) 
+			catch (Exception) 
 			{
 				Value = "???";
 			}

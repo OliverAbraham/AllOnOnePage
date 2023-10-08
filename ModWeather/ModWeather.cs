@@ -1,31 +1,31 @@
-﻿using Abraham.Internet;
-using Abraham.Weather;
+﻿using Abraham.OpenWeatherMap;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using System.Windows.Controls;
 
 namespace AllOnOnePage.Plugins
 {
-	public class ModWeather : ModBase, INotifyPropertyChanged
+    public class ModWeather : ModBase, INotifyPropertyChanged
 	{
 		#region ------------- Settings ------------------------------------------------------------
 		public class MyConfiguration : ModuleSpecificConfig
 		{
-			public string URL    { get; set; }
-			public string Format { get; set; }
-		}
+			public string ApiKey { get; set; }
+			public string Decimals { get; set; }
+			public string Unit { get; set; }
+            public string Latitude { get; set; }
+            public string Longitude { get; set; }
+        }
 		#endregion
 
 
 
 		#region ------------- Fields --------------------------------------------------------------
 		private MyConfiguration _myConfiguration;
-        private static WeatherConverter _logic;
-		private List<Forecast> _forecast;
+        private static OpenWeatherMapConnector _connector;
+		private WeatherInfo _forecast;
 		private Stopwatch _stopwatch;
 		private const int ONE_MINUTE = 60 * 1000;
 		private int _updateIntervalInMinutes = 60;
@@ -37,6 +37,8 @@ namespace AllOnOnePage.Plugins
 		public override void Init(ModuleConfig config, Grid parent, System.Windows.Threading.Dispatcher dispatcher)
 		{
 			base.Init(config, parent, dispatcher);
+			LoadAssembly("Newtonsoft.Json.dll");
+			LoadAssembly("RestSharp.dll");
 			InitConfiguration();
 			InitWeatherReader();
 		}
@@ -52,9 +54,12 @@ namespace AllOnOnePage.Plugins
 
 		public override void CreateSeedData()
 		{
-			_myConfiguration        = new MyConfiguration();
-            _myConfiguration.URL    = @"https://www.wetter.de/deutschland/wetter-berlin-18228265.html?q=berlin";
-            _myConfiguration.Format = "{0}°";
+			_myConfiguration           = new MyConfiguration();
+            _myConfiguration.ApiKey    = "381450bb926011deb69a30af99566880"; // "ENTER-YOUR-API-KEY-HERE you get one free at www.openweathermap.org/api
+            _myConfiguration.Decimals  = "0";
+            _myConfiguration.Unit      = "°C";
+            _myConfiguration.Latitude  = "53.8667";
+            _myConfiguration.Longitude = "9.8833";
 		}
 
 		public override void Save()
@@ -73,13 +78,27 @@ namespace AllOnOnePage.Plugins
 			UpdateForecastValues();
 		}
 
+		public override (bool,string) Validate()
+		{
+			UpdateForecastValues();
+            return (true, "");
+		}
+
+		public override (bool success, string messages) Test()
+		{
+            return (false, "");
+		}
+
 		public override Dictionary<string,string> GetHelp()
 		{
             var texts = new Dictionary<string,string>();
             texts.Add("de-DE", 
-@"Dieses Modul zeigt die aktuelle Temperatur von Wetter.de an.
-hier gehen Sie auf die Wetter.de Homepage und suchen nach dem gewünschten Ort.
-Kopieren Sie dann die Adresszeile des Browsers komplett in die Einstellung hier.
+@"Dieses Modul zeigt die aktuelle Temperatur an.
+Die Daten stammen von openweathermap.org.
+Sie brauchen einen API Key von dort. 
+Gehen Sie hierzu auf www.openweathermap.org/api und registrieren Sie sich kostenlos.
+Kopieren Sie dann denn API Key in die Einstellung hier.
+Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 ");
             return texts;
         }
@@ -104,15 +123,14 @@ Kopieren Sie dann die Adresszeile des Browsers komplett in die Einstellung hier.
 
 		private void InitWeatherReader()
 		{
-			LoadAssembly("HtmlAgilityPack.dll");
-			_logic = new WeatherConverter();
+			_connector = new OpenWeatherMapConnector()
+				.UseApiKey(_myConfiguration.ApiKey)
+				.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
 		}
 
 		private void ReadForecast()
 		{
-            var client = new HttpClient();
-            string pageContent = client.DownloadFromUrl(_myConfiguration.URL);
-			_forecast = _logic.ExtractWeatherDataFromPage(pageContent);
+			_forecast = _connector.ReadCurrentTemperatureAndForecast();
 		}
 
 		private void ReadNewForecastEveryHour()
@@ -134,14 +152,14 @@ Kopieren Sie dann die Adresszeile des Browsers komplett in die Einstellung hier.
 
 		private void UpdateForecastValues()
 		{
-			double currentTemperature = _logic.FindTemperatureForTime(_forecast, DateTime.Now);
-			Value = $"{currentTemperature}°";
+			Value = $"{_forecast.CurrentTemperature}";
 
-			if (!string.IsNullOrWhiteSpace(_myConfiguration.Format) &&
-				_myConfiguration.Format.Contains("{0}"))
-			{
-				Value = _myConfiguration.Format.Replace("{0}", Value);
-			}
+			if (!string.IsNullOrWhiteSpace(_myConfiguration.Decimals))
+				Value = _forecast.CurrentTemperature.ToString("N" + _myConfiguration.Decimals);
+
+			if (!string.IsNullOrWhiteSpace(_myConfiguration.Unit))
+				Value += _myConfiguration.Unit;
+
 			NotifyPropertyChanged(nameof(Value));
 		}
         #endregion

@@ -14,7 +14,7 @@ namespace AllOnOnePage.DialogWindows
 
 
 		#region ------------- Control Properties --------------------------------------------------
-		public string  Name           { get { return _plugin?.GetName(); } }
+		public new string  Name           { get { return _plugin?.GetName(); } }
 		public string  ModuleName     { get { return C.ModuleName;     } set {C.ModuleName     = value; } }
         public string  Type           { get { return C.TileType;       } set {C.TileType       = value; } }
         public int     ModuleFontSize { get { return C.FontSize;       } set {C.FontSize       = value; } }

@@ -161,7 +161,7 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 				//}
 				//Value = $"{anzahlDhlPakete} DHL-{((anzahlDhlPakete > 1) ? "Pakete" : "Paket")}";
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				Value = "???";
 			}
@@ -249,7 +249,7 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 					{
 	                    allMessages.Add(client.GetMessage(i));
 					}
-					catch (Exception ex)
+					catch (Exception)
 					{
 					}
                 }

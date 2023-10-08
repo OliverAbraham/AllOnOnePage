@@ -6,6 +6,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using Abraham.AutoUpdater;
+using Abraham.OpenWeatherMap;
 using AllOnOnePage.DialogWindows;
 using AllOnOnePage.Libs;
 using AllOnOnePage.Plugins;
@@ -14,7 +15,7 @@ namespace AllOnOnePage
 {
     public partial class MainWindow : Window
     {
-        private const string VERSION = "2022-12-16";
+        private const string VERSION = "2023-10-07";
 
 		#region ------------- Fields --------------------------------------------------------------
 		#region Configuration
@@ -52,6 +53,7 @@ namespace AllOnOnePage
 		{
 			try
 			{
+                OpenWeatherMapConnector connector = new OpenWeatherMapConnector();
 			    Init_Configuration();
 			    Init_Logger();
 			    Init_LayoutManager();

@@ -152,7 +152,7 @@ namespace libfintx.Commands
                             return encryptor.TransformFinalBlock(ciphertext, 0, ciphertext.Length);
                         }
                     }
-                    catch (CryptographicException e)
+                    catch (CryptographicException)
                     {
                         aesAlg.Padding = PaddingMode.ISO10126;
                         using (var encryptor = aesAlg.CreateEncryptor())
@@ -211,7 +211,7 @@ namespace libfintx.Commands
                             return decryptor.TransformFinalBlock(ciphertext, 0, ciphertext.Length);
                         }
                     }
-                    catch (CryptographicException e)
+                    catch (CryptographicException)
                     {
                         aesAlg.Padding = PaddingMode.ISO10126;
                         using (var decryptor = aesAlg.CreateDecryptor())

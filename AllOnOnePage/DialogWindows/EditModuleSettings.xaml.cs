@@ -81,10 +81,13 @@ namespace AllOnOnePage.DialogWindows
 			else
 			{
                 (success, messages) = _plugin.Test();
-                var wnd = new MessageBoxWindow(this);
-                wnd.Title = "Test";
-                wnd.ContentBox.Text = messages;
-			    wnd.ShowDialog();
+                if (!string.IsNullOrWhiteSpace(messages))
+                {
+                    var wnd = new MessageBoxWindow(this);
+                    wnd.Title = "Test";
+                    wnd.ContentBox.Text = messages;
+			        wnd.ShowDialog();
+                }
 			}
 		}
 

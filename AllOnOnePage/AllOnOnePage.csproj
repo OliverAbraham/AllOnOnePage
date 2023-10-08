@@ -49,7 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.0" />
+    <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.1" />
     <PackageReference Include="Abraham.ProgramSettingsManager" Version="1.0.2" />
     <PackageReference Include="Abraham.Scheduler" Version="1.0.0" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.4.0" />

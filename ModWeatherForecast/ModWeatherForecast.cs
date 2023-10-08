@@ -305,14 +305,14 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
             H3 = "abends" ;                                      
             H4 = "nachts" ;                           
             
-            var forecast1 = _weatherInfo.Forecast[0]; // _myConfiguration.TimeMorning);
-            var forecast2 = _weatherInfo.Forecast[1]; // _myConfiguration.TimeLunch);
-            var forecast3 = _weatherInfo.Forecast[2]; // _myConfiguration.TimeEvening);
-			var forecast4 = _weatherInfo.Forecast[3]; // _myConfiguration.TimeNight);
-            W1 = char.ConvertFromUtf32(0x2614); //_connector.ConvertIconToUnicode(forecast1.Icon); 
-            W2 = char.ConvertFromUtf32(0x2614); //_connector.ConvertIconToUnicode(forecast2.Icon); 
-            W3 = char.ConvertFromUtf32(0x2614); //_connector.ConvertIconToUnicode(forecast3.Icon); 
-            W4 = char.ConvertFromUtf32(0x2614); //_connector.ConvertIconToUnicode(forecast4.Icon); 
+            var forecast1 = _weatherInfo.SmallForecast[0];
+            var forecast2 = _weatherInfo.SmallForecast[1];
+            var forecast3 = _weatherInfo.SmallForecast[2];
+			var forecast4 = _weatherInfo.SmallForecast[3];
+            W1 = forecast1.UnicodeSymbol;
+            W2 = forecast2.UnicodeSymbol;
+            W3 = forecast3.UnicodeSymbol;
+            W4 = forecast4.UnicodeSymbol;
             D1 = $"{forecast1.Temp}°";                       
             D2 = $"{forecast2.Temp}°";                       
             D3 = $"{forecast3.Temp}°";                       

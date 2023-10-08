@@ -17,7 +17,11 @@ namespace AllOnOnePage.Plugins
 		#region ------------- Settings ------------------------------------------------------------
 		public class MyConfiguration : ModuleSpecificConfig
 		{
-			public string URL { get; set; }
+			public string ApiKey { get; set; }
+			public string Decimals { get; set; }
+			public string Unit { get; set; }
+            public string Latitude { get; set; }
+            public string Longitude { get; set; }
 			public TimeSpan TimeMorning { get; set; } = new TimeSpan(6,0,0);
 			public TimeSpan TimeLunch   { get; set; } = new TimeSpan(12,0,0);
 			public TimeSpan TimeEvening { get; set; } = new TimeSpan(18,0,0);
@@ -78,8 +82,15 @@ namespace AllOnOnePage.Plugins
 
 		public override void CreateSeedData()
 		{
-			_myConfiguration        = new MyConfiguration();
-            _myConfiguration.URL    = @"https://www.wetter.de/deutschland/wetter-berlin-18228265.html?q=berlin";
+			_myConfiguration           = new MyConfiguration();
+            _myConfiguration.ApiKey    = "ENTER-YOUR-API-KEY-HERE you get one free at www.openweathermap.org/api";
+			#if DEBUG
+			_myConfiguration.ApiKey    = File.ReadAllText(@"C:\Credentials\OpenWeatherMapApiKey.txt");
+			#endif
+            _myConfiguration.Decimals  = "0";
+            _myConfiguration.Unit      = "°C";
+            _myConfiguration.Latitude  = "53.8667";
+            _myConfiguration.Longitude = "9.8833";
 		}
 
 		public override void Save()

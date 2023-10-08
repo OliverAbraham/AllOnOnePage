@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Controls;
 
 namespace AllOnOnePage.Plugins
@@ -55,7 +56,10 @@ namespace AllOnOnePage.Plugins
 		public override void CreateSeedData()
 		{
 			_myConfiguration           = new MyConfiguration();
-            _myConfiguration.ApiKey    = "381450bb926011deb69a30af99566880"; // "ENTER-YOUR-API-KEY-HERE you get one free at www.openweathermap.org/api
+            _myConfiguration.ApiKey    = "ENTER-YOUR-API-KEY-HERE you get one free at www.openweathermap.org/api";
+			#if DEBUG
+			_myConfiguration.ApiKey    = File.ReadAllText(@"C:\Credentials\OpenWeatherMapApiKey.txt");
+			#endif
             _myConfiguration.Decimals  = "0";
             _myConfiguration.Unit      = "°C";
             _myConfiguration.Latitude  = "53.8667";

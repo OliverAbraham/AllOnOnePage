@@ -27,18 +27,18 @@ namespace AllOnOnePage.DialogWindows
 		#region ------------- Fields --------------------------------------------------------------
 		[NonSerialized]
         private PropertyChangedEventHandler _PropertyChanged;
-		private ApplicationDirectories _applicationDirectories;
+		private ApplicationData _applicationDirectories;
 		#endregion
 
 
 
 		#region ------------- Init ----------------------------------------------------------------
-		public NewModule(ApplicationDirectories applicationDirectories)
+		public NewModule(ApplicationData applicationDirectories)
 		{
             var config = new ModuleConfig()
 			{
                 FontSize = 30,
-                ApplicationDirectories = applicationDirectories,
+                ApplicationData = applicationDirectories,
 			};
             Module = new RuntimeModule(config);
 			InitializeComponent();

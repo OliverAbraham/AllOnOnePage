@@ -15,6 +15,7 @@
                            AutoGenerateProperties="True"
                            ShowSearchBox="False"
                            ShowSortOptions="False"
+                           NameColumnWidth="250"
                            SelectedPropertyItemChanged="_propertyGrid_SelectedPropertyItemChanged">
         </xctk:PropertyGrid>
 

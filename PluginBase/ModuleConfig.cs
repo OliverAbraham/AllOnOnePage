@@ -25,7 +25,7 @@
 
 
 		#region ------------- Fields - not saved --------------------------------------------------
-		public ApplicationDirectories ApplicationDirectories;
+		public ApplicationData ApplicationData;
 		#endregion
 
 
@@ -47,7 +47,7 @@
 			BackgroundColor    = "#FF778899"; // LightSlateGray
             ModulePrivateData  = "";
             TextColor          = "#FF000000"; // Black
-            ApplicationDirectories = new ApplicationDirectories();
+            ApplicationData    = new ApplicationData();
 		}
         #endregion
 
@@ -84,7 +84,7 @@
 		    FrameRadius            = source.FrameRadius;
 		    BackgroundColor        = source.BackgroundColor;
 		    TextColor              = source.TextColor;
-            ApplicationDirectories = source.ApplicationDirectories;
+            ApplicationData        = source.ApplicationData;
 		}
         #endregion
 

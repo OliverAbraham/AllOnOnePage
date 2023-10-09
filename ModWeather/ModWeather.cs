@@ -1,4 +1,7 @@
 ﻿using Abraham.OpenWeatherMap;
+using HomenetBase;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,6 +21,10 @@ namespace AllOnOnePage.Plugins
 			public string Unit { get; set; }
             public string Latitude { get; set; }
             public string Longitude { get; set; }
+            public string UpdateIntervalInMinutes { get; set; }
+            public string UpdateIntervalFromServer { get; set; }
+            public bool FetchDataFromServer { get; set; }
+            public string ServerDataObjectName { get; set; }
         }
 		#endregion
 
@@ -29,7 +36,6 @@ namespace AllOnOnePage.Plugins
 		private WeatherInfo _forecast;
 		private Stopwatch _stopwatch;
 		private const int ONE_MINUTE = 60 * 1000;
-		private int _updateIntervalInMinutes = 60;
 		#endregion
 
 
@@ -64,6 +70,10 @@ namespace AllOnOnePage.Plugins
             _myConfiguration.Unit      = "°C";
             _myConfiguration.Latitude  = "53.8667";
             _myConfiguration.Longitude = "9.8833";
+            _myConfiguration.UpdateIntervalInMinutes = "60";
+			_myConfiguration.UpdateIntervalFromServer = "1";
+			_myConfiguration.FetchDataFromServer = false;
+			_myConfiguration.ServerDataObjectName = "WEATHER_FORECAST";
 		}
 
 		public override void Save()
@@ -127,17 +137,64 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 
 		private void InitWeatherReader()
 		{
-			_connector = new OpenWeatherMapConnector()
-				.UseApiKey(_myConfiguration.ApiKey)
-				.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
+			if (_myConfiguration.FetchDataFromServer)
+			{
+			}
+			else
+			{
+				_connector = new OpenWeatherMapConnector()
+					.UseApiKey(_myConfiguration.ApiKey)
+					.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
+			}
 		}
 
 		private void ReadForecast()
-		{
-			_forecast = _connector.ReadCurrentTemperatureAndForecast();
-		}
+        {
+            if (_myConfiguration.FetchDataFromServer)
+                _forecast = ReadCurrentTemperatureFromHomeAutomationServer();
+			else
+                _forecast = _connector.ReadCurrentTemperatureAndForecast();
+        }
 
-		private void ReadNewForecastEveryHour()
+        private WeatherInfo ReadCurrentTemperatureFromHomeAutomationServer()
+        {
+			try
+			{
+				var dataObject = _config.ApplicationData._homenetConnector.TryGet(_myConfiguration.ServerDataObjectName);
+				if (dataObject is null || dataObject.Value is null)
+					return DefaultWeatherInfo();
+
+				var json = TextEncoder.UnescapeJsonCharacters(dataObject.Value);
+				var forecast = JsonConvert.DeserializeObject<List<Forecast>>(json);
+				if (forecast is null)
+					return DefaultWeatherInfo();
+
+				dataObject = _config.ApplicationData._homenetConnector.TryGet("AUSSENTEMPERATUR");
+				var value = dataObject.Value;
+				if (value.Contains(' '))
+					value = value.Substring(0, value.IndexOf(' '));
+				if (value.Contains('°'))
+					value = value.Substring(0, value.IndexOf('°'));
+				if (value.Contains(','))
+					value = value.Replace(',', '.');
+				
+				// convert value into double with invariant culture
+				var temperature = Convert.ToDouble(value, System.Globalization.CultureInfo.InvariantCulture);
+
+				return new WeatherInfo(temperature, "°", forecast, new WeatherModel(), new WeatherModel());
+			}
+			catch (Exception)
+			{
+				return DefaultWeatherInfo();
+			}
+        }
+
+        private static WeatherInfo DefaultWeatherInfo()
+        {
+            return new WeatherInfo(0, "?", new List<Forecast>(), new WeatherModel(), new WeatherModel());
+        }
+
+        private void ReadNewForecastEveryHour()
 		{
 			if (_stopwatch == null)
 			{
@@ -146,7 +203,11 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 			}
 			else
 			{
-				if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * ONE_MINUTE)
+				var intervalMilliseconds = (_myConfiguration.FetchDataFromServer) 
+					? Convert.ToInt32(_myConfiguration.UpdateIntervalFromServer) * ONE_MINUTE
+					: Convert.ToInt32(_myConfiguration.UpdateIntervalInMinutes) * ONE_MINUTE;
+
+				if (_stopwatch.ElapsedMilliseconds > intervalMilliseconds)
 				{
 					ReadForecast();
 					_stopwatch.Restart();

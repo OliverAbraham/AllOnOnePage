@@ -58,6 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\NuGet\Abraham.HomenetBase\Abraham.HomenetBase\Abraham.HomenetBase\Abraham.HomenetBase.csproj" />
     <ProjectReference Include="..\Abraham.AutoUpdater\Abraham.AutoUpdater.csproj" />
     <ProjectReference Include="..\Abraham.PluginManager\Abraham.PluginManager.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />

@@ -16,4 +16,8 @@
     <Folder Include="Themes\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\NuGet\Abraham.HomenetBase\Abraham.HomenetBase\Abraham.HomenetBase\Abraham.HomenetBase.csproj" />
+  </ItemGroup>
+
 </Project>

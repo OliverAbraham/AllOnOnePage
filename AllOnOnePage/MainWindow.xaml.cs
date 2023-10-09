@@ -5,7 +5,9 @@ using System.Runtime.ExceptionServices;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 using Abraham.AutoUpdater;
+using Abraham.HomenetBase.Connectors;
 using Abraham.OpenWeatherMap;
 using AllOnOnePage.DialogWindows;
 using AllOnOnePage.Libs;
@@ -15,13 +17,13 @@ namespace AllOnOnePage
 {
     public partial class MainWindow : Window
     {
-        private const string VERSION = "2023-10-07";
+        private const string VERSION = "2023-10-08";
 
 		#region ------------- Fields --------------------------------------------------------------
 		#region Configuration
         private ConfigurationManager   _configurationManager;
         private Configuration          _config => _configurationManager.Config;
-   		private ApplicationDirectories _applicationDirectories;
+   		private ApplicationData        _applicationData;
 		private HelpTexts              _texts;
         private LayoutManager          _layoutManager;
 		private Logger                 _logger;
@@ -29,7 +31,7 @@ namespace AllOnOnePage
         #endregion
 
         #region Dynamic data
-        private ViewModel     _vm;
+        private ViewModel              _vm;
         private bool                   _nowUpdating;
         private Timer                  _periodicTimer;
         private Timer                  _dateTimeUpdateTimer;
@@ -37,19 +39,18 @@ namespace AllOnOnePage
 
 		#region Power management and Supervisor
 		private WindowsPowermanagement _powermanagement;
-		private Timer _buttonFadeOutTimer;
-		//private SupervisorThread     _supervisorThread;
+		private Timer                  _buttonFadeOutTimer;
 		#endregion
         
 		#region Updater
 		private Updater _Updater;
-		#endregion
-		#endregion
+        #endregion
+        #endregion
 
 
 
-		#region ------------- Init ----------------------------------------------------------------
-		public MainWindow()
+        #region ------------- Init ----------------------------------------------------------------
+        public MainWindow()
 		{
 			try
 			{
@@ -57,6 +58,7 @@ namespace AllOnOnePage
 			    Init_Configuration();
 			    Init_Logger();
 			    Init_LayoutManager();
+                Init_HomeAutomationServerConnection();
 			    Init_Plugins();
 			    InitializeComponent();
 			    Init_GlobalExceptionHandler();
@@ -71,7 +73,7 @@ namespace AllOnOnePage
 			}
 		}
 
-		private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
 			Init_Updater();
             WaitAndThenCallMethod(wait_time_seconds:1, action:Startup);
@@ -134,14 +136,14 @@ namespace AllOnOnePage
         #region ------------- Startup -----------------------------------------
 		private void Init_Configuration()
 		{
-            _applicationDirectories = new ApplicationDirectories();
-            _applicationDirectories.ProgramDirectory = Directory.GetCurrentDirectory();
+            _applicationData = new ApplicationData();
+            _applicationData.ProgramDirectory = Directory.GetCurrentDirectory();
 			_texts = new HelpTexts();
-			_configurationManager = new ConfigurationManager(_texts, _applicationDirectories);
+			_configurationManager = new ConfigurationManager(_texts, _applicationData);
 			_configurationManager.CreateDataDirectoryIfNotExists();
 			_configurationManager.SetCurrentDirectoryToDataDirectory();
 			_configurationManager.Load();
-            _applicationDirectories.DataDirectory = _configurationManager.DataDirectory;
+            _applicationData.DataDirectory = _configurationManager.DataDirectory;
 		}
 
 		private void Init_Logger()
@@ -170,9 +172,28 @@ namespace AllOnOnePage
             }
         }
 
+        private void Init_HomeAutomationServerConnection()
+        {
+            if (string.IsNullOrWhiteSpace(_config.HomeAutomationServerUrl))
+                return;
+            Console.WriteLine("Connecting to homenet server...");
+            try
+            {
+                _applicationData._homenetConnector = new DataObjectsConnector(
+                    _config.HomeAutomationServerUrl, 
+                    _config.HomeAutomationServerUser, 
+                    _config.HomeAutomationServerPassword, 
+                    _config.HomeAutomationServerTimeout);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error connecting to homenet server:\n" + ex.ToString(), _texts[HelpTexts.ID.ERROR_HEADING]);
+            }
+        }
+
 		private void Init_ViewModel()
 		{
-			_vm = new ViewModel(this, _config, _texts, _applicationDirectories);
+			_vm = new ViewModel(this, _config, _texts, _applicationData);
 			_vm.Dispatcher = Dispatcher;
 			_vm.SaveConfiguration = _configurationManager.Save;
 			DataContext = _vm;
@@ -226,8 +247,8 @@ namespace AllOnOnePage
 		private void Init_Plugins()
 		{
 			_pluginLoader = new PluginLoader();
-            _pluginLoader.LoadPlugins(_applicationDirectories.ProgramDirectory);
-            _applicationDirectories.PluginDirectory = _pluginLoader.ActualPluginDirectory;
+            _pluginLoader.LoadPlugins(_applicationData.ProgramDirectory);
+            _applicationData.PluginDirectory = _pluginLoader.ActualPluginDirectory;
 
             if (_pluginLoader.Processors.Count == 0)
 			{
@@ -553,7 +574,7 @@ namespace AllOnOnePage
 			_Updater.RepositoryURL            = @"https://www.abraham-beratung.de/aoop/version.html";
             _Updater.DownloadLinkStart        = "https:\\/\\/www\\.abraham-beratung\\.de\\/aoop";
             _Updater.DownloadLinkEnd          = "zip";
-			_Updater.DestinationDirectory     = _applicationDirectories.ProgramDirectory;
+			_Updater.DestinationDirectory     = _applicationData.ProgramDirectory;
 			_Updater.OnUpdateAvailable        = delegate()
 			{
 				_Updater.Stop();

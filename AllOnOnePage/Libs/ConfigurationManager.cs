@@ -24,14 +24,14 @@ namespace AllOnOnePage.Libs
         private Configuration _config;
         private ProgramSettingsManager<Configuration> _configurationManager;
 		private HelpTexts _texts;
-		private ApplicationDirectories _applicationDirectories;
+		private ApplicationData _applicationDirectories;
 		private int _moduleNumber;
 		#endregion
 
 
 
 		#region ------------- Init ----------------------------------------------------------------
-		public ConfigurationManager(HelpTexts texts, ApplicationDirectories applicationDirectories)
+		public ConfigurationManager(HelpTexts texts, ApplicationData applicationDirectories)
 		{
 			_texts = texts;
 			_applicationDirectories = applicationDirectories;
@@ -122,7 +122,7 @@ namespace AllOnOnePage.Libs
                 W                      = w, 
                 H                      = h, 
                 FontSize               = fontsize, 
-				ApplicationDirectories = _applicationDirectories,
+				ApplicationData = _applicationDirectories,
             };
 		}
 		#endregion

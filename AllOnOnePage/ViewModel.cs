@@ -79,7 +79,7 @@ namespace AllOnOnePage
         private List<RuntimeModule>         _runtimeModules;
         private PropertyChangedEventHandler _propertyChanged;
 		private MainWindow                  _parentWindow;
-		private ApplicationDirectories      _applicationDirectories;
+		private ApplicationData             _applicationData;
 
 		#region Visual editor
 		private Grid                 _ParentGrid;
@@ -104,12 +104,12 @@ namespace AllOnOnePage
 
 
 		#region ------------- Init ----------------------------------------------------------------
-		public ViewModel(MainWindow parentWindow, Configuration configuration, HelpTexts texts, ApplicationDirectories applicationDirectories)
+		public ViewModel(MainWindow parentWindow, Configuration configuration, HelpTexts texts, ApplicationData applicationData)
         {
-            _parentWindow           = parentWindow           ?? throw new ArgumentNullException(nameof(parentWindow)); 
-            _configuration          = configuration          ?? throw new ArgumentNullException(nameof(configuration)); 
-            _texts                  = texts                  ?? throw new ArgumentNullException(nameof(texts)); 
-            _applicationDirectories = applicationDirectories ?? throw new ArgumentNullException(nameof(applicationDirectories)); 
+            _parentWindow    = parentWindow    ?? throw new ArgumentNullException(nameof(parentWindow)); 
+            _configuration   = configuration   ?? throw new ArgumentNullException(nameof(configuration)); 
+            _texts           = texts           ?? throw new ArgumentNullException(nameof(texts)); 
+            _applicationData = applicationData ?? throw new ArgumentNullException(nameof(applicationData)); 
 
             EditModeControlsVisibility = Visibility.Hidden;
         }
@@ -137,7 +137,7 @@ namespace AllOnOnePage
             _runtimeModules = new List<RuntimeModule>();
             foreach (var config in _configuration.Modules)
             {
-                config.ApplicationDirectories = _applicationDirectories;
+                config.ApplicationData = _applicationData;
                 var runtime = new RuntimeModule(config);
                 Init_one_module(runtime);
                 _runtimeModules.Add(runtime);
@@ -710,7 +710,7 @@ namespace AllOnOnePage
 
 		private void AddnewModule_internal()
 		{
-			var wnd = new NewModule(_applicationDirectories);
+			var wnd = new NewModule(_applicationData);
 			wnd.Owner = _parentWindow;
 			wnd.Processors = _processors;
 			wnd.ShowDialog();

@@ -190,7 +190,7 @@ namespace AllOnOnePage.Plugins
 
         public virtual void LoadAssembly(string filename)
 		{
-            Assembly.LoadFrom(_config.ApplicationDirectories.PluginDirectory + System.IO.Path.DirectorySeparatorChar + filename);
+            Assembly.LoadFrom(_config.ApplicationData.PluginDirectory + System.IO.Path.DirectorySeparatorChar + filename);
 		}
         #endregion
 

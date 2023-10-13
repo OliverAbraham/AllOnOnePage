@@ -1,4 +1,5 @@
 ﻿using Abraham.HomenetBase.Connectors;
+using Newtonsoft.Json;
 using System.Xml.Serialization;
 
 namespace AllOnOnePage.Plugins
@@ -9,6 +10,8 @@ namespace AllOnOnePage.Plugins
         public string               PluginDirectory  { get; set; }
         public string               DataDirectory    { get; set; }
         
+        // exclude from Newtonsoft.Json serialization 
+        [JsonIgnore]
         public DataObjectsConnector _homenetConnector;
 
 		public ApplicationData Clone()

@@ -1,4 +1,6 @@
 ﻿using Abraham.OpenWeatherMap;
+using HomenetBase;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,6 +26,10 @@ namespace AllOnOnePage.Plugins
 			//public TimeSpan TimeLunch   { get; set; } = new TimeSpan(12,0,0);
 			//public TimeSpan TimeEvening { get; set; } = new TimeSpan(18,0,0);
 			//public TimeSpan TimeNight   { get; set; } = new TimeSpan(23,0,0);
+            public string UpdateIntervalInMinutes { get; set; }
+            public string UpdateIntervalFromServer { get; set; }
+            public bool FetchDataFromServer { get; set; }
+            public string ServerDataObjectName { get; set; }
 		}
 		#endregion
 
@@ -51,7 +57,7 @@ namespace AllOnOnePage.Plugins
 		#region ------------- Fields --------------------------------------------------------------
 		private MyConfiguration                _myConfiguration;
         private static OpenWeatherMapConnector _connector;
-		private WeatherInfo                    _weatherInfo;
+		private WeatherInfo                    _forecast;
 		private Stopwatch                      _stopwatch;
 		private const int                      ONE_MINUTE = 60 * 1000;
 		private int                            _updateIntervalInMinutes = 60;
@@ -91,6 +97,10 @@ namespace AllOnOnePage.Plugins
             _myConfiguration.Unit      = "°C";
             _myConfiguration.Latitude  = "53.8667";
             _myConfiguration.Longitude = "9.8833";
+            _myConfiguration.UpdateIntervalInMinutes = "60";
+			_myConfiguration.UpdateIntervalFromServer = "1";
+			_myConfiguration.FetchDataFromServer = false;
+			_myConfiguration.ServerDataObjectName = "WEATHER_FORECAST";
 		}
 
 		public override void Save()
@@ -126,6 +136,7 @@ namespace AllOnOnePage.Plugins
 
 		public override (bool success, string messages) Test()
 		{
+            ReadForecast();
             return (false, "");
 		}
 
@@ -200,15 +211,50 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 
 		private void InitWeatherReader()
 		{
-			_connector = new OpenWeatherMapConnector()
-				.UseApiKey(_myConfiguration.ApiKey)
-				.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
+			if (_myConfiguration.FetchDataFromServer)
+			{
+			}
+			else
+			{
+				_connector = new OpenWeatherMapConnector()
+					.UseApiKey(_myConfiguration.ApiKey)
+					.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
+			}
 		}
 
 		private void ReadForecast()
 		{
-			_weatherInfo = _connector.ReadCurrentTemperatureAndForecast();
+            if (_myConfiguration.FetchDataFromServer)
+                _forecast = ReadCurrentForecastFromHomeAutomationServer();
+			else
+			    _forecast = _connector.ReadCurrentTemperatureAndForecast();
 		}
+
+        private WeatherInfo ReadCurrentForecastFromHomeAutomationServer()
+        {
+			try
+			{
+				var dataObject = _config.ApplicationData._homenetConnector.TryGet(_myConfiguration.ServerDataObjectName);
+				if (dataObject is null || dataObject.Value is null)
+					return DefaultWeatherInfo();
+
+				var json = TextEncoder.UnescapeJsonCharacters(dataObject.Value);
+				var forecast = JsonConvert.DeserializeObject<List<Forecast>>(json);
+				if (forecast is null)
+					return DefaultWeatherInfo();
+
+				return new WeatherInfo(0, "?", forecast, new WeatherModel(), new WeatherModel());
+			}
+			catch (Exception)
+			{
+				return DefaultWeatherInfo();
+			}
+        }
+
+        private static WeatherInfo DefaultWeatherInfo()
+        {
+            return new WeatherInfo(0, "?", new List<Forecast>(), new WeatherModel(), new WeatherModel());
+        }
 
         private void CreateGrid()
         {
@@ -224,13 +270,17 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
             CreatePropertyBinding(nameof(Height)         , _grid, Grid.HeightProperty);
             CreatePropertyBinding(nameof(ValueVisibility), _grid, Grid.VisibilityProperty);
             
-            int fontSize0 = _config.FontSize/2; //(int)(Width/22);
-            int fontSize1 = _config.FontSize;   //(int)(Width/10);
-            int fontSize2 = _config.FontSize;   //(int)(Width/13);
+            int fontSize0 = (int)(_config.FontSize*0.4);   
+            int fontSize1 = (int)(_config.FontSize*1.0);   
+            int fontSize2 = (int)(_config.FontSize*1.0);   
 
-            int height0   = _config.FontSize*10/10; // (int)(Width/16);
-            int height1   = _config.FontSize*15/10;   // (int)(Width/7);
-            int height2   = _config.FontSize*12/10;   // (int)(Width/10);
+            //int height0   = (int)(_config.FontSize*1.0); 
+            //int height1   = (int)(_config.FontSize*1.5); 
+            //int height2   = (int)(_config.FontSize*1.2); 
+
+            int height0   = (int)(_config.H*0.17);       
+            int height1   = (int)(_config.H*0.25);       
+            int height2   = (int)(_config.FontSize*1.2);
 
             CreateRow(0, fontSize0, height0, "H");
             CreateRow(1, fontSize1, height1, "W");
@@ -266,17 +316,25 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 
         private void CreateText(Grid columnGrid, int row, int column, int fontSize, int height, string propertyName)
         {
-            var textBlock = CreateGridTextBlock(_textColor, fontSize, height, propertyName);
+            var background = Brushes.Transparent;
+            switch (row)
+            {
+                case 0: background = Brushes.LightBlue; break;
+                case 1: background = Brushes.LightCoral; break;
+                case 2: background = Brushes.LightGreen; break;
+            }
+            var textBlock = CreateGridTextBlock(_textColor, fontSize, height, propertyName, background);
             Grid.SetRow(textBlock, row);
             Grid.SetColumn(textBlock, column);
             columnGrid.Children.Add(textBlock);
             Panel.SetZIndex(textBlock, 2);
         }
 
-        protected TextBlock CreateGridTextBlock(Brush foreground, int fontSize, int height, string propertyName)
+        protected TextBlock CreateGridTextBlock(Brush foreground, int fontSize, int height, string propertyName, SolidColorBrush background)
         {
             var control                 = new TextBlock();
             control.Foreground          = foreground;
+            control.Background          = background;
             control.FontSize            = fontSize;
             control.FontFamily          = new System.Windows.Media.FontFamily("Yu Gothic UI Light");
             control.FontStretch         = FontStretch.FromOpenTypeStretch(3);
@@ -304,15 +362,18 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
             H2 = "mittags";                                      
             H3 = "abends" ;                                      
             H4 = "nachts" ;                           
+
+            if (_forecast is null)
+                return;
             
-            var forecast1 = _weatherInfo.SmallForecast[0];
-            var forecast2 = _weatherInfo.SmallForecast[1];
-            var forecast3 = _weatherInfo.SmallForecast[2];
-			var forecast4 = _weatherInfo.SmallForecast[3];
-            W1 = forecast1.UnicodeSymbol;
-            W2 = forecast2.UnicodeSymbol;
-            W3 = forecast3.UnicodeSymbol;
-            W4 = forecast4.UnicodeSymbol;
+            var forecast1 = _forecast.SmallForecast[0];
+            var forecast2 = _forecast.SmallForecast[1];
+            var forecast3 = _forecast.SmallForecast[2];
+			var forecast4 = _forecast.SmallForecast[3];
+            W1 = new OpenWeatherMapConnector().GetUniCodeSymbolForWeatherIcon(forecast1.Icon);
+            W2 = new OpenWeatherMapConnector().GetUniCodeSymbolForWeatherIcon(forecast2.Icon);
+            W3 = new OpenWeatherMapConnector().GetUniCodeSymbolForWeatherIcon(forecast3.Icon);
+            W4 = new OpenWeatherMapConnector().GetUniCodeSymbolForWeatherIcon(forecast4.Icon);
             D1 = $"{forecast1.Temp}°";                       
             D2 = $"{forecast2.Temp}°";                       
             D3 = $"{forecast3.Temp}°";                       

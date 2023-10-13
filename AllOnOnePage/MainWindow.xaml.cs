@@ -17,7 +17,7 @@ namespace AllOnOnePage
 {
     public partial class MainWindow : Window
     {
-        private const string VERSION = "2023-10-08";
+        private const string VERSION = "2023-10-10";
 
 		#region ------------- Fields --------------------------------------------------------------
 		#region Configuration
@@ -45,6 +45,10 @@ namespace AllOnOnePage
 		#region Updater
 		private Updater _Updater;
         #endregion
+
+		#region Home automation server connection
+        private bool _connectingToServerInProgress;
+		#endregion
         #endregion
 
 
@@ -58,7 +62,6 @@ namespace AllOnOnePage
 			    Init_Configuration();
 			    Init_Logger();
 			    Init_LayoutManager();
-                Init_HomeAutomationServerConnection();
 			    Init_Plugins();
 			    InitializeComponent();
 			    Init_GlobalExceptionHandler();
@@ -153,16 +156,26 @@ namespace AllOnOnePage
 
         private void Startup()
         {
+            if (!string.IsNullOrWhiteSpace(_config.HomeAutomationServerUrl))
+                ConnectToServer_then_call_Startup2();
+            else
+                Startup2();
+		}
+
+        private void Startup2()
+        {
             try
             {
                 //StartPowerManagement();
                 //Read_saved_state_from_disk();
+
                 Init_all_modules();
                 Start_periodic_UI_update_timer();
                 Start_date_time_update_timer();
                 //StartSupervisorThread();
                 Show_Welcome_Screen();
                 FadeOutEditControlAndHelpTexts();
+                FadeOutVersionInfo();
             }
             catch (Exception ex)
             {
@@ -172,26 +185,7 @@ namespace AllOnOnePage
             }
         }
 
-        private void Init_HomeAutomationServerConnection()
-        {
-            if (string.IsNullOrWhiteSpace(_config.HomeAutomationServerUrl))
-                return;
-            Console.WriteLine("Connecting to homenet server...");
-            try
-            {
-                _applicationData._homenetConnector = new DataObjectsConnector(
-                    _config.HomeAutomationServerUrl, 
-                    _config.HomeAutomationServerUser, 
-                    _config.HomeAutomationServerPassword, 
-                    _config.HomeAutomationServerTimeout);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error connecting to homenet server:\n" + ex.ToString(), _texts[HelpTexts.ID.ERROR_HEADING]);
-            }
-        }
-
-		private void Init_ViewModel()
+        private void Init_ViewModel()
 		{
 			_vm = new ViewModel(this, _config, _texts, _applicationData);
 			_vm.Dispatcher = Dispatcher;
@@ -230,6 +224,63 @@ namespace AllOnOnePage
             string Msg = "CurrentDomain_UnhandledException!" + "\r\n" + e.ExceptionObject.ToString();
             _logger.Log(Msg);
             MessageBox.Show(Msg, _texts[HelpTexts.ID.ERROR_HEADING]);
+        }
+        #endregion
+        #region ------------- Server connection -------------------------------
+        private void ConnectToServer_then_call_Startup2()
+        {
+            _connectingToServerInProgress = true;
+            ServerInfo.Content = "Connecting to server...";
+            WaitAndThenCallMethod(wait_time_seconds: 1, action: ConnectToHomeAutomationServer);
+        }
+
+        private void ConnectToHomeAutomationServer()
+        {
+            try
+            {
+                _applicationData._homenetConnector = new DataObjectsConnector(
+                    _config.HomeAutomationServerUrl, 
+                    _config.HomeAutomationServerUser, 
+                    _config.HomeAutomationServerPassword, 
+                    _config.HomeAutomationServerTimeout);
+                ServerInfo.Content = "Connected";
+                FadeOutServerInfo();
+            }
+            catch (Exception ex)
+            {
+                ServerInfo.Content = "Error connecting to homenet server";
+                WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToHomeAutomationServer);
+            }
+            finally
+            {
+                _connectingToServerInProgress = false;
+                Startup2();
+            }
+        }
+
+        private void ReconnectToHomeAutomationServer()
+        {
+            ServerInfo.Content = "Reconnecting...";
+            WaitAndThenCallMethod(wait_time_seconds: 1, action: ReconnectToHomeAutomationServer2);
+        }
+
+        private void ReconnectToHomeAutomationServer2()
+        {
+            try
+            {
+                _applicationData._homenetConnector = new DataObjectsConnector(
+                    _config.HomeAutomationServerUrl, 
+                    _config.HomeAutomationServerUser, 
+                    _config.HomeAutomationServerPassword, 
+                    _config.HomeAutomationServerTimeout);
+                ServerInfo.Content = "Connected";
+                FadeOutServerInfo();
+            }
+            catch (Exception ex)
+            {
+                ServerInfo.Content = "Error connecting to homenet server";
+                WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToHomeAutomationServer);
+            }
         }
         #endregion
         #region ------------- Main window layout ------------------------------
@@ -357,6 +408,7 @@ namespace AllOnOnePage
         private void Init_HelpTexts()
         {
             VersionInfo.Content = $"Version {VERSION}";
+            ServerInfo.Content = "";
             HelpText1.Content = _texts[HelpTexts.ID.CLICKHERETOEND];
             HelpText2.Content = _texts[HelpTexts.ID.CLICKHERETOEDIT];
             HelpText3.Content = _texts[HelpTexts.ID.CLICKHERETOFULL];
@@ -364,11 +416,7 @@ namespace AllOnOnePage
 
         private void FadeOutEditControlAndHelpTexts()
         {
-            if (!_config.WelcomeScreenDisabled)
-                return;
-            if (!_config.EditModeWasEntered)
-                return;
-            WaitAndThenCallMethod(wait_time_seconds:10, action:FadeOutHelpTexts);
+            WaitAndThenCallMethod(wait_time_seconds:5, action:FadeOutHelpTexts);
             WaitAndThenCallMethod(wait_time_seconds:10, action:FadeOutButtons);
         }
 
@@ -381,8 +429,17 @@ namespace AllOnOnePage
 			WpfAnimations.FadeOutLabel(HelpText5);
 			WpfAnimations.FadeOutLabel(HelpText6);
 			WpfAnimations.FadeOutLabel(HelpText7);
-			WpfAnimations.FadeOutLabel(VersionInfo);
 		}
+
+        private void FadeOutVersionInfo()
+        {
+            WaitAndThenCallMethod(wait_time_seconds:10, action: () => WpfAnimations.FadeOutLabel(VersionInfo));			
+        }
+
+        private void FadeOutServerInfo()
+        {
+            WaitAndThenCallMethod(wait_time_seconds:10, action: () => WpfAnimations.FadeOutLabel(ServerInfo));			
+        }
 
 		private void ShowButtonsOnMouseHover(Window sender, MouseEventArgs e)
 		{

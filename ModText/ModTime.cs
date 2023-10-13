@@ -42,7 +42,7 @@ namespace AllOnOnePage.Plugins
 		public override void CreateSeedData()
 		{
 			_myConfiguration = new MyConfiguration();
-            _myConfiguration.Format = @"hh\:mm";
+            _myConfiguration.Format = @"HH\:mm";
 		}
 
 		public override void Save()

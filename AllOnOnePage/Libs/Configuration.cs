@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AllOnOnePage
 {
-	public class Configuration
+    public class Configuration
 	{
 		#region ------------- Types and constants -------------------------------------------------
 		public enum BackgroundType { Image, Color }
@@ -68,11 +68,16 @@ namespace AllOnOnePage
 			HomeAutomationServerUser     = HomeAutomationServerUser    ;
 			HomeAutomationServerPassword = HomeAutomationServerPassword;
 		}
-		#endregion
 
-
-
-		#region ------------- Implementation ------------------------------------------------------
-		#endregion
-	}
+        public void AssignUniqueIDsToModules()
+        {
+			int enumerator = 1;
+			foreach (var module in Modules)
+			{
+				if (module.ID == 0)
+					module.ID = enumerator++;
+			}
+        }
+        #endregion
+    }
 }

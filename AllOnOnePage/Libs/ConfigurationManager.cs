@@ -46,19 +46,22 @@ namespace AllOnOnePage.Libs
 			_configurationManager = new ProgramSettingsManager<Configuration>()
 				.UseFilename(_configurationFilename);
 
-			CreateSeedData();
-
-			_configurationManager.Load();
-			_config = _configurationManager.Data;
-			if (_config == null)
-				throw new Exception($"No valid configuration found!\nExpecting file '{_configurationManager.ConfigFilename}'");
-
-			int enumerator = 1;
-			foreach (var module in _config.Modules)
+			try
 			{
-				if (module.ID == 0)
-					module.ID = enumerator++;
+				_configurationManager.Load();
+				_config = _configurationManager.Data;
 			}
+			catch (Exception)
+			{
+				_config = null;
+			}
+
+			if (_config is null || _config.Modules.Count == 0)
+			{
+				_config = CreateSeedData();
+			}
+
+			_config.AssignUniqueIDsToModules();
             return true;
         }
 
@@ -84,11 +87,8 @@ namespace AllOnOnePage.Libs
 
 
 		#region ------------- Seed data for first start -------------------------------------------
-		private void CreateSeedData()
+		private Configuration CreateSeedData()
 		{
-			if (File.Exists(_configurationFilename))
-				return;
-
 			var seed = new Configuration();
             seed.FullScreenDisplay = false;
             seed.Background = Configuration.BackgroundType.Image;
@@ -103,8 +103,7 @@ namespace AllOnOnePage.Libs
 			seed.Modules.Add(Create("ModDate"   , 200, 430, 600, 120,  80));
 			seed.Modules.Add(Create("ModTime"   , 820, 430, 200, 120,  80));
 			seed.Modules.Add(Create("ModWeather", 200, 560, 205, 185, 100));
-
-			_configurationManager.Save(seed);
+			return seed;
 		}
 		#endregion
 

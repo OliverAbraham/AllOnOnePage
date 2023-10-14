@@ -71,6 +71,15 @@ namespace AllOnOnePage
 
 
 
+        #region ------------- Private classes -----------------------------------------------------
+        private class HighLight
+        {
+            public List<UIElement> Elements;
+        }
+        #endregion
+
+
+
         #region ------------- Fields --------------------------------------------------------------
 		private Configuration               _configuration;
 		private HelpTexts                   _texts;
@@ -98,13 +107,15 @@ namespace AllOnOnePage
         private IPlugin              _CurrentModule;
         private int                  _Delta_to_Subtract_from_Window_width = 16;
 		private bool                 _MouseIsOverWastebasket;
-		#endregion
-		#endregion
+        private HighLight?           _HoveredModule;
+        private HighLight?           _SelectedModule;
+        #endregion
+        #endregion
 
 
 
-		#region ------------- Init ----------------------------------------------------------------
-		public ViewModel(MainWindow parentWindow, Configuration configuration, HelpTexts texts, ApplicationData applicationData)
+        #region ------------- Init ----------------------------------------------------------------
+        public ViewModel(MainWindow parentWindow, Configuration configuration, HelpTexts texts, ApplicationData applicationData)
         {
             _parentWindow    = parentWindow    ?? throw new ArgumentNullException(nameof(parentWindow)); 
             _configuration   = configuration   ?? throw new ArgumentNullException(nameof(configuration)); 
@@ -287,10 +298,10 @@ namespace AllOnOnePage
 
         public bool Button_Edit_Click()
 		{
-			return EnterOrleaveEditMode();
+			return EnterOrLeaveEditMode();
 		}
 
-		private bool EnterOrleaveEditMode()
+		private bool EnterOrLeaveEditMode()
 		{
 			_EditMode = !_EditMode;
 			EditModeControlsVisibility = _EditMode ? Visibility.Visible : Visibility.Hidden;
@@ -303,6 +314,7 @@ namespace AllOnOnePage
 			}
 			else
 			{
+                RemovePerimeterRectangles();
 				ResetBackgroundForAllModules();
 				HideDragRectangle();
 				Update_all_modules();
@@ -313,11 +325,9 @@ namespace AllOnOnePage
 			return _EditMode;
 		}
 
-		public void Window_MouseLeftButtonDown(Window sender, System.Windows.Input.MouseButtonEventArgs e)
+        public void Window_MouseLeftButtonDown(Window sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            //if (!_EditMode) 
-            //    return;
-            if (_runtimeModules == null) 
+            if (_runtimeModules is null) 
                 return;
             var module = FindModuleUnderMouse(sender, e);
             if (module == null)
@@ -335,6 +345,8 @@ namespace AllOnOnePage
                 _ChangeModuleHeight = true;
             else
                 _ChangeModulePosition = true;
+
+            SelectModuleUnderMouse();
         }
 
         public void Window_MouseLeftButtonUp(Window sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -387,8 +399,6 @@ namespace AllOnOnePage
 
 		public void Window_MouseMove(Window sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (!_EditMode)
-                return;
             if (_runtimeModules == null)
                 return;
 
@@ -414,13 +424,13 @@ namespace AllOnOnePage
             if (module != null)
             {
                 if (!_EditMode)
-                    EnterOrleaveEditMode();
+                    EnterOrLeaveEditMode();
                 OpenEditDialog(e, module);
 			}
             else
 			{
                 if (_EditMode)
-                    EnterOrleaveEditMode();
+                    EnterOrLeaveEditMode();
                 else
                     OpenBackgroundEditDialog();
 			}
@@ -464,16 +474,28 @@ namespace AllOnOnePage
         {
             var module = FindModuleUnderMouse(sender, e);
             if (module != null)
-            {
                 CopyModule(module, e);
-			}
         }
         #endregion
         #region ------------- Implementation ----------------------------------
-        private void NoElementIsUnderMouse()
+        private RuntimeModule FindModuleUnderMouse(Window sender, System.Windows.Input.MouseEventArgs e)
         {
-            ResetMousePointerOnBorderOfDragRect();
-            ResetModuleUnderMouse();
+            if (_runtimeModules is null)
+                return null;
+
+            var pos = e.GetPosition(sender);
+
+            System.Diagnostics.Debug.WriteLine($"Mouse: {pos.X} {pos.Y}");
+            IInputElement element = sender.InputHitTest(pos);
+            if (element is null)
+                return null;
+
+            foreach (var module in _runtimeModules)
+            {
+                if (module.Plugin.HitTest(element, pos))
+                    return module;
+            }
+            return null;
         }
 
         private void ElementIsUnderMouse(Window sender, MouseEventArgs e, IPlugin plugin)
@@ -486,6 +508,9 @@ namespace AllOnOnePage
 
             if (plugin != _CurrentModule)
                 SwitchToNextModule(plugin);
+            
+            if (_CurrentModule is not null)
+                DisplayModuleHoverIndicator();
 
             if (_ChangeModulePosition)
                 PerformMove(mouse);
@@ -495,6 +520,13 @@ namespace AllOnOnePage
                 PerformHeightAdjustment(mouse);
             else
                 DetectMousePointerOnBorder(Deltas);
+        }
+
+        private void NoElementIsUnderMouse()
+        {
+            ResetMousePointerOnBorderOfDragRect();
+            ResetModuleUnderMouse();
+            RemoveModuleHoverIndicator();
         }
 
         private void SwitchToNextModule(IPlugin module)
@@ -639,25 +671,6 @@ namespace AllOnOnePage
             _DragRect.Stroke = Brushes.Transparent;
         }
 
-        private RuntimeModule FindModuleUnderMouse(Window sender, System.Windows.Input.MouseEventArgs e)
-        {
-            var pos = e.GetPosition(sender);
-
-            IInputElement element = sender.InputHitTest(pos);
-            if (element != null && _runtimeModules != null)
-            {
-                string name = (element is TextBlock) ? ((element as TextBlock).Name + (element as TextBlock).Text) : "";
-                //System.Diagnostics.Debug.WriteLine($"FindModuleUnderMouse: {module.ToString()}  Name: {name}");
-                foreach (var module in _runtimeModules)
-                {
-                    if (module.Plugin.HitTest(element))
-                        return module;
-                }
-            }
-
-            return null;
-        }
-
 		private void Highlight_Wastebasket_if_mouse_pointer_is_over(Point pos)
 		{
             var basket = _parentWindow.Button_Wastebasket;
@@ -685,15 +698,95 @@ namespace AllOnOnePage
 
 		internal void Button_Editmode_Click()
 		{
-			EnterOrleaveEditMode();
+			EnterOrLeaveEditMode();
 		}
 
 		internal void Button_Wastebasket_Click()
 		{
 		}
-		#endregion
+        #endregion
+        #region Module highlight and module select
+
+        private void SelectModuleUnderMouse()
+        {
+            if (_CurrentModule is null)
+                return;
+            RemovePerimeterRectangle(ref _SelectedModule);
+            CreatePerimeterRectangle(ref _SelectedModule, false);
+        }
+
+        private void RemovePerimeterRectangles()
+        {
+            RemovePerimeterRectangle(ref _SelectedModule);
+            RemovePerimeterRectangle(ref _HoveredModule);
+        }
+
+        private void DisplayModuleHoverIndicator()
+        {
+            RemovePerimeterRectangle(ref _HoveredModule);
+            CreatePerimeterRectangle(ref _HoveredModule, true);
+        }
+
+        private void RemoveModuleHoverIndicator()
+        {
+            RemovePerimeterRectangle(ref _HoveredModule);
+        }
+
+        private void CreatePerimeterRectangle(ref HighLight shape, bool dashed)
+        {
+            var thickness = 3;
+            var diameter = 12;
+            var color = Brushes.LightGreen;
+            var fill = Brushes.Wheat;
+
+            var pos = _CurrentModule.GetPositionAndSize();
+
+            shape = new HighLight();
+            shape.Elements = new List<UIElement>();
+                
+            UIElement e = new Rectangle { Stroke = color, StrokeThickness = thickness, Width = pos.Right, Height = pos.Bottom };
+            Canvas.SetLeft(e, pos.Left);
+            Canvas.SetTop(e, pos.Top);
+            if (dashed)
+                (e as Rectangle).StrokeDashArray = new DoubleCollection { 2 };
+            shape.Elements.Add(e);
+
+            e = new Ellipse { Stroke = color, StrokeThickness = thickness, Fill = fill, Width = diameter, Height = diameter };
+            Canvas.SetLeft(e, pos.Left-5);
+            Canvas.SetTop(e, pos.Top-5);
+            shape.Elements.Add(e);
+
+            e = new Ellipse { Stroke = color, StrokeThickness = thickness, Fill = fill, Width = diameter, Height = diameter };
+            Canvas.SetLeft(e, pos.Left+pos.Right-5);
+            Canvas.SetTop(e, pos.Top-5);
+            shape.Elements.Add(e);
+
+            e = new Ellipse { Stroke = color, StrokeThickness = thickness, Fill = fill, Width = diameter, Height = diameter };
+            Canvas.SetLeft(e, pos.Left-5);
+            Canvas.SetTop(e, pos.Top+pos.Bottom-5);
+            shape.Elements.Add(e);
+
+            e = new Ellipse { Stroke = color, StrokeThickness = thickness, Fill = fill, Width = diameter, Height = diameter };
+            Canvas.SetLeft(e, pos.Left+pos.Right-5);
+            Canvas.SetTop(e, pos.Top+pos.Bottom-5);
+            shape.Elements.Add(e);
+
+            foreach (var element in shape.Elements)
+                _Canvas.Children.Add(element);
+        }
+
+        private void RemovePerimeterRectangle(ref HighLight shape)
+        {
+            if (shape is not null)
+            {
+                foreach(var element in shape.Elements)
+                    _Canvas.Children.Remove(element);
+                shape = null;
+            }
+        }
+        #endregion
         #region ------------- Add new module ----------------------------------
-		public void AddNewModule()
+        public void AddNewModule()
 		{
             try
 			{
@@ -730,7 +823,7 @@ namespace AllOnOnePage
 					_configuration.Modules.Add(newModule.Config);
 					SaveConfiguration();
                     if (!_EditMode)
-                        EnterOrleaveEditMode();
+                        EnterOrLeaveEditMode();
 				}
 			}
 		}

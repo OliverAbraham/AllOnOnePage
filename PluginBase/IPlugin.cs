@@ -14,7 +14,7 @@ namespace AllOnOnePage.Plugins
 		void Time();
 		void UpdateLayout();
 		void UpdateContent();
-		bool HitTest(object control);
+		bool HitTest(object control, Point mousePosition);
 		string GetName();
 		ModuleConfig GetModuleConfig();
 		Thickness GetPositionAndSize();

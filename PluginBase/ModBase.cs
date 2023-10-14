@@ -129,7 +129,7 @@ namespace AllOnOnePage.Plugins
         {
         }
 
-        public virtual bool HitTest(object module)
+        public virtual bool HitTest(object module, Point mousePosition)
         {
             return module == this.Frame || 
                    module == this._ValueControl || 
@@ -192,6 +192,17 @@ namespace AllOnOnePage.Plugins
 		{
             Assembly.LoadFrom(_config.ApplicationData.PluginDirectory + System.IO.Path.DirectorySeparatorChar + filename);
 		}
+
+        public bool PointIsInsideRectangle(Point p, Thickness rect)
+        {
+            return PointIsInsideRectangle(p.X, p.Y, rect);
+        }
+
+        public bool PointIsInsideRectangle(double x, double y, Thickness rect)
+        {
+            return rect.Left <= x && x <= rect.Right && 
+                   rect.Top  <= y && y <= rect.Bottom;
+        }
         #endregion
 
 
@@ -204,7 +215,7 @@ namespace AllOnOnePage.Plugins
 			_frameBrush                       = ColorManager.CreateBrush(_config.FrameColor);
 			_textColor                        = ColorManager.CreateBrush(_config.TextColor);
 			_editModeBackgroundColor          = Brushes.DarkGray;
-			_editModeBackgroundColorMouseOver = Brushes.Gray;
+			_editModeBackgroundColorMouseOver = Brushes.Transparent;// Brushes.Gray;
 
 			_canvas = new Canvas();
 			_Parent.Children.Add(_canvas);
@@ -240,9 +251,6 @@ namespace AllOnOnePage.Plugins
 
         protected void SetPositionAndSize()
         {
-            //_canvas.Margin = new Thickness(_config.X, _config.Y, 0, 0);
-            ////_canvas.Width = _config.W;
-            ////_canvas.Height = _config.H;
             Frame.Margin = new Thickness(_config.X, _config.Y, 0, 0);
             Frame.Width = _config.W;
             Frame.Height = _config.H;

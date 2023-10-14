@@ -127,6 +127,19 @@ namespace AllOnOnePage.Plugins
 			UpdateForecastValues();
 		}
 
+        public override bool HitTest(object module, Point mousePosition)
+        {
+            var pos = GetPositionAndSize();
+            System.Diagnostics.Debug.WriteLine($"------------------- Mouse: {(int)mousePosition.X} {(int)mousePosition.Y}    module: {(int)pos.Left} {(int)pos.Right} {(int)pos.Top} {(int)pos.Bottom}");
+
+            return (int)mousePosition.X >= (int)pos.Left && (int)mousePosition.X <= (int)pos.Left + (int)pos.Right &&
+                   (int)mousePosition.Y >= (int)pos.Top  && (int)mousePosition.Y <= (int)pos.Top  + (int)pos.Bottom;
+            //return PointIsInsideRectangle(mousePosition, GetPositionAndSize());
+            //return module == this.Frame || 
+            //       module == this._ValueControl || 
+            //       module == this._NameControl;
+        }
+
 		public override (bool,string) Validate()
 		{
             CreateGrid();
@@ -169,14 +182,6 @@ Kopieren Sie dann denn API Key in die Einstellung hier.
 Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 ");
             return texts;
-        }
-
-        public override bool HitTest(object module)
-        {
-            return module == this.Frame || 
-                   module == this._canvas || 
-                   module == this._grid ||
-                   (module is TextBlock && (module as TextBlock).Parent == _canvas);
         }
         
         public override void SetPosition(double left, double top)
@@ -274,10 +279,6 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
             int fontSize1 = (int)(_config.FontSize*1.0);   
             int fontSize2 = (int)(_config.FontSize*1.0);   
 
-            //int height0   = (int)(_config.FontSize*1.0); 
-            //int height1   = (int)(_config.FontSize*1.5); 
-            //int height2   = (int)(_config.FontSize*1.2); 
-
             int height0   = (int)(_config.H*0.17);       
             int height1   = (int)(_config.H*0.25);       
             int height2   = (int)(_config.FontSize*1.2);
@@ -334,7 +335,7 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
         {
             var control                 = new TextBlock();
             control.Foreground          = foreground;
-            control.Background          = background;
+            //control.Background          = background;
             control.FontSize            = fontSize;
             control.FontFamily          = new System.Windows.Media.FontFamily("Yu Gothic UI Light");
             control.FontStretch         = FontStretch.FromOpenTypeStretch(3);

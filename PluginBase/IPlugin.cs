@@ -17,7 +17,8 @@ namespace AllOnOnePage.Plugins
 		bool HitTest(object control, Point mousePosition);
 		string GetName();
 		ModuleConfig GetModuleConfig();
-		Thickness GetPositionAndSize();
+		Thickness GetPositionAndWidth();
+		Thickness GetPositionAndCorrectSize();
 		void SetPosition(double left, double top);
 		void SetSize(double width, double height);
 		void SwitchEditMode(bool on);

@@ -15,7 +15,7 @@ using AllOnOnePage.Libs;
 
 namespace AllOnOnePage
 {
-	class ViewModel : INotifyPropertyChanged
+    class ViewModel : INotifyPropertyChanged
 	{
         #region ------------- Properties ----------------------------------------------------------
         public Visibility       EditModeControlsVisibility    { get; private set; }
@@ -75,6 +75,11 @@ namespace AllOnOnePage
         private class HighLight
         {
             public List<UIElement> Elements;
+
+            public HighLight()
+            {
+                Elements = new List<UIElement>();
+            }
         }
         #endregion
 
@@ -96,8 +101,14 @@ namespace AllOnOnePage
         private Rectangle            _DragRect;
         private const int            _DragRectStroke = 4;
         private const int            _BorderSnapPixels = 20;
-        private bool                 _MousePointerOnRightBorder;
-        private bool                 _MousePointerOnBottomBorder;
+        private bool                 _MousePointerOnTopEdge;
+        private bool                 _MousePointerOnLeftEdge;
+        private bool                 _MousePointerOnRightEdge;
+        private bool                 _MousePointerOnBottomEdge;
+        private bool                 _MousePointerOnCorner1;
+        private bool                 _MousePointerOnCorner2;
+        private bool                 _MousePointerOnCorner3;
+        private bool                 _MousePointerOnCorner4;
 		private bool                 _EditMode;
         private bool                 _ChangeModulePosition;
         private bool                 _ChangeModuleWidth;
@@ -251,13 +262,13 @@ namespace AllOnOnePage
 		/// </summary>
 		private void VisibilityStateChange(IPlugin plugin, Visibility visibility)
         {
-            var ourPos = plugin.GetPositionAndSize();
+            var ourPos = plugin.GetPositionAndWidth();
 
             foreach(var otherModule in _runtimeModules)
             {
                 if (ModulesAreNotTheSame(otherModule.Plugin, plugin))
                 {
-                    var otherPos = otherModule.Plugin.GetPositionAndSize();
+                    var otherPos = otherModule.Plugin.GetPositionAndWidth();
                     if (ModulesOverlap(ourPos, otherPos))
                     {
                         otherModule.Plugin.OverlapEvent(visibility);
@@ -294,7 +305,7 @@ namespace AllOnOnePage
 
         #region ------------- Implementation ------------------------------------------------------
         #region ------------- Module editor -----------------------------------
-        #region ------------- Edit modules ------------------------------------
+        #region ------------- Mouse events ------------------------------------
 
         public bool Button_Edit_Click()
 		{
@@ -334,14 +345,14 @@ namespace AllOnOnePage
                 return;
 
             _EditMode = true;
-            _InitialModulePositionAndSize = module.Plugin.GetPositionAndSize();
+            _InitialModulePositionAndSize = module.Plugin.GetPositionAndWidth();
             _InitialMouse = e.GetPosition(sender);
 
-            UpdateDragRectangle(module.Plugin.GetPositionAndSize());
+            UpdateDragRectangle(module.Plugin.GetPositionAndWidth());
 
-            if (_MousePointerOnRightBorder)
+            if (_MousePointerOnRightEdge)
                 _ChangeModuleWidth = true;
-            else if (_MousePointerOnBottomBorder)
+            else if (_MousePointerOnBottomEdge)
                 _ChangeModuleHeight = true;
             else
                 _ChangeModulePosition = true;
@@ -362,6 +373,8 @@ namespace AllOnOnePage
                     SaveConfiguration();
                 }
             }
+
+            UpdateModuleSelectionIndicator();
 
             _ChangeModulePosition = false;
             _ChangeModuleWidth = false;
@@ -385,6 +398,8 @@ namespace AllOnOnePage
 
 		private void DeleteModule(RuntimeModule module)
 		{
+            RemovePerimeterRectangles();
+
             module.Plugin.Delete();
             _runtimeModules.Remove(module);
 			_parentWindow.InvalidateVisual();
@@ -476,8 +491,7 @@ namespace AllOnOnePage
             if (module != null)
                 CopyModule(module, e);
         }
-        #endregion
-        #region ------------- Implementation ----------------------------------
+
         private RuntimeModule FindModuleUnderMouse(Window sender, System.Windows.Input.MouseEventArgs e)
         {
             if (_runtimeModules is null)
@@ -501,7 +515,7 @@ namespace AllOnOnePage
         private void ElementIsUnderMouse(Window sender, MouseEventArgs e, IPlugin plugin)
         {
             var mouse = e.GetPosition(sender);
-            var pos = plugin.GetPositionAndSize();
+            var pos = plugin.GetPositionAndWidth();
             UpdateDragRectangle(pos);
             Thickness Deltas = CalculateMouseDeltas(mouse, pos);
             DisplayEditorStats(plugin, pos, Deltas);
@@ -510,14 +524,14 @@ namespace AllOnOnePage
                 SwitchToNextModule(plugin);
             
             if (_CurrentModule is not null)
-                DisplayModuleHoverIndicator();
+                DisplayModuleHoverIndicator(mouse);
 
             if (_ChangeModulePosition)
-                PerformMove(mouse);
+                Move(mouse);
             else if (_ChangeModuleWidth)
-                PerformWidthAdjustment(mouse);
+                ChangeWidth(mouse);
             else if (_ChangeModuleHeight)
-                PerformHeightAdjustment(mouse);
+                ChangeHeight(mouse);
             else
                 DetectMousePointerOnBorder(Deltas);
         }
@@ -535,34 +549,6 @@ namespace AllOnOnePage
                 ResetModuleUnderMouse();
             else
                 SetModuleUnderMouse(module);
-        }
-
-        private void PerformMove(Point mouse)
-        {
-            if (_CurrentModule != null)
-            {
-                var x = _InitialModulePositionAndSize.Left + mouse.X - _InitialMouse.X;
-                var y = _InitialModulePositionAndSize.Top  + mouse.Y - _InitialMouse.Y;
-                _CurrentModule.SetPosition(x, y);
-            }
-            ResetMousePointerOnBorderOfDragRect();
-        }
-
-        private void PerformWidthAdjustment(Point mouse)
-        {
-            if (_CurrentModule != null)
-            {
-                _CurrentModule.SetSize(_InitialModulePositionAndSize.Right  + mouse.X - _InitialMouse.X,
-                                       _InitialModulePositionAndSize.Bottom);
-            }
-        }
-
-        private void PerformHeightAdjustment(Point mouse)
-        {
-            var width = _InitialModulePositionAndSize.Right;
-            var height = _InitialModulePositionAndSize.Bottom + mouse.Y - _InitialMouse.Y;
-            if (width > 0 && height > 0)
-                _CurrentModule.SetSize(width, height);
         }
 
         private void DisplayEditorStats(IPlugin plugin, Thickness pos, Thickness Deltas)
@@ -622,16 +608,16 @@ namespace AllOnOnePage
 
         private void DetectMousePointerOnBorder(Thickness deltas)
         {
-            if (deltas.Top    < _BorderSnapPixels ||
-                deltas.Bottom < _BorderSnapPixels ||
-                deltas.Left   < _BorderSnapPixels ||
-                deltas.Right  < _BorderSnapPixels)
-                SetMousePointerOnBorderOfDragRect();
-            else
-                ResetMousePointerOnBorderOfDragRect();
+            //if (deltas.Top    < _BorderSnapPixels ||
+            //    deltas.Bottom < _BorderSnapPixels ||
+            //    deltas.Left   < _BorderSnapPixels ||
+            //    deltas.Right  < _BorderSnapPixels)
+            //    SetMousePointerOnBorderOfDragRect();
+            //else
+            //    ResetMousePointerOnBorderOfDragRect();
 
-            _MousePointerOnRightBorder  = (deltas.Right  < _BorderSnapPixels);
-            _MousePointerOnBottomBorder = (deltas.Bottom < _BorderSnapPixels);
+            //_MousePointerOnRightBorder  = (deltas.Right  < _BorderSnapPixels);
+            //_MousePointerOnBottomBorder = (deltas.Bottom < _BorderSnapPixels);
         }
 
         private void SetMousePointerOnBorderOfDragRect()
@@ -681,8 +667,6 @@ namespace AllOnOnePage
             var R = L+basket.ActualWidth;
             var T = basket.Margin.Top;
             var B = T+basket.ActualHeight;
-			
-            //System.Diagnostics.Debug.WriteLine($"basket: {L} {R} {T} {B}  Mouse: {pos.X} {pos.Y}");
 
             if (L <= pos.X && pos.X <= R && T <= pos.Y && pos.Y <= B)
 			{
@@ -705,14 +689,44 @@ namespace AllOnOnePage
 		{
 		}
         #endregion
-        #region Module highlight and module select
+        #region ------------- Move and resize ---------------------------------
+        private void Move(Point mouse)
+        {
+            if (_CurrentModule != null)
+            {
+                var x = _InitialModulePositionAndSize.Left + mouse.X - _InitialMouse.X;
+                var y = _InitialModulePositionAndSize.Top  + mouse.Y - _InitialMouse.Y;
+                _CurrentModule.SetPosition(x, y);
+                UpdateModuleSelectionIndicator();
+            }
+            ResetMousePointerOnBorderOfDragRect();
+        }
+
+        private void ChangeWidth(Point mouse)
+        {
+            if (_CurrentModule != null)
+            {
+                _CurrentModule.SetSize(_InitialModulePositionAndSize.Right  + mouse.X - _InitialMouse.X,
+                                       _InitialModulePositionAndSize.Bottom);
+            }
+        }
+
+        private void ChangeHeight(Point mouse)
+        {
+            var width = _InitialModulePositionAndSize.Right;
+            var height = _InitialModulePositionAndSize.Bottom + mouse.Y - _InitialMouse.Y;
+            if (width > 0 && height > 0)
+                _CurrentModule.SetSize(width, height);
+        }
+        #endregion
+        #region ------------- Module highlight and module select --------------
 
         private void SelectModuleUnderMouse()
         {
             if (_CurrentModule is null)
                 return;
             RemovePerimeterRectangle(ref _SelectedModule);
-            CreatePerimeterRectangle(ref _SelectedModule, false);
+            CreatePerimeterRectangle(ref _SelectedModule, null, false);
         }
 
         private void RemovePerimeterRectangles()
@@ -721,10 +735,10 @@ namespace AllOnOnePage
             RemovePerimeterRectangle(ref _HoveredModule);
         }
 
-        private void DisplayModuleHoverIndicator()
+        private void DisplayModuleHoverIndicator(Point mouse)
         {
             RemovePerimeterRectangle(ref _HoveredModule);
-            CreatePerimeterRectangle(ref _HoveredModule, true);
+            CreatePerimeterRectangle(ref _HoveredModule, mouse, true);
         }
 
         private void RemoveModuleHoverIndicator()
@@ -732,47 +746,89 @@ namespace AllOnOnePage
             RemovePerimeterRectangle(ref _HoveredModule);
         }
 
-        private void CreatePerimeterRectangle(ref HighLight shape, bool dashed)
+        private void RemoveModuleSelectionIndicator()
         {
-            var thickness = 3;
+            RemovePerimeterRectangle(ref _HoveredModule);
+        }
+
+        private void UpdateModuleSelectionIndicator()
+        {
+            RemovePerimeterRectangle(ref _SelectedModule);
+            CreatePerimeterRectangle(ref _SelectedModule, null, false);
+        }
+
+        private void CreatePerimeterRectangle(ref HighLight shape, Point? mouse, bool dashed)
+        {
+            var thickness = 2;
             var diameter = 12;
-            var color = Brushes.LightGreen;
-            var fill = Brushes.Wheat;
+            var strokeColor = Brushes.LightGreen;
+            var nearColor = Brushes.OrangeRed;
+            var fillColor = Brushes.White;
 
-            var pos = _CurrentModule.GetPositionAndSize();
-
+            var p = _CurrentModule.GetPositionAndCorrectSize();
             shape = new HighLight();
-            shape.Elements = new List<UIElement>();
-                
-            UIElement e = new Rectangle { Stroke = color, StrokeThickness = thickness, Width = pos.Right, Height = pos.Bottom };
-            Canvas.SetLeft(e, pos.Left);
-            Canvas.SetTop(e, pos.Top);
-            if (dashed)
-                (e as Rectangle).StrokeDashArray = new DoubleCollection { 2 };
-            shape.Elements.Add(e);
 
-            e = new Ellipse { Stroke = color, StrokeThickness = thickness, Fill = fill, Width = diameter, Height = diameter };
-            Canvas.SetLeft(e, pos.Left-5);
-            Canvas.SetTop(e, pos.Top-5);
-            shape.Elements.Add(e);
-
-            e = new Ellipse { Stroke = color, StrokeThickness = thickness, Fill = fill, Width = diameter, Height = diameter };
-            Canvas.SetLeft(e, pos.Left+pos.Right-5);
-            Canvas.SetTop(e, pos.Top-5);
-            shape.Elements.Add(e);
-
-            e = new Ellipse { Stroke = color, StrokeThickness = thickness, Fill = fill, Width = diameter, Height = diameter };
-            Canvas.SetLeft(e, pos.Left-5);
-            Canvas.SetTop(e, pos.Top+pos.Bottom-5);
-            shape.Elements.Add(e);
-
-            e = new Ellipse { Stroke = color, StrokeThickness = thickness, Fill = fill, Width = diameter, Height = diameter };
-            Canvas.SetLeft(e, pos.Left+pos.Right-5);
-            Canvas.SetTop(e, pos.Top+pos.Bottom-5);
-            shape.Elements.Add(e);
+            CreateEdge  (shape, dashed, thickness, strokeColor, nearColor             , p.Left     , p.Top       , p.Right, p.Top   , mouse, ref _MousePointerOnTopEdge);
+            CreateEdge  (shape, dashed, thickness, strokeColor, nearColor             , p.Right    , p.Top       , p.Right, p.Bottom, mouse, ref _MousePointerOnRightEdge);
+            CreateEdge  (shape, dashed, thickness, strokeColor, nearColor             , p.Left     , p.Top       , p.Left , p.Bottom, mouse, ref _MousePointerOnLeftEdge);
+            CreateEdge  (shape, dashed, thickness, strokeColor, nearColor             , p.Left     , p.Bottom    , p.Right, p.Bottom, mouse, ref _MousePointerOnBottomEdge);
+            CreateCorder(shape, thickness, diameter, strokeColor, nearColor, fillColor, p.Left  - 5, p.Top    - 3                   , mouse, ref _MousePointerOnCorner1);
+            CreateCorder(shape, thickness, diameter, strokeColor, nearColor, fillColor, p.Right - 7, p.Top    - 5                   , mouse, ref _MousePointerOnCorner2);
+            CreateCorder(shape, thickness, diameter, strokeColor, nearColor, fillColor, p.Left  - 5, p.Bottom - 7                   , mouse, ref _MousePointerOnCorner3);
+            CreateCorder(shape, thickness, diameter, strokeColor, nearColor, fillColor, p.Right - 7, p.Bottom - 7                   , mouse, ref _MousePointerOnCorner4);
 
             foreach (var element in shape.Elements)
                 _Canvas.Children.Add(element);
+        }
+
+        private void CreateEdges(HighLight shape, bool dashed, int thickness, SolidColorBrush strokeColor, double left, double top, double right, double bottom)
+        {
+            UIElement e = new Rectangle { Stroke = strokeColor, StrokeThickness = thickness, Width = right-left, Height = bottom-top };
+            Canvas.SetLeft(e, left);
+            Canvas.SetTop(e, top);
+            if (dashed)
+                (e as Rectangle).StrokeDashArray = new DoubleCollection { 2 };
+            shape.Elements.Add(e);
+        }
+
+        private void CreateEdge(HighLight shape, bool dashed, int thickness, SolidColorBrush strokeColor, SolidColorBrush nearColor, double left, double top, double right, double bottom, Point? mouse, ref bool mouseHovering)
+        {
+            if (mouse is not null &&
+                left-10 <= mouse.Value.X && mouse.Value.X <= right +10 && 
+                top -10 <= mouse.Value.Y && mouse.Value.Y <= bottom+10)
+            {
+                strokeColor = nearColor;
+                mouseHovering = true;
+            }
+            else
+                mouseHovering = false;
+
+            UIElement e = new Line { Stroke = strokeColor, StrokeThickness = thickness, X1=0, X2=right-left, Y1=0, Y2=bottom-top };
+            Canvas.SetLeft(e, left);
+            Canvas.SetTop(e, top);
+            if (dashed)
+                (e as Line).StrokeDashArray = new DoubleCollection { 2 };
+            shape.Elements.Add(e);
+        }
+
+        private void CreateCorder(HighLight shape, int thickness, int diameter, SolidColorBrush strokeColor, SolidColorBrush nearColor, SolidColorBrush fill, double left, double top, Point? mouse, ref bool mouseHovering)
+        {
+            double right = left + diameter;
+            double bottom = top + diameter;
+            if (mouse is not null &&
+                left <= mouse.Value.X && mouse.Value.X <= right && 
+                top  <= mouse.Value.Y && mouse.Value.Y <= bottom)
+            {
+                strokeColor = nearColor;
+                mouseHovering = true;
+            }
+            else
+                mouseHovering = false;
+
+            UIElement e = new Ellipse { Stroke = strokeColor, StrokeThickness = thickness, Fill = fill, Width = diameter, Height = diameter };
+            Canvas.SetLeft(e, left);
+            Canvas.SetTop(e, top);
+            shape.Elements.Add(e);
         }
 
         private void RemovePerimeterRectangle(ref HighLight shape)

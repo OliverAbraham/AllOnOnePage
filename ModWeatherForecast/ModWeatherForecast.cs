@@ -129,15 +129,7 @@ namespace AllOnOnePage.Plugins
 
         public override bool HitTest(object module, Point mousePosition)
         {
-            var pos = GetPositionAndSize();
-            System.Diagnostics.Debug.WriteLine($"------------------- Mouse: {(int)mousePosition.X} {(int)mousePosition.Y}    module: {(int)pos.Left} {(int)pos.Right} {(int)pos.Top} {(int)pos.Bottom}");
-
-            return (int)mousePosition.X >= (int)pos.Left && (int)mousePosition.X <= (int)pos.Left + (int)pos.Right &&
-                   (int)mousePosition.Y >= (int)pos.Top  && (int)mousePosition.Y <= (int)pos.Top  + (int)pos.Bottom;
-            //return PointIsInsideRectangle(mousePosition, GetPositionAndSize());
-            //return module == this.Frame || 
-            //       module == this._ValueControl || 
-            //       module == this._NameControl;
+            return PointIsInsideRectangle(mousePosition, GetPositionAndCorrectSize());
         }
 
 		public override (bool,string) Validate()

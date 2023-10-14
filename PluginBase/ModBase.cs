@@ -140,9 +140,17 @@ namespace AllOnOnePage.Plugins
 
         public virtual ModuleConfig GetModuleConfig() => _config;
 
+        /// <summary>
+        /// Attention! This is wrong. It's returning the Width/Height and not Right/Bottom!
+        /// </summary>
         public virtual Thickness GetPositionAndSize()
         {
             return new Thickness(_config.X, _config.Y, _config.W, _config.H);
+        }
+
+        public virtual Thickness GetPositionAndCorrectSize()
+        {
+            return new Thickness(_config.X, _config.Y, _config.X + _config.W, _config.Y + _config.H);
         }
         
         public virtual void SetPosition(double left, double top)

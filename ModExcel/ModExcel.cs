@@ -1,4 +1,5 @@
 ﻿using Abraham.Office;
+using HomenetBase;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -78,7 +79,7 @@ namespace AllOnOnePage.Plugins
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
 		}
 
-        public override void UpdateContent()
+        public override void UpdateContent(HomenetBase.DataObject? dataObject)
         {
 			try
 			{

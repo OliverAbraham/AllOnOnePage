@@ -226,31 +226,6 @@ namespace AllOnOnePage
 			return _processors.Where(x => x.Type.Name == type).FirstOrDefault();
 		}
 
-		public void Time()
-        {
-            foreach (var module in _runtimeModules)
-                module.Plugin.Time();
-        }
-
-        public void Update_all_modules()
-        {
-			foreach (var module in _runtimeModules)
-				Update_one_module(module);
-		}
-
-		private void Update_one_module(RuntimeModule module)
-		{
-            try
-			{
-    			module.Plugin.UpdateContent();
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine(ex.ToString());
-                ((ModBase)module.Plugin).Value = "???";
-			}
-		}
-
 		public void VisibilityStateChange_CompleteUpdate()
         {
             foreach(var module in _runtimeModules)
@@ -1021,8 +996,39 @@ namespace AllOnOnePage
 			//}
         }
         #endregion
-        #endregion
+        #region ------------- Value updates -----------------------------------
+		public void Time()
+        {
+            foreach (var module in _runtimeModules)
+                module.Plugin.Time();
+        }
 
+        public void ServerDataobjectValueChange(HomenetBase.DataObject dataObject)
+        {
+			foreach (var module in _runtimeModules)
+				Update_one_module(module, dataObject);
+		}
+
+        public void Update_all_modules(HomenetBase.DataObject? @do = null)
+        {
+			foreach (var module in _runtimeModules)
+				Update_one_module(module, @do);
+		}
+
+		private void Update_one_module(RuntimeModule module, HomenetBase.DataObject? @do = null)
+		{
+            try
+			{
+    			module.Plugin.UpdateContent(@do);
+			}
+			catch (Exception ex)
+			{
+				System.Diagnostics.Debug.WriteLine(ex.ToString());
+                ((ModBase)module.Plugin).Value = "???";
+			}
+		}
+        #endregion
+        #endregion
         #endregion
     }
 }

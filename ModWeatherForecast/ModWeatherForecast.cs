@@ -121,7 +121,7 @@ namespace AllOnOnePage.Plugins
             CreateGrid();
         }
 
-        public override void UpdateContent()
+        public override void UpdateContent(HomenetBase.DataObject? dataObject)
 		{
 			ReadNewForecastEveryHour();
 			UpdateForecastValues();

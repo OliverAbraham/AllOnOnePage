@@ -124,7 +124,7 @@ namespace AllOnOnePage.Plugins
         {
         }
 
-        public virtual void UpdateContent()
+        public virtual void UpdateContent(HomenetBase.DataObject? dataObject)
         {
         }
 

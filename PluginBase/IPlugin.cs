@@ -13,7 +13,7 @@ namespace AllOnOnePage.Plugins
 		void Recreate();
 		void Time();
 		void UpdateLayout();
-		void UpdateContent();
+		void UpdateContent(HomenetBase.DataObject? dataObject);
 		bool HitTest(object control, Point mousePosition);
 		string GetName();
 		ModuleConfig GetModuleConfig();

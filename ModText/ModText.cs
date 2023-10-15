@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using HomenetBase;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices.ActiveDirectory;
@@ -53,7 +54,7 @@ namespace AllOnOnePage.Plugins
 
 		public override (bool,string) Validate()
 		{
-			UpdateContent();
+			UpdateContent(null);
             return (true, "");
 		}
 
@@ -62,7 +63,7 @@ namespace AllOnOnePage.Plugins
             return (false, "");
 		}
 
-        public override void UpdateContent()
+        public override void UpdateContent(HomenetBase.DataObject? dataObject)
         {
 			if (string.IsNullOrWhiteSpace(_myConfiguration.ServerDataObject))
 			{
@@ -70,7 +71,14 @@ namespace AllOnOnePage.Plugins
 			}
 			else
 			{
-				Value = ReadValueFromHomeAutomationServer();
+				if (dataObject is not null)
+				{
+					if (dataObject.Name != _myConfiguration.ServerDataObject)
+						return;
+					Value = dataObject.Value;
+				}
+				else
+					Value = ReadValueFromHomeAutomationServer();
 			}
 
             NotifyPropertyChanged(nameof(Value));

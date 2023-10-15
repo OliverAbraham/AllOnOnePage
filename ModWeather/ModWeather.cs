@@ -85,7 +85,7 @@ namespace AllOnOnePage.Plugins
             //_stopwatch = null;
         }
 
-        public override void UpdateContent()
+        public override void UpdateContent(HomenetBase.DataObject? dataObject)
 		{
 			ReadNewForecastEveryHour();
 			UpdateForecastValues();

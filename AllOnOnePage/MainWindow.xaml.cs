@@ -42,7 +42,8 @@ namespace AllOnOnePage
 		private Updater _Updater;
         #endregion
 		#region Home automation server connection
-        private bool _connectingToServerInProgress;
+        private HomeAutomationServerConnection _server;
+        private bool _serverConnectingInProgress;
 		#endregion
         #endregion
 
@@ -80,6 +81,7 @@ namespace AllOnOnePage
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			CleanupPlugins();
+            _server.Stop();
 			//StopSupervisorThread();
 			Stop_date_time_update_timer();
 			//Stop_periodic_UI_update_timer();
@@ -221,63 +223,6 @@ namespace AllOnOnePage
             MessageBox.Show(Msg, _texts[HelpTexts.ID.ERROR_HEADING]);
         }
         #endregion
-        #region ------------- Home automation server connection ---------------
-        private void ConnectToServer_then_call_Startup2()
-        {
-            _connectingToServerInProgress = true;
-            ServerInfo.Content = "Connecting to server...";
-            WaitAndThenCallMethod(wait_time_seconds: 1, action: ConnectToHomeAutomationServer);
-        }
-
-        private void ConnectToHomeAutomationServer()
-        {
-            try
-            {
-                _applicationData._homenetConnector = new DataObjectsConnector(
-                    _config.HomeAutomationServerUrl, 
-                    _config.HomeAutomationServerUser, 
-                    _config.HomeAutomationServerPassword, 
-                    _config.HomeAutomationServerTimeout);
-                ServerInfo.Content = "Connected";
-                FadeOutServerInfo();
-            }
-            catch (Exception ex)
-            {
-                ServerInfo.Content = "Error connecting to homenet server";
-                WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToHomeAutomationServer);
-            }
-            finally
-            {
-                _connectingToServerInProgress = false;
-                Startup2();
-            }
-        }
-
-        private void ReconnectToHomeAutomationServer()
-        {
-            ServerInfo.Content = "Reconnecting...";
-            WaitAndThenCallMethod(wait_time_seconds: 1, action: ReconnectToHomeAutomationServer2);
-        }
-
-        private void ReconnectToHomeAutomationServer2()
-        {
-            try
-            {
-                _applicationData._homenetConnector = new DataObjectsConnector(
-                    _config.HomeAutomationServerUrl, 
-                    _config.HomeAutomationServerUser, 
-                    _config.HomeAutomationServerPassword, 
-                    _config.HomeAutomationServerTimeout);
-                ServerInfo.Content = "Connected";
-                FadeOutServerInfo();
-            }
-            catch (Exception ex)
-            {
-                ServerInfo.Content = "Error connecting to homenet server";
-                WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToHomeAutomationServer);
-            }
-        }
-        #endregion
         #region ------------- Main window layout ------------------------------
 		private void Init_LayoutManager()
 		{
@@ -308,7 +253,68 @@ namespace AllOnOnePage
 			    _pluginLoader.StopPlugins();
 		}
         #endregion
-        #region ------------- Periodic time update ----------------------------
+        #region ------------- Home automation server connection ---------------
+        private void ConnectToServer_then_call_Startup2()
+        {
+            _serverConnectingInProgress = true;
+            ServerInfo.Content = "Connecting to server...";
+            WaitAndThenCallMethod(wait_time_seconds: 1, action: ConnectToHomeAutomationServer);
+        }
+
+        private void ConnectToHomeAutomationServer()
+        {
+            try
+            {
+                _server = new HomeAutomationServerConnection(
+                    _config.HomeAutomationServerUrl, 
+                    _config.HomeAutomationServerUser, 
+                    _config.HomeAutomationServerPassword, 
+                    _config.HomeAutomationServerTimeout);
+                _server.Connect();
+                _applicationData._homenetConnector = _server.DataObjectsConnector;
+                ServerInfo.Content = _server.ConnectionStatus;
+                _server.OnDataobjectChange += 
+                    delegate(HomenetBase.DataObject Do)
+                    {
+                        Dispatcher.Invoke(() => { Update_all_modules(Do); });
+                    };
+                FadeOutServerInfo();
+            }
+            catch (Exception ex)
+            {
+                ServerInfo.Content = "Error connecting to homenet server";
+                WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToHomeAutomationServer);
+            }
+            finally
+            {
+                _serverConnectingInProgress = false;
+                Startup2();
+            }
+        }
+
+        private void ReconnectToHomeAutomationServer()
+        {
+            ServerInfo.Content = "Reconnecting...";
+            WaitAndThenCallMethod(wait_time_seconds: 1, action: ReconnectToHomeAutomationServer2);
+        }
+
+        private void ReconnectToHomeAutomationServer2()
+        {
+            try
+            {
+                _server.Connect();
+                _applicationData._homenetConnector = _server.DataObjectsConnector;
+                ServerInfo.Content = _server.ConnectionStatus;
+                FadeOutServerInfo();
+            }
+            catch (Exception ex)
+            {
+                ServerInfo.Content = "Error connecting to homenet server";
+                WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToHomeAutomationServer);
+            }
+        }
+        #endregion
+        #region ------------- Periodic date/time update -----------------------
         private void Start_date_time_update_timer()
         {
             _dateTimeUpdateTimer = new Timer();
@@ -360,14 +366,17 @@ namespace AllOnOnePage
             _periodicTimer.Start();
         }
 
-        private void Update_all_modules()
+        private void Update_all_modules(HomenetBase.DataObject? Do = null)
         {
+            if (Do is not null)
+                System.Diagnostics.Debug.WriteLine($"SignalR value change: {Do.Name} = {Do.Value}");
+
             if (_nowUpdating)
                 return;
             _nowUpdating = true;
             try
             {
-                _vm.Update_all_modules();
+                _vm.Update_all_modules(Do);
             }
             catch (Exception ex)
             {
@@ -676,7 +685,6 @@ namespace AllOnOnePage
 			}
 		}
         #endregion
-
         #endregion
     }
 }

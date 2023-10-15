@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Abraham.Scheduler;
 using System.Xml.Serialization;
 using System.Xml;
+using HomenetBase;
 
 namespace AllOnOnePage.Plugins
 {
@@ -90,7 +91,7 @@ namespace AllOnOnePage.Plugins
             base.Recreate();
         }
 
-        public override void UpdateContent()
+        public override void UpdateContent(HomenetBase.DataObject? dataObject)
 		{
 			UpdateDisplay();
 		}

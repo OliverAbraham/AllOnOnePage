@@ -23,7 +23,6 @@ namespace AllOnOnePage.Plugins
         public Visibility   ValueVisibility     { get; set; }
         public string       Name                { get { return _config?.ModuleName; } set { } }
         public Visibility   NameVisibility      { get; set; }
-       
         #endregion
 
 

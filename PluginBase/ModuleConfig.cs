@@ -1,4 +1,6 @@
-﻿namespace AllOnOnePage.Plugins
+﻿using Newtonsoft.Json;
+
+namespace AllOnOnePage.Plugins
 {
 	public class ModuleConfig
     {
@@ -26,6 +28,7 @@
 
 
         #region ------------- Fields - not saved --------------------------------------------------
+        [JsonIgnore] // exclude from Newtonsoft.Json serialization 
         public ApplicationData ApplicationData;
 		#endregion
 

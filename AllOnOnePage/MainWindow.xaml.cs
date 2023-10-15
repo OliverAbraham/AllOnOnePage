@@ -5,7 +5,6 @@ using System.Runtime.ExceptionServices;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
 using Abraham.AutoUpdater;
 using Abraham.HomenetBase.Connectors;
 using Abraham.OpenWeatherMap;
@@ -17,7 +16,7 @@ namespace AllOnOnePage
 {
     public partial class MainWindow : Window
     {
-        private const string VERSION = "2023-10-10";
+        private const string VERSION = "2023-10-15";
 
 		#region ------------- Fields --------------------------------------------------------------
 		#region Configuration
@@ -29,23 +28,19 @@ namespace AllOnOnePage
 		private Logger                 _logger;
         private PluginLoader           _pluginLoader;
         #endregion
-
         #region Dynamic data
         private ViewModel              _vm;
         private bool                   _nowUpdating;
         private Timer                  _periodicTimer;
         private Timer                  _dateTimeUpdateTimer;
 		#endregion
-
 		#region Power management and Supervisor
 		private WindowsPowermanagement _powermanagement;
 		private Timer                  _buttonFadeOutTimer;
 		#endregion
-        
 		#region Updater
 		private Updater _Updater;
         #endregion
-
 		#region Home automation server connection
         private bool _connectingToServerInProgress;
 		#endregion
@@ -226,7 +221,7 @@ namespace AllOnOnePage
             MessageBox.Show(Msg, _texts[HelpTexts.ID.ERROR_HEADING]);
         }
         #endregion
-        #region ------------- Server connection -------------------------------
+        #region ------------- Home automation server connection ---------------
         private void ConnectToServer_then_call_Startup2()
         {
             _connectingToServerInProgress = true;

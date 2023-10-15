@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.DirectoryServices.ActiveDirectory;
 using System.Windows.Controls;
 
 namespace AllOnOnePage.Plugins
@@ -9,7 +11,8 @@ namespace AllOnOnePage.Plugins
 		#region ------------- Settings ------------------------------------------------------------
 		public class MyConfiguration : ModuleSpecificConfig
 		{
-			public string Text { get; set; }
+			public string Text				{ get; set; }
+			public string ServerDataObject  { get; set; }
 		}
 		#endregion
 
@@ -48,9 +51,28 @@ namespace AllOnOnePage.Plugins
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
 		}
 
+		public override (bool,string) Validate()
+		{
+			UpdateContent();
+            return (true, "");
+		}
+
+		public override (bool success, string messages) Test()
+		{
+            return (false, "");
+		}
+
         public override void UpdateContent()
         {
-            Value = _myConfiguration.Text;
+			if (string.IsNullOrWhiteSpace(_myConfiguration.ServerDataObject))
+			{
+	            Value = _myConfiguration.Text;
+			}
+			else
+			{
+				Value = ReadValueFromHomeAutomationServer();
+			}
+
             NotifyPropertyChanged(nameof(Value));
             SetValueControlVisible();
         }
@@ -81,6 +103,19 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			if (_myConfiguration == null)
 				CreateSeedData();
 		}
+
+        private string ReadValueFromHomeAutomationServer()
+        {
+			try
+			{
+				var dataObject = _config.ApplicationData._homenetConnector.TryGet(_myConfiguration.ServerDataObject);
+				return dataObject?.Value ?? "???";
+			}
+			catch (Exception)
+			{
+				return "???";
+			}
+        }
         #endregion
 	}
 }

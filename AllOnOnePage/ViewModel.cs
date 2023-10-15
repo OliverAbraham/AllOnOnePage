@@ -356,14 +356,14 @@ namespace AllOnOnePage
 
             UpdateDragRectangle(module.Plugin.GetPositionAndWidth());
 
-            if      (_MouseOnLeftEdge)    _ChangeModuleWidthLeft       = true;
+            if      (_MouseOnCorner1)     _ChangeModuleSizeTopLeft     = true;
+            else if (_MouseOnCorner2)     _ChangeModuleSizeTopRight    = true;
+            else if (_MouseOnCorner3)     _ChangeModuleSizeBottomLeft  = true;
+            else if (_MouseOnCorner4)     _ChangeModuleSizeBottomRight = true;
+            else if (_MouseOnLeftEdge)    _ChangeModuleWidthLeft       = true;
             else if (_MouseOnRightEdge)   _ChangeModuleWidthRight      = true;
             else if (_MouseOnTopEdge)     _ChangeModuleHeightTop       = true;
             else if (_MouseOnBottomEdge)  _ChangeModuleHeightBottom    = true;
-            else if (_MouseOnCorner1)     _ChangeModuleSizeTopLeft     = true;
-            else if (_MouseOnCorner2)     _ChangeModuleSizeTopRight    = true;
-            else if (_MouseOnCorner3)     _ChangeModuleSizeBottomRight = true;
-            else if (_MouseOnCorner4)     _ChangeModuleSizeBottomLeft  = true;
 
 
             if      (_MouseOnBottomEdge || _MouseOnTopEdge)   _parentWindow.Cursor = Cursors.SizeNS;
@@ -455,15 +455,15 @@ namespace AllOnOnePage
 
             if (_CurrentModule != null && AnyModuleSizeChange())
             {
-                ModuleIsUnderMouse(sender, e, _CurrentModule);
+                ChangeModule(sender, e, _CurrentModule);
             }
             else
             {
                 var module = FindModuleUnderMouse(sender, e);
                 if (module == null)
-                    NoModuleIsUnderMouse();
+                    ChangeModuleEnd();
                 else
-                    ModuleIsUnderMouse(sender, e, module.Plugin);
+                    ChangeModule(sender, e, module.Plugin);
             }
         }
 
@@ -548,40 +548,6 @@ namespace AllOnOnePage
                 //    return module;
             }
             return null;
-        }
-
-        private void ModuleIsUnderMouse(Window sender, MouseEventArgs e, IPlugin plugin)
-        {
-            var mouse = e.GetPosition(sender);
-            var pos = plugin.GetPositionAndWidth();
-            UpdateDragRectangle(pos);
-            Thickness Deltas = CalculateMouseDeltas(mouse, pos);
-
-            if (plugin != _CurrentModule)
-                SwitchToNextModule(plugin);
-            
-            if (_CurrentModule is not null)
-                DisplayModuleHoverIndicator(mouse);
-
-            if      (_ChangeModuleWidthLeft)                 ChangeWidthGrabbedLeft(mouse);
-            else if (_ChangeModuleWidthRight)                ChangeWidthGrabbedRight(mouse);
-            else if (_ChangeModuleHeightTop)                 ChangeHeightGrabbedTop(mouse);
-            else if (_ChangeModuleHeightBottom)              ChangeHeightGrabbedBottom(mouse);
-            else if (_ChangeModulePosition)                  Move(mouse);
-            
-
-            if      (_MouseOnBottomEdge || _MouseOnTopEdge)    _parentWindow.Cursor = Cursors.SizeNS;
-            else if (_MouseOnLeftEdge   || _MouseOnRightEdge)  _parentWindow.Cursor = Cursors.SizeWE;
-            else if (_MouseOnCorner1    || _MouseOnCorner4)    _parentWindow.Cursor = Cursors.SizeNWSE;
-            else if (_MouseOnCorner2    || _MouseOnCorner3)    _parentWindow.Cursor = Cursors.SizeNESW;
-            else                                               _parentWindow.Cursor = Cursors.Arrow;
-        }
-
-        private void NoModuleIsUnderMouse()
-        {
-            ResetMousePointerOnBorderOfDragRect();
-            ResetModuleUnderMouse();
-            RemoveModuleHoverIndicator();
         }
 
         private void SwitchToNextModule(IPlugin module)
@@ -714,6 +680,49 @@ namespace AllOnOnePage
 		internal void Button_Wastebasket_Click()
 		{
 		}
+
+        private void ChangeModule(Window sender, MouseEventArgs e, IPlugin plugin)
+        {
+            var mouse = e.GetPosition(sender);
+            var pos = plugin.GetPositionAndWidth();
+            UpdateDragRectangle(pos);
+
+            if (plugin != _CurrentModule)
+                SwitchToNextModule(plugin);
+            
+            if (_CurrentModule is not null)
+                DisplayModuleHoverIndicator(mouse);
+
+            var updateSelectionIndicators = true;
+            if      (_ChangeModuleSizeTopLeft)     ChangeWidthGrabbedTopLeft(mouse);
+            else if (_ChangeModuleSizeTopRight)    ChangeWidthGrabbedTopRight(mouse);
+            else if (_ChangeModuleSizeBottomRight) ChangeWidthGrabbedBottomRight(mouse);
+            else if (_ChangeModuleSizeBottomLeft)  ChangeWidthGrabbedBottomLeft(mouse);
+            else if (_ChangeModuleSizeTopLeft)     ChangeWidthGrabbedLeft(mouse);
+            else if (_ChangeModuleSizeTopRight)    ChangeWidthGrabbedRight(mouse);
+            else if (_ChangeModuleWidthLeft)       ChangeWidthGrabbedLeft(mouse);
+            else if (_ChangeModuleWidthRight)      ChangeWidthGrabbedRight(mouse);
+            else if (_ChangeModuleHeightTop)       ChangeHeightGrabbedTop(mouse);
+            else if (_ChangeModuleHeightBottom)    ChangeHeightGrabbedBottom(mouse);
+            else if (_ChangeModulePosition)        Move(mouse);
+            else                                   updateSelectionIndicators = false;
+
+            if      (_MouseOnBottomEdge || _MouseOnTopEdge)    _parentWindow.Cursor = Cursors.SizeNS;
+            else if (_MouseOnLeftEdge   || _MouseOnRightEdge)  _parentWindow.Cursor = Cursors.SizeWE;
+            else if (_MouseOnCorner1    || _MouseOnCorner4)    _parentWindow.Cursor = Cursors.SizeNWSE;
+            else if (_MouseOnCorner2    || _MouseOnCorner3)    _parentWindow.Cursor = Cursors.SizeNESW;
+            else                                               _parentWindow.Cursor = Cursors.Arrow;
+
+            if (updateSelectionIndicators)
+                UpdateModuleSelectionIndicator();
+        }
+
+        private void ChangeModuleEnd()
+        {
+            ResetMousePointerOnBorderOfDragRect();
+            ResetModuleUnderMouse();
+            RemoveModuleHoverIndicator();
+        }
         #endregion
         #region ------------- Move and resize ---------------------------------
         private void Move(Point mouse)
@@ -738,13 +747,6 @@ namespace AllOnOnePage
             UpdateModuleSelectionIndicator();
         }
 
-        private void ChangeWidthGrabbedRight(Point mouse)
-        {
-            _CurrentModule.SetSize(_InitialPosAndSize.Right  + mouse.X - _InitialMouse.X,
-                                    _InitialPosAndSize.Bottom);
-            UpdateModuleSelectionIndicator();
-        }
-
         private void ChangeHeightGrabbedTop(Point mouse)
         {
             var width = _InitialPosAndSize.Right;
@@ -760,6 +762,13 @@ namespace AllOnOnePage
             }
         }
 
+        private void ChangeWidthGrabbedRight(Point mouse)
+        {
+            _CurrentModule.SetSize(_InitialPosAndSize.Right  + mouse.X - _InitialMouse.X,
+                                    _InitialPosAndSize.Bottom);
+            UpdateModuleSelectionIndicator();
+        }
+
         private void ChangeHeightGrabbedBottom(Point mouse)
         {
             var width = _InitialPosAndSize.Right;
@@ -767,6 +776,56 @@ namespace AllOnOnePage
             if (width > 0 && height > 0)
             {
                 _CurrentModule.SetSize(width, height);
+                UpdateModuleSelectionIndicator();
+            }
+        }
+
+        private void ChangeWidthGrabbedTopLeft(Point mouse)
+        {
+            var x = _InitialPosAndSize.Left + mouse.X - _InitialMouse.X;
+            var y = _InitialPosAndSize.Top  + mouse.Y - _InitialMouse.Y;
+            var dx = _InitialMouse.X - mouse.X;
+            var dy = _InitialMouse.Y - mouse.Y;
+            _CurrentModule.SetSize(_InitialPosAndSize.Right  + dx, _InitialPosAndSize.Bottom + dy);
+            _CurrentModule.SetPosition(x, y);
+            UpdateModuleSelectionIndicator();
+        }
+
+        private void ChangeWidthGrabbedTopRight(Point mouse)
+        {
+            var x = _InitialPosAndSize.Left;
+            var y = _InitialPosAndSize.Top  + mouse.Y - _InitialMouse.Y;
+            var dx = mouse.X - _InitialMouse.X;
+            var dy = _InitialMouse.Y - mouse.Y;
+            _CurrentModule.SetSize(_InitialPosAndSize.Right  + dx, _InitialPosAndSize.Bottom + dy);
+            _CurrentModule.SetPosition(x, y);
+            UpdateModuleSelectionIndicator();
+        }
+
+        private void ChangeWidthGrabbedBottomLeft(Point mouse)
+        {
+            var x = _InitialPosAndSize.Left + mouse.X - _InitialMouse.X;
+            var y = _InitialPosAndSize.Top;
+            var width = _InitialPosAndSize.Right;
+            var height = _InitialPosAndSize.Bottom + mouse.Y - _InitialMouse.Y;
+            var dx = _InitialMouse.X - mouse.X;
+            var dy = mouse.Y - _InitialMouse.Y;
+            if (width > 0 && height > 0)
+            {
+                _CurrentModule.SetSize(width + dx, height + dy);
+                _CurrentModule.SetPosition(x, y);
+                UpdateModuleSelectionIndicator();
+            }
+        }
+
+        private void ChangeWidthGrabbedBottomRight(Point mouse)
+        {
+            var width = _InitialPosAndSize.Right;
+            var height = _InitialPosAndSize.Bottom + mouse.Y - _InitialMouse.Y;
+            var dx = mouse.X - _InitialMouse.X;
+            if (width > 0 && height > 0)
+            {
+                _CurrentModule.SetSize(width + dx, height);
                 UpdateModuleSelectionIndicator();
             }
         }

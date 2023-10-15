@@ -21,6 +21,7 @@ namespace AllOnOnePage.DialogWindows
         public bool    IsFrameVisible { get { return C.IsFrameVisible; } set {C.IsFrameVisible = value; } }
         public int     FrameThickness { get { return C.FrameThickness; } set {C.FrameThickness = value; } }
         public int     FrameRadius    { get { return C.FrameRadius;    } set {C.FrameRadius    = value; } }
+        public int     TextPadding    { get { return C.TextPadding;    } set {C.TextPadding    = value; } }
 		
         public Color FrameColor
         { 

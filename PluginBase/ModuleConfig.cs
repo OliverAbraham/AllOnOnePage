@@ -20,12 +20,13 @@
 		public int      FrameRadius          { get; set; }
 		public string   BackgroundColor      { get; set; }
 		public string   TextColor            { get; set; }
-		#endregion
+        public int      TextPadding          { get; set; }
+        #endregion
 
 
 
-		#region ------------- Fields - not saved --------------------------------------------------
-		public ApplicationData ApplicationData;
+        #region ------------- Fields - not saved --------------------------------------------------
+        public ApplicationData ApplicationData;
 		#endregion
 
 
@@ -48,6 +49,7 @@
             ModulePrivateData  = "";
             TextColor          = "#FF000000"; // Black
             ApplicationData    = new ApplicationData();
+            TextPadding        = 20;
 		}
         #endregion
 

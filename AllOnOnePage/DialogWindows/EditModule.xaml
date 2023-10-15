@@ -19,15 +19,16 @@
                            SelectedPropertyItemChanged="_propertyGrid_SelectedPropertyItemChanged">
             <!-- Only the following properties will be displayed in the PropertyGrid -->
             <xctk:PropertyGrid.PropertyDefinitions>
-                <xctk:PropertyDefinition DisplayName="Name"         TargetProperties="ModuleName"      />
-                <xctk:PropertyDefinition DisplayName="Schriftgröße" TargetProperties="ModuleFontSize"  />
-                <xctk:PropertyDefinition DisplayName="Text"         TargetProperties="Value"           />
-                <xctk:PropertyDefinition DisplayName="Textfarbe"    TargetProperties="TextColor"       />
-                <xctk:PropertyDefinition DisplayName="Hintergrund"  TargetProperties="BackgroundColor" />
-                <xctk:PropertyDefinition DisplayName="Rand"         TargetProperties="IsFrameVisible"  />
-                <xctk:PropertyDefinition DisplayName="Randdicke"    TargetProperties="FrameThickness"  />
-                <xctk:PropertyDefinition DisplayName="Radius"       TargetProperties="FrameRadius"     />
-                <xctk:PropertyDefinition DisplayName="Randfarbe"    TargetProperties="FrameColor"      />
+                <xctk:PropertyDefinition DisplayName="Name"              TargetProperties="ModuleName"      />
+                <xctk:PropertyDefinition DisplayName="Schriftgröße"      TargetProperties="ModuleFontSize"  />
+                <xctk:PropertyDefinition DisplayName="Text"              TargetProperties="Value"           />
+                <xctk:PropertyDefinition DisplayName="Textfarbe"         TargetProperties="TextColor"       />
+                <xctk:PropertyDefinition DisplayName="Hintergrund"       TargetProperties="BackgroundColor" />
+                <xctk:PropertyDefinition DisplayName="Rand"              TargetProperties="IsFrameVisible"  />
+                <xctk:PropertyDefinition DisplayName="Randdicke"         TargetProperties="FrameThickness"  />
+                <xctk:PropertyDefinition DisplayName="Radius"            TargetProperties="FrameRadius"     />
+                <xctk:PropertyDefinition DisplayName="Randfarbe"         TargetProperties="FrameColor"      />
+                <xctk:PropertyDefinition DisplayName="Abstand vom Rand"  TargetProperties="TextPadding"     />
             </xctk:PropertyGrid.PropertyDefinitions>
         </xctk:PropertyGrid>
 

@@ -865,6 +865,9 @@ namespace AllOnOnePage
 
         private void CreatePerimeterRectangle(ref HighLight shape, Point? mouse, bool dashed)
         {
+            if (_CurrentModule is null)
+                return;
+
             var thickness = 2;
             var strokeColor = Brushes.LightGreen;
             var hoverColor = Brushes.OrangeRed;

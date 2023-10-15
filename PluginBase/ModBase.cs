@@ -220,7 +220,7 @@ namespace AllOnOnePage.Plugins
 			_frameBrush                       = ColorManager.CreateBrush(_config.FrameColor);
 			_textColor                        = ColorManager.CreateBrush(_config.TextColor);
 			_editModeBackgroundColor          = Brushes.DarkGray;
-			_editModeBackgroundColorMouseOver = Brushes.Transparent;// Brushes.Gray;
+			_editModeBackgroundColorMouseOver = _backgroundBrush; //Brushes.Transparent;// Brushes.Gray;
 
 			_canvas = new Canvas();
 			_Parent.Children.Add(_canvas);
@@ -244,7 +244,7 @@ namespace AllOnOnePage.Plugins
 
 
 
-			TextBlockMargin = new Thickness(_config.X, _config.Y, 0, 0);
+			TextBlockMargin = new Thickness(_config.X, 0, 0, 0);
 			NotifyPropertyChanged(nameof(TextBlockMargin));
 
 			Width = _config.W;
@@ -293,7 +293,7 @@ namespace AllOnOnePage.Plugins
         protected TextBlock CreateTextBlock(Brush foreground, int fontSize)
         {
             var control                 = new TextBlock();
-            control.Padding             = new Thickness(20);
+            control.Padding             = new Thickness(_config.TextPadding);
             control.Foreground          = foreground;
             control.FontSize            = fontSize;
             control.FontFamily          = new System.Windows.Media.FontFamily("Yu Gothic UI Light");

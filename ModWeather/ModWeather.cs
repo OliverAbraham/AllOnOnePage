@@ -216,6 +216,8 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 
 		private void UpdateForecastValues()
 		{
+			if (_forecast is null)
+                return;
 			Value = $"{_forecast.CurrentTemperature}";
 
 			if (!string.IsNullOrWhiteSpace(_myConfiguration.Decimals))

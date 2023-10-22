@@ -71,24 +71,27 @@ namespace AllOnOnePage.Plugins
 
         public override void UpdateContent(HomenetBase.DataObject? dataObject)
         {
-			if (string.IsNullOrWhiteSpace(_myConfiguration.ServerDataObject))
+			if (TheHomeAutomationServerShouldBeUsed())
 			{
-	            Value = _myConfiguration.Text;
-			}
-			else
-			{
-				if (dataObject is not null)
+				if (WeHaveReceivedAValueChangeMessage(dataObject))
 				{
-					if (dataObject.Name != _myConfiguration.ServerDataObject)
+					if (ThisChangeMessageIsNotForUs(dataObject))
 						return;
-					Value = MapTechnicalValueToDisplayValue(dataObject.Value);
+					Value = dataObject.Value;
 				}
 				else
-					Value = ReadValueFromHomeAutomationServer();
+				{
+					Value = ReadValueDirectlyFromHomeAutomationServer();
+				}
+				Value = MapTechnicalValueToDisplayValue(Value);
+				NotifyPropertyChanged(nameof(Value));
+				SetValueControlVisible();
+				return;
 			}
 
-            NotifyPropertyChanged(nameof(Value));
-            SetValueControlVisible();
+	        Value = _myConfiguration.Text;
+			NotifyPropertyChanged(nameof(Value));
+			SetValueControlVisible();
         }
 
         public override Dictionary<string,string> GetHelp()
@@ -122,8 +125,17 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			_serverPlaySound     = Deserialize(_myConfiguration.ServerPlaySound);
 			_fadeOutAfter        = Deserialize(_myConfiguration.FadeOutAfter);
 		}
+        #endregion
 
-        private string ReadValueFromHomeAutomationServer()
+
+
+		#region ------------- Home automation server ----------------------------------------------
+		private bool TheHomeAutomationServerShouldBeUsed()
+        {
+            return !string.IsNullOrWhiteSpace(_myConfiguration.ServerDataObject);
+        }
+
+        private string ReadValueDirectlyFromHomeAutomationServer()
         {
 			try
 			{
@@ -136,6 +148,16 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			}
         }
 
+		private bool WeHaveReceivedAValueChangeMessage(HomenetBase.DataObject dataObject)
+        {
+            return dataObject is not null;
+        }
+
+		private bool ThisChangeMessageIsNotForUs(HomenetBase.DataObject dataObject)
+        {
+            return dataObject is not null && dataObject.Name != _myConfiguration.ServerDataObject;
+        }
+
         private Params Deserialize(string data)
         {
 			if (string.IsNullOrWhiteSpace(data))
@@ -145,7 +167,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			var result = new Params();
             foreach (var part in parts)
 			{
-				var pair = data.Split('=', StringSplitOptions.RemoveEmptyEntries);
+				var pair = part.Split('=', StringSplitOptions.RemoveEmptyEntries);
 				result.Values.Add(new Param(pair[0], pair[1]));
 			}
 			return result;

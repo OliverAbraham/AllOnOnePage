@@ -83,10 +83,6 @@ namespace AllOnOnePage
         private void Handle_SignalR_shutdown_request()
         {
             System.Diagnostics.Debug.WriteLine($"Handle_SignalR_shutdown_request");
-            //Dispatcher.Invoke(() =>
-            //{
-            //    //ShutdownTheApp();
-            //});
         }
 
         private void Handle_SignalR_log_message(string message)

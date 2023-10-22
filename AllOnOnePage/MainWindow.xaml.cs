@@ -51,24 +51,29 @@ namespace AllOnOnePage
         public MainWindow()
 		{
 			try
-			{
-                OpenWeatherMapConnector connector = new OpenWeatherMapConnector();
-			    Init_Configuration();
-			    Init_Logger();
-			    Init_LayoutManager();
-			    Init_Plugins();
-			    InitializeComponent();
-			    Init_GlobalExceptionHandler();
-			    Init_ViewModel();
-			    Init_Background_Size_and_Position();
-			    Init_HelpTexts();
-			}
+            {
+                Init_OpenWeatherMap_Connector();
+                Init_Configuration();
+                Init_Logger();
+                Init_LayoutManager();
+                Init_Plugins();
+                InitializeComponent();
+                Init_GlobalExceptionHandler();
+                Init_ViewModel();
+                Init_Background_Size_and_Position();
+                Init_HelpTexts();
+            }
             catch (Exception ex)
 			{
                 MessageBox.Show(ex.ToString());
                 Close();
 			}
 		}
+
+        private static void Init_OpenWeatherMap_Connector()
+        {
+            var connector = new OpenWeatherMapConnector(); // we need to do this here to load the libs
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {

@@ -581,7 +581,7 @@ namespace AllOnOnePage
         #region ------------- UI background -----------------------------------
         private void Init_Background_Size_and_Position()
 		{
-            EditBackground.RestoreSelectedBackground(this, _config);
+            EditBackground.RestoreSelectedBackground(this, _config, _applicationData.ProgramDirectory);
 		}
 		#endregion
         #region ------------- Welcome screen ----------------------------------

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Policy;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,7 +18,7 @@ namespace AllOnOnePage
 		#region ------------- Fields --------------------------------------------------------------
 		private MainWindow _parent;
 		private Configuration _configuration;
-		private ImageSource _savedBackgroundImage;
+        private ImageSource _savedBackgroundImage;
 		private List<string> _availableBackgrounds;
 		private Configuration.BackgroundType _newBackground;
 		private string _newBackgroundImage;
@@ -45,15 +46,28 @@ namespace AllOnOnePage
 
 
 		#region ------------- Methods -------------------------------------------------------------
-        public static void RestoreSelectedBackground(MainWindow parent, Configuration configuration)
+        public static void RestoreSelectedBackground(MainWindow parent, Configuration configuration, string programDirectory)
 		{
             switch (configuration.Background)
 			{
 				case Configuration.BackgroundType.Image:
 					try
 					{
-						parent.BackgroundImage.Source = CreateBitmapImageFromFile(configuration.BackgroundImage);
-						parent.BackgroundImage.Stretch = Stretch.UniformToFill;
+						var userPicturesFolder = Path.GetFullPath("backgrounds");
+						if (!Directory.Exists(userPicturesFolder))
+							userPicturesFolder = Path.GetFullPath(Path.Combine(programDirectory, "backgrounds"));
+						
+						if (Directory.Exists(userPicturesFolder))
+						{
+                            var fullPath = Path.Combine(userPicturesFolder, configuration.BackgroundImage);
+                            parent.BackgroundImage.Source = CreateBitmapImageFromFile(fullPath);
+                            parent.BackgroundImage.Stretch = Stretch.UniformToFill;
+                        }
+                        else
+						{
+                            parent.BackgroundImage.Source = CreateBitmapImage("default.jpg");
+                            parent.BackgroundImage.Stretch = Stretch.UniformToFill;
+                        }
 					}
 					catch(Exception)
 					{
@@ -215,7 +229,7 @@ namespace AllOnOnePage
 		private void ButtonSave_Click(object sender, RoutedEventArgs e)
 		{
 			_configuration.Background = _newBackground;
-			_configuration.BackgroundImage = _newBackgroundImage;
+			_configuration.BackgroundImage = Path.GetFileName(_newBackgroundImage);
 			DialogResult = true;
 			Close();
 		}

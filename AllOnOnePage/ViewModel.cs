@@ -693,7 +693,12 @@ namespace AllOnOnePage
             else if (_MouseOnLeftEdge   || _MouseOnRightEdge) _parentWindow.Cursor = Cursors.SizeWE;
             else if (_MouseOnCorner1    || _MouseOnCorner4)   _parentWindow.Cursor = Cursors.SizeNWSE;
             else if (_MouseOnCorner2    || _MouseOnCorner3)   _parentWindow.Cursor = Cursors.SizeNESW;
-            else                                              _parentWindow.Cursor = Cursors.Arrow;
+            else                                              SetStandardMouseCursorShape();
+        }
+
+        private void SetStandardMouseCursorShape()
+        {
+            _parentWindow.Cursor = Cursors.Arrow;
         }
 
         private void ChangeModuleEnd()
@@ -701,6 +706,7 @@ namespace AllOnOnePage
             ResetMousePointerOnBorderOfDragRect();
             ResetModuleUnderMouse();
             RemoveModuleHoverIndicator();
+            SetStandardMouseCursorShape();
         }
         #endregion
         #region ------------- Move and resize ---------------------------------

@@ -16,8 +16,6 @@ namespace AllOnOnePage
 {
     public partial class MainWindow : Window
     {
-        private const string VERSION = "2023-10-15";
-
 		#region ------------- Fields --------------------------------------------------------------
 		#region Configuration
         private ConfigurationManager   _configurationManager;
@@ -39,10 +37,10 @@ namespace AllOnOnePage
 		private Timer                  _buttonFadeOutTimer;
 		#endregion
 		#region Updater
-		private Updater _Updater;
+		private Updater                _updater;
         #endregion
 		#region Home automation server connection
-        private HomeAutomationServerConnection _server;
+        private HomeAutomationServerConnection? _server;
         private bool _serverConnectingInProgress;
 		#endregion
         #endregion
@@ -81,11 +79,9 @@ namespace AllOnOnePage
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			CleanupPlugins();
-            _server.Stop();
-			//StopSupervisorThread();
+            _server?.Stop();
 			Stop_date_time_update_timer();
-			//Stop_periodic_UI_update_timer();
-            if (_Updater is not null) _Updater.Stop();
+            _updater?.Stop();
 			_configurationManager.Save();
 		}
 
@@ -93,7 +89,6 @@ namespace AllOnOnePage
         {
             //StopPowerManagement();
             //_programStateManager.Save_state_to_disk();
-            //StopSupervisorThread();
         }
 
         private Timer CreateAndStartTimer(ElapsedEventHandler timerProc, int interval_in_seconds, bool repeatedly = true)
@@ -153,7 +148,7 @@ namespace AllOnOnePage
 
         private void Startup()
         {
-            if (!string.IsNullOrWhiteSpace(_config.HomeAutomationServerUrl))
+            if (HomeAutomationServerIsConfigured())
                 ConnectToServer_then_call_Startup2();
             else
                 Startup2();
@@ -163,7 +158,6 @@ namespace AllOnOnePage
         {
             try
             {
-                //StartPowerManagement();
                 //Read_saved_state_from_disk();
 
                 Init_all_modules();
@@ -205,7 +199,7 @@ namespace AllOnOnePage
 		{
 			Stop_periodic_UI_update_timer();
 			Stop_LayoutManager();
-            _Updater.Stop();
+            _updater.Stop();
 			Close();
 		}
 		#endregion
@@ -254,6 +248,11 @@ namespace AllOnOnePage
 		}
         #endregion
         #region ------------- Home automation server connection ---------------
+        private bool HomeAutomationServerIsConfigured()
+        {
+            return !string.IsNullOrWhiteSpace(_config.HomeAutomationServerUrl);
+        }
+
         private void ConnectToServer_then_call_Startup2()
         {
             _serverConnectingInProgress = true;
@@ -294,6 +293,7 @@ namespace AllOnOnePage
 
         private void ReconnectToHomeAutomationServer()
         {
+            _serverConnectingInProgress = true;
             ServerInfo.Content = "Reconnecting...";
             WaitAndThenCallMethod(wait_time_seconds: 1, action: ReconnectToHomeAutomationServer2);
         }
@@ -305,13 +305,25 @@ namespace AllOnOnePage
                 _server.Connect();
                 _applicationData._homenetConnector = _server.DataObjectsConnector;
                 ServerInfo.Content = _server.ConnectionStatus;
+                _serverConnectingInProgress = false;
                 FadeOutServerInfo();
             }
             catch (Exception ex)
             {
+                _serverConnectingInProgress = false;
                 ServerInfo.Content = "Error connecting to homenet server";
                 WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToHomeAutomationServer);
             }
+        }
+
+        private bool WeHaveLostTheServerConnection()
+        {
+            // if we are connected to the home automation server
+            // and the connection is lost (what will happen regularly after hibernation)
+            // we firstly reconnect to the server and then update the UI
+            return (_server is not null &&
+                    !_serverConnectingInProgress &&
+                    _server.ConnectionStatus != "connected");
         }
         #endregion
         #region ------------- Periodic date/time update -----------------------
@@ -353,11 +365,18 @@ namespace AllOnOnePage
         private void Periodic_timer_elapsed(object sender, ElapsedEventArgs e)
         {
             _periodicTimer.Stop();
-        
-            Dispatcher.Invoke(() =>
+            
+            if (WeHaveLostTheServerConnection())
             {
-                Update_all_modules();
-            });
+                ReconnectToHomeAutomationServer();
+            }
+            else
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    Update_all_modules();
+                });
+            }
 
             if (_config.UpdateIntervalInSeconds == 0)
                 _config.UpdateIntervalInSeconds = 60;
@@ -411,7 +430,7 @@ namespace AllOnOnePage
         #region ------------- Buttons and help texts --------------------------
         private void Init_HelpTexts()
         {
-            VersionInfo.Content = $"Version {VERSION}";
+            VersionInfo.Content = $"Version {AppVersion.Version.VERSION}";
             ServerInfo.Content = "";
             HelpText1.Content = _texts[HelpTexts.ID.CLICKHERETOEND];
             HelpText2.Content = _texts[HelpTexts.ID.CLICKHERETOEDIT];
@@ -591,7 +610,7 @@ namespace AllOnOnePage
         #region ------------- Program info ------------------------------------
 		private void Button_Info_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
-            var wnd = new ProgramInfo(_texts, VERSION, _Updater);
+            var wnd = new ProgramInfo(_texts, AppVersion.Version.VERSION, _updater);
             wnd.Owner = this;
             wnd.ShowDialog();
 		}
@@ -628,17 +647,17 @@ namespace AllOnOnePage
 			if (_config.DisableUpdate)
 				return;
 
-			_Updater = new Updater();
-			_Updater.PollingIntervalInSeconds = 0; // only check once at program start
-			_Updater.Logfile                  = "updater.log";
-			_Updater.CurrentVersion           = VERSION;
-			_Updater.RepositoryURL            = @"https://www.abraham-beratung.de/aoop/version.html";
-            _Updater.DownloadLinkStart        = "https:\\/\\/www\\.abraham-beratung\\.de\\/aoop";
-            _Updater.DownloadLinkEnd          = "zip";
-			_Updater.DestinationDirectory     = _applicationData.ProgramDirectory;
-			_Updater.OnUpdateAvailable        = delegate()
+			_updater = new Updater();
+			_updater.PollingIntervalInSeconds = 0; // only check once at program start
+			_updater.Logfile                  = "updater.log";
+			_updater.CurrentVersion           = AppVersion.Version.VERSION;
+			_updater.RepositoryURL            = @"https://www.abraham-beratung.de/aoop/version.html";
+            _updater.DownloadLinkStart        = "https:\\/\\/www\\.abraham-beratung\\.de\\/aoop";
+            _updater.DownloadLinkEnd          = "zip";
+			_updater.DestinationDirectory     = _applicationData.ProgramDirectory;
+			_updater.OnUpdateAvailable        = delegate()
 			{
-				_Updater.Stop();
+				_updater.Stop();
 				Dispatcher.BeginInvoke( new Action(() =>
 				{
 					Show_Update_notification();
@@ -646,7 +665,7 @@ namespace AllOnOnePage
 			};
 			
 			if (!_config.DisableUpdate)
-				_Updater.Start();
+				_updater.Start();
 		}
 
 		private void Show_Update_notification()
@@ -664,7 +683,7 @@ namespace AllOnOnePage
 		private void Show_Update_notification_internal()
 		{
 			var text = _texts.Data[HelpTexts.ID.UPDATEAVAILABLE];
-			var fullText = string.Format(text, VERSION, _Updater.NewVersion);
+			var fullText = string.Format(text, AppVersion.Version.VERSION, _updater.NewVersion);
 
 			var wnd = new MessageBoxWindow(this);
             wnd.Title = _texts.Data[HelpTexts.ID.UPDATETITLE];
@@ -675,13 +694,13 @@ namespace AllOnOnePage
 			wnd.ShowDialog();
 			if (wnd.MessageBoxResult == MessageBoxResult.Yes)
 			{
-				bool success = _Updater.StartUpdate();
-				_Updater.Stop();
+				bool success = _updater.StartUpdate();
+				_updater.Stop();
 				Close();
 			}
 			else
 			{
-				_Updater.Stop();
+				_updater.Stop();
 			}
 		}
         #endregion

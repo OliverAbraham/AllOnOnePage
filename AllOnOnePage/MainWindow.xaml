@@ -45,21 +45,21 @@
             <Image Name="Button_Settings" Margin="0,270,30,0"  Stretch="Fill" Source="Icons/SettingsIconSolid.png" 
                    HorizontalAlignment="Right" VerticalAlignment="Top"
                    Width="40" Height="40" MouseLeftButtonUp="Button_Settings_Click"/>
-            <Image Name="Button_Wastebasket" Margin="0,330,30,0"  Stretch="Fill" Source="Icons/WastebasketIconSolid.png" 
+            <!--<Image Name="Button_Wastebasket" Margin="0,330,30,0"  Stretch="Fill" Source="Icons/WastebasketIconSolid.png" 
                    HorizontalAlignment="Right" VerticalAlignment="Top"
-                   Width="40" Height="40" MouseLeftButtonUp="Button_Wastebasket_Click"/>
-            <Image Name="Button_EditMode" Margin="0,390,30,0"  Stretch="Fill" Source="Icons/EditModeIconSolid.png" 
+                   Width="40" Height="40" MouseLeftButtonUp="Button_Wastebasket_Click"/>-->
+            <!--<Image Name="Button_EditMode" Margin="0,390,30,0"  Stretch="Fill" Source="Icons/EditModeIconSolid.png" 
                    HorizontalAlignment="Right" VerticalAlignment="Top"
                    Width="40" Height="40" MouseLeftButtonUp="Button_Editmode_Click"
-                   Visibility="{Binding EditModeControlsVisibility, Mode=OneWay}" />
+                   Visibility="{Binding EditModeControlsVisibility, Mode=OneWay}" />-->
 
             <Label Name="HelpText1"   Content="hier klicken zum Beenden"          IsHitTestVisible="False" FontSize="24" Margin="0,30,85,0"  Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Right" Width="337" />
             <Label Name="HelpText2"   Content="hier klicken zum Bearbeiten"       IsHitTestVisible="False" FontSize="24" Margin="0,90,85,0"  Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
             <Label Name="HelpText3"   Content="hier klicken für Vollbild"         IsHitTestVisible="False" FontSize="24" Margin="0,150,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
             <Label Name="HelpText4"   Content="Versionsinfo"                      IsHitTestVisible="False" FontSize="24" Margin="0,210,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
             <Label Name="HelpText5"   Content="Einstellungen"                     IsHitTestVisible="False" FontSize="24" Margin="0,270,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
-            <Label Name="HelpText6"   Content="Kachel zum Löschen hierhin ziehen" IsHitTestVisible="False" FontSize="24" Margin="0,330,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="448" HorizontalContentAlignment="Right"/>
-            <Label Name="HelpText7"   Content="Bearbeitung beenden"               IsHitTestVisible="False" FontSize="24" Margin="0,390,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
+            <!--<Label Name="HelpText6"   Content="Kachel zum Löschen hierhin ziehen" IsHitTestVisible="False" FontSize="24" Margin="0,330,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="448" HorizontalContentAlignment="Right"/>-->
+            <!--<Label Name="HelpText7"   Content="Bearbeitung beenden"               IsHitTestVisible="False" FontSize="24" Margin="0,390,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>-->
             <StackPanel Orientation="Horizontal" Margin="10,0,10,10" VerticalAlignment="Bottom"  Height="40" IsHitTestVisible="False">
                 <Label Name="VersionInfo" Content="Version"                           FontSize="24" Foreground="DeepSkyBlue" Width="250"/>
                 <Label Name="ServerInfo"  Content="Connected to server"               FontSize="24" Foreground="DeepSkyBlue" Width="250"/>

@@ -199,6 +199,7 @@ namespace AllOnOnePage
 
 
         #region ------------- Implementation ------------------------------------------------------
+        #region ------------- Basic -------------------------------------------
         private void Init_one_module(RuntimeModule moduleDef)
         {
             try
@@ -289,6 +290,7 @@ namespace AllOnOnePage
             return rect.Left <= x && x <= rect.Right && 
                    rect.Top  <= y && y <= rect.Bottom;
         }
+        #endregion
         #region ------------- Module editor -----------------------------------
         #region ------------- Mouse events ------------------------------------
 		private bool EnterOrLeaveEditMode()
@@ -589,25 +591,25 @@ namespace AllOnOnePage
 
 		private void Highlight_Wastebasket_if_mouse_pointer_is_over(Point pos)
 		{
-            var basket = _parentWindow.Button_Wastebasket;
-            var L = _parentWindow.Width 
-                    -_Delta_to_Subtract_from_Window_width 
-                    - basket.Margin.Right 
-                    - basket.ActualWidth;
-            var R = L+basket.ActualWidth;
-            var T = basket.Margin.Top;
-            var B = T+basket.ActualHeight;
+   //         var basket = _parentWindow.Button_Wastebasket;
+   //         var L = _parentWindow.Width 
+   //                 -_Delta_to_Subtract_from_Window_width 
+   //                 - basket.Margin.Right 
+   //                 - basket.ActualWidth;
+   //         var R = L+basket.ActualWidth;
+   //         var T = basket.Margin.Top;
+   //         var B = T+basket.ActualHeight;
 
-            if (L <= pos.X && pos.X <= R && T <= pos.Y && pos.Y <= B)
-			{
-                _parentWindow.Button_Wastebasket.Opacity = 1.0;
-                _MouseIsOverWastebasket = true;
-			}
-            else
-			{
-                _parentWindow.Button_Wastebasket.Opacity = 0.5;
-                _MouseIsOverWastebasket = false;
-			}
+   //         if (L <= pos.X && pos.X <= R && T <= pos.Y && pos.Y <= B)
+			//{
+   //             _parentWindow.Button_Wastebasket.Opacity = 1.0;
+   //             _MouseIsOverWastebasket = true;
+			//}
+   //         else
+			//{
+   //             _parentWindow.Button_Wastebasket.Opacity = 0.5;
+   //             _MouseIsOverWastebasket = false;
+			//}
 		}
 
 		internal void Button_Editmode_Click()

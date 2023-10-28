@@ -457,8 +457,8 @@ namespace AllOnOnePage
 			WpfAnimations.FadeOutLabel(HelpText3);
 			WpfAnimations.FadeOutLabel(HelpText4);
 			WpfAnimations.FadeOutLabel(HelpText5);
-			WpfAnimations.FadeOutLabel(HelpText6);
-			WpfAnimations.FadeOutLabel(HelpText7);
+			//WpfAnimations.FadeOutLabel(HelpText6);
+			//WpfAnimations.FadeOutLabel(HelpText7);
 		}
 
         private void FadeOutVersionInfo()
@@ -509,8 +509,8 @@ namespace AllOnOnePage
 			WpfAnimations.FadeIn(Button_Fullscreen , UIElement.OpacityProperty);
 			WpfAnimations.FadeIn(Button_Info       , UIElement.OpacityProperty);
 			WpfAnimations.FadeIn(Button_Settings   , UIElement.OpacityProperty);
-			WpfAnimations.FadeIn(Button_Wastebasket, UIElement.OpacityProperty);
-			WpfAnimations.FadeIn(Button_EditMode   , UIElement.OpacityProperty);
+			//WpfAnimations.FadeIn(Button_Wastebasket, UIElement.OpacityProperty);
+			//WpfAnimations.FadeIn(Button_EditMode   , UIElement.OpacityProperty);
 		}
 
 		private void FadeOutButtons()
@@ -520,8 +520,8 @@ namespace AllOnOnePage
 			WpfAnimations.FadeOutButLeaveVisible(Button_Fullscreen , UIElement.OpacityProperty);
 			WpfAnimations.FadeOutButLeaveVisible(Button_Info       , UIElement.OpacityProperty);
 			WpfAnimations.FadeOutButLeaveVisible(Button_Settings   , UIElement.OpacityProperty);
-			WpfAnimations.FadeOutButLeaveVisible(Button_Wastebasket, UIElement.OpacityProperty);
-			WpfAnimations.FadeOutButLeaveVisible(Button_EditMode   , UIElement.OpacityProperty);
+			//WpfAnimations.FadeOutButLeaveVisible(Button_Wastebasket, UIElement.OpacityProperty);
+			//WpfAnimations.FadeOutButLeaveVisible(Button_EditMode   , UIElement.OpacityProperty);
 		}
 		#endregion
 		#region ------------- Buttons -----------------------------------------

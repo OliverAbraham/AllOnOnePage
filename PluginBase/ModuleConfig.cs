@@ -74,7 +74,7 @@ namespace AllOnOnePage.Plugins
 		public void CopyPropertiesFrom(ModuleConfig source)
 		{
             ID                     = source.ID;
-            ModuleName             = source.ModuleName;
+            ModuleName             = source.ModuleName + " copy";
             X                      = source.X;
             Y                      = source.Y;
             W                      = source.W;
@@ -90,6 +90,7 @@ namespace AllOnOnePage.Plugins
 		    BackgroundColor        = source.BackgroundColor;
 		    TextColor              = source.TextColor;
             ApplicationData        = source.ApplicationData;
+            ModulePrivateData      = source.ModulePrivateData;
 		}
         #endregion
 

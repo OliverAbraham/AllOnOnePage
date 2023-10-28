@@ -93,6 +93,11 @@ namespace AllOnOnePage.Plugins
 		{
 		}
 
+        public void Clone(ModuleConfig existingModuleConfig)
+        {
+            _config = existingModuleConfig.Clone();
+        }
+
         public virtual void Delete()
 		{
             _canvas.Children.Remove(_ValueControl);
@@ -124,7 +129,7 @@ namespace AllOnOnePage.Plugins
         {
         }
 
-        public virtual void UpdateContent(HomenetBase.DataObject? dataObject)
+        public virtual void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
         {
         }
 
@@ -466,6 +471,6 @@ namespace AllOnOnePage.Plugins
             if (Handler != null)
                 Handler(this, new PropertyChangedEventArgs(propertyName));
         }
-		#endregion
-	}
+        #endregion
+    }
 }

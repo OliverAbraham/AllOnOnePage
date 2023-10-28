@@ -8,10 +8,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Abraham.PrtgClient" Version="1.0.0" />
     <PackageReference Include="Abraham.Scheduler" Version="1.0.0" />
   </ItemGroup>
 

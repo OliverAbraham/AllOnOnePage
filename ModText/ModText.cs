@@ -2,6 +2,9 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Windows.Controls;
+using Newtonsoft.Json.Linq;
+using System.Windows.Media;
+using System.Windows.Markup.Localizer;
 
 namespace AllOnOnePage.Plugins
 {
@@ -14,8 +17,10 @@ namespace AllOnOnePage.Plugins
 			public string ServerDataObject    { get; set; }
 			public string ServerMessages      { get; set; }
 			public string ServerFadeOutValues { get; set; }
+			public string ServerWarningValues { get; set; }
 			public string ServerPlaySound     { get; set; }
 			public string FadeOutAfter        { get; set; }
+			public string WarningTextColor    { get; set; }
 		}
 		#endregion
 
@@ -25,6 +30,7 @@ namespace AllOnOnePage.Plugins
 		private MyConfiguration _myConfiguration;
         private Params _serverMessages;
         private Params _serverFadeOutValues;
+        private Params _serverWarningValues;
         private Params _serverPlaySound;
         private Params _fadeOutAfter;
         #endregion
@@ -69,27 +75,35 @@ namespace AllOnOnePage.Plugins
             return (false, "");
 		}
 
-        public override void UpdateContent(HomenetBase.DataObject? dataObject)
+        public override void UpdateLayout()
+        {
+            base.UpdateLayout();
+            UpdateContent(null);
+        }
+
+        public override void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
         {
 			if (TheHomeAutomationServerShouldBeUsed())
-			{
-				if (WeHaveReceivedAValueChangeMessage(dataObject))
-				{
-					if (ThisChangeMessageIsNotForUs(dataObject))
-						return;
-					Value = dataObject.Value;
-				}
-				else
-				{
-					Value = ReadValueDirectlyFromHomeAutomationServer();
-				}
-				Value = MapTechnicalValueToDisplayValue(Value);
-				NotifyPropertyChanged(nameof(Value));
-				SetValueControlVisible();
-				return;
-			}
+            {
+                if (WeHaveReceivedAValueChangeMessage(dataObject))
+                {
+                    if (ThisChangeMessageIsNotForUs(dataObject))
+                        return;
+                    Value = dataObject.Value;
+                }
+                else
+                {
+                    Value = ReadValueDirectlyFromHomeAutomationServer();
+                }
+                Value = MapTechnicalValueToDisplayValue(Value);
+                NotifyPropertyChanged(nameof(Value));
 
-	        Value = _myConfiguration.Text;
+                SetWarningColorIfNecessary();
+                SetValueControlVisible();
+                return;
+            }
+
+            Value = _myConfiguration.Text;
 			NotifyPropertyChanged(nameof(Value));
 			SetValueControlVisible();
         }
@@ -122,6 +136,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
 			_serverMessages      = Deserialize(_myConfiguration.ServerMessages);
 			_serverFadeOutValues = Deserialize(_myConfiguration.ServerFadeOutValues);
+			_serverWarningValues = Deserialize(_myConfiguration.ServerWarningValues);
 			_serverPlaySound     = Deserialize(_myConfiguration.ServerPlaySound);
 			_fadeOutAfter        = Deserialize(_myConfiguration.FadeOutAfter);
 		}
@@ -148,12 +163,12 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			}
         }
 
-		private bool WeHaveReceivedAValueChangeMessage(HomenetBase.DataObject dataObject)
+		private bool WeHaveReceivedAValueChangeMessage(Abraham.HomenetBase.Models.DataObject dataObject)
         {
             return dataObject is not null;
         }
 
-		private bool ThisChangeMessageIsNotForUs(HomenetBase.DataObject dataObject)
+		private bool ThisChangeMessageIsNotForUs(Abraham.HomenetBase.Models.DataObject dataObject)
         {
             return dataObject is not null && dataObject.Name != _myConfiguration.ServerDataObject;
         }
@@ -184,8 +199,28 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			else
 				return value;
         }
+
+        private void SetWarningColorIfNecessary()
+        {
+            if (WarningTextColorIsSet() && WarningValuesAreSet())
+            {
+                var weHaveAWarning = _serverWarningValues.Values.Any(x => x.Text == Value);
+                var textColor = (weHaveAWarning) ? _myConfiguration.WarningTextColor : _config.TextColor;
+                base._ValueControl.Foreground = (SolidColorBrush)(new BrushConverter().ConvertFrom(textColor));
+            }
+        }
+
+        private bool WarningTextColorIsSet()
+        {
+            return _myConfiguration.WarningTextColor is not null && !string.IsNullOrWhiteSpace(_myConfiguration.WarningTextColor);
+        }
+
+        private bool WarningValuesAreSet()
+        {
+            return _serverWarningValues is not null && _serverWarningValues.Values.Any();
+        }
         #endregion
-	}
+    }
 
     internal class Params
     {

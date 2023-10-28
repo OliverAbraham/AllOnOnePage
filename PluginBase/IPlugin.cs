@@ -13,7 +13,7 @@ namespace AllOnOnePage.Plugins
 		void Recreate();
 		void Time();
 		void UpdateLayout();
-		void UpdateContent(HomenetBase.DataObject? dataObject);
+		void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject);
 		bool HitTest(object control, Point mousePosition);
 		string GetName();
 		ModuleConfig GetModuleConfig();
@@ -28,8 +28,9 @@ namespace AllOnOnePage.Plugins
 		ModuleSpecificConfig GetModuleSpecificConfig();
 		void CleanupModuleSpecificConfig();
 		void Save();
+        void Clone(ModuleConfig existingModuleConfig);
 		Dictionary<string,string> GetHelp();
 		(bool,string) Validate();
 		(bool success, string messages) Test();
-	}
+    }
 }

@@ -6,12 +6,12 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="Modul bearbeiten" 
-        Height="546" MinHeight="546" Width="597" MinWidth="484"
+        Height="546" MinHeight="546" Width="697" MinWidth="484"
         Background="FloralWhite" FontSize="16" 
         Loaded="Window_Loaded">
-    <Grid>
+    <Grid Margin="20">
         <xctk:PropertyGrid x:Name="_propertyGrid" 
-                           Margin="10,10,10,91" 
+                           Margin="0,0,0,81" 
                            AutoGenerateProperties="False"
                            ShowSearchBox="False"
                            ShowSortOptions="False"
@@ -32,9 +32,12 @@
             </xctk:PropertyGrid.PropertyDefinitions>
         </xctk:PropertyGrid>
 
-        <Button Content="Speichern"             HorizontalAlignment="Left"  Margin="43,0,0,35"  VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Save_Click"/>
-        <Button Content="Modul-Einstellungen"   HorizontalAlignment="Left"  Margin="160,0,0,35" VerticalAlignment="Bottom" Height="30" Width="162" Click="Button_ModuleSettings_Click"/>
-        <Button Content="Löschen" Margin="341,0,0,35"  VerticalAlignment="Bottom" Height="30"  Click="Button_Delete_Click" HorizontalAlignment="Left" Width="95"/>
-        <Button Content="Abbruch"               HorizontalAlignment="Right" Margin="0,0,41,35"  VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Cancel_Click"/>
+        <StackPanel Orientation="Horizontal" Height="30" VerticalAlignment="Bottom">
+            <Button Content="Speichern"             Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Save_Click"/>
+            <Button Content="Modul-Einstellungen"   Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="162" Click="Button_ModuleSettings_Click"/>
+            <Button Content="Duplizieren"           Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Duplicate_Click"/>
+            <Button Content="Löschen"               Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Delete_Click"/>
+            <Button Content="Abbruch"               Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Cancel_Click"/>
+        </StackPanel>
     </Grid>
 </Window>

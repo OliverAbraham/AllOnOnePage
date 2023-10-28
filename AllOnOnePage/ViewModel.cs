@@ -179,6 +179,26 @@ namespace AllOnOnePage
             Init_one_module(moduleDef);
 		}
 
+        public bool Button_Edit_Click()
+		{
+			return EnterOrLeaveEditMode();
+		}
+
+		public void VisibilityStateChange_CompleteUpdate()
+        {
+            foreach(var module in _runtimeModules)
+            {
+                if (module.Plugin.GetVisibility() != Visibility.Visible)
+                {
+                    VisibilityStateChange(module.Plugin, Visibility.Hidden);
+                }
+            }
+        }
+        #endregion
+
+
+
+        #region ------------- Implementation ------------------------------------------------------
         private void Init_one_module(RuntimeModule moduleDef)
         {
             try
@@ -226,17 +246,6 @@ namespace AllOnOnePage
 			return _processors.Where(x => x.Type.Name == type).FirstOrDefault();
 		}
 
-		public void VisibilityStateChange_CompleteUpdate()
-        {
-            foreach(var module in _runtimeModules)
-            {
-                if (module.Plugin.GetVisibility() != Visibility.Visible)
-                {
-                    VisibilityStateChange(module.Plugin, Visibility.Hidden);
-                }
-            }
-        }
-
 		/// <summary>
 		/// A module informs us that is has become visible or invisible.
 		/// We inform all other modules who overlap with this and can hide.
@@ -280,19 +289,8 @@ namespace AllOnOnePage
             return rect.Left <= x && x <= rect.Right && 
                    rect.Top  <= y && y <= rect.Bottom;
         }
-        #endregion
-
-
-
-        #region ------------- Implementation ------------------------------------------------------
         #region ------------- Module editor -----------------------------------
         #region ------------- Mouse events ------------------------------------
-
-        public bool Button_Edit_Click()
-		{
-			return EnterOrLeaveEditMode();
-		}
-
 		private bool EnterOrLeaveEditMode()
 		{
 			_EditMode = !_EditMode;
@@ -459,45 +457,11 @@ namespace AllOnOnePage
 			}
         }
 
-		private void OpenEditDialog(MouseButtonEventArgs e, RuntimeModule module)
-		{
-			var wnd = new EditModule(module.Plugin, _parentWindow, _texts);
-			wnd.Owner = _parentWindow;
-			wnd.Left = e.GetPosition(_parentWindow).X + _parentWindow.Left;
-			wnd.Top = e.GetPosition(_parentWindow).Y;
-			var result = wnd.ShowDialog();
-			if (result == true)
-			{
-                if (wnd.DeleteModule)
-				{
-                    if (Ask_if_user_wants_to_delete())
-				    {
-                        DeleteModule(module);
-				    }
-				}
-                else
-				{
-                    module.Plugin.Recreate();
-				    module.Plugin.UpdateLayout();
-				    SaveConfiguration();
-				}
-			}
-		}
-
-		private void OpenBackgroundEditDialog()
-		{
-            var wnd = new EditBackground(_parentWindow, _configuration);
-            wnd.Owner = _parentWindow;
-            wnd.ShowDialog();
-            if (wnd.DialogResult == true)
-                SaveConfiguration();
-		}
-
         public void MouseRightButtonDown(Window sender, MouseButtonEventArgs e)
         {
-            var module = FindModuleUnderMouse(sender, e);
-            if (module != null)
-                CopyModule(module, e);
+            //var module = FindModuleUnderMouse(sender, e);
+            //if (module != null)
+            //    DuplicateModule(module, e);
         }
 
         private RuntimeModule FindModuleUnderMouse(Window sender, System.Windows.Input.MouseEventArgs e)
@@ -983,23 +947,72 @@ namespace AllOnOnePage
             return maxID+1;
 		}
         #endregion
-        #region ------------- Copy module -------------------------------------
-        private void CopyModule(RuntimeModule module, MouseButtonEventArgs e)
+        #region ------------- Edit background dialog --------------------------
+		private void OpenBackgroundEditDialog()
+		{
+            var wnd = new EditBackground(_parentWindow, _configuration);
+            wnd.Owner = _parentWindow;
+            wnd.ShowDialog();
+            if (wnd.DialogResult == true)
+                SaveConfiguration();
+		}
+        #endregion
+        #region ------------- Edit module dialog ------------------------------
+		private void OpenEditDialog(MouseButtonEventArgs e, RuntimeModule module)
+		{
+			var wnd = new EditModule(module.Plugin, _parentWindow, _texts);
+			wnd.Owner = _parentWindow;
+			wnd.Left = e.GetPosition(_parentWindow).X + _parentWindow.Left;
+			wnd.Top = e.GetPosition(_parentWindow).Y;
+			var result = wnd.ShowDialog();
+			if (result == true)
+			{
+                if (wnd.DeleteModule)
+				{
+                    if (Ask_if_user_wants_to_delete())
+				    {
+                        DeleteModule(module);
+				    }
+				}
+                else
+				{
+                    module.Plugin.Recreate();
+				    module.Plugin.UpdateLayout();
+				    SaveConfiguration();
+				}
+			}
+            else if (wnd.UserWantsToDuplicateTheModule)
+            {
+                DuplicateModule(module);
+            }
+		}
+
+        #endregion
+        #region ------------- Duplicate module --------------------------------
+        private void DuplicateModule(RuntimeModule module)
         {
-			//Processor processor = FindProcessorByType(module.Config.TileType);
-			//if (processor != null)
-			//{
-            //    var newConfig = module.Config.Clone();
-            //    newConfig.ID = GenerateUniqueID();
-			//	var newModule = new RuntimeModule(newConfig);
-			//	var newProcessor = _pluginManager.InstantiateProcessor(processor);
-            //    newModule.Plugin = (IPlugin)newProcessor.Instance;
-			//    newModule.Plugin.Init(newConfig, _ParentGrid, Dispatcher);
-            //    newModule.Plugin.CreateSeedData();
-            //    _runtimeModules.Add(newModule);
-			//	_configuration.Modules.Add(newModule.Config);
-			//	SaveConfiguration();
-			//}
+            Processor processor = FindProcessorByType(module.Config.TileType);
+            if (processor != null)
+            {
+                var newConfig = module.Config.Clone();
+                newConfig.ID = GenerateUniqueID();
+                var newModule = new RuntimeModule(newConfig);
+
+                // center the copy
+                newModule.Config.X = ((int)_parentWindow.Width / 2 - newModule.Config.W / 2);
+                newModule.Config.Y = ((int)_parentWindow.Height / 2 - newModule.Config.H / 2);
+
+                var newProcessor = _pluginManager.InstantiateProcessor(processor);
+                newModule.Plugin = (IPlugin)newProcessor.Instance;
+                newModule.Plugin.Clone(module.Config);
+                newModule.Plugin.Init(newConfig, _ParentGrid, Dispatcher);
+                newModule.Plugin.UpdateLayout();                
+                Update_one_module(newModule, null);
+
+                _runtimeModules.Add(newModule);
+                _configuration.Modules.Add(newModule.Config);
+                SaveConfiguration();
+            }
         }
         #endregion
         #region ------------- Value updates -----------------------------------
@@ -1009,19 +1022,19 @@ namespace AllOnOnePage
                 module.Plugin.Time();
         }
 
-        public void ServerDataobjectValueChange(HomenetBase.DataObject dataObject)
+        public void ServerDataobjectValueChange(Abraham.HomenetBase.Models.DataObject dataObject)
         {
 			foreach (var module in _runtimeModules)
 				Update_one_module(module, dataObject);
 		}
 
-        public void Update_all_modules(HomenetBase.DataObject? @do = null)
+        public void Update_all_modules(Abraham.HomenetBase.Models.DataObject? @do = null)
         {
 			foreach (var module in _runtimeModules)
 				Update_one_module(module, @do);
 		}
 
-		private void Update_one_module(RuntimeModule module, HomenetBase.DataObject? @do = null)
+		private void Update_one_module(RuntimeModule module, Abraham.HomenetBase.Models.DataObject? @do = null)
 		{
             try
 			{

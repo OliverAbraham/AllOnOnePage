@@ -35,7 +35,7 @@
                    Width="40" Height="40" MouseLeftButtonUp="Button_Close_Click" />
             <Image Name="Button_Add" Margin="0,90,30,0"  Stretch="Fill" Source="Icons/PlusIconSolid.png" 
                    HorizontalAlignment="Right" VerticalAlignment="Top"
-                   Width="40" Height="40" MouseLeftButtonUp="Button_Plus_Click"/>
+                   Width="40" Height="40" MouseLeftButtonUp="Button_AddNewModule_Click"/>
             <Image Name="Button_Fullscreen" Margin="0,150,30,0" Stretch="Fill" Source="Icons/FullscreenIconSolid.png" 
                    HorizontalAlignment="Right" VerticalAlignment="Top"  
                    Width="40" Height="40" MouseLeftButtonUp="Button_Fullscreen_Click"/>

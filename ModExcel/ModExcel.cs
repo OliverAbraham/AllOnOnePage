@@ -79,7 +79,7 @@ namespace AllOnOnePage.Plugins
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
 		}
 
-        public override void UpdateContent(HomenetBase.DataObject? dataObject)
+        public override void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
         {
 			try
 			{

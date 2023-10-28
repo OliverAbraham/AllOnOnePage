@@ -1,8 +1,6 @@
 ﻿using Abraham.Scheduler;
-using HomenetBase;
 using Microsoft.AspNetCore.SignalR.Client;
 using System;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -51,7 +49,7 @@ namespace AllOnOnePage.Libs
         private OnForceShutdown_Handler _OnForceShutdown = delegate () { };
 
 
-        public delegate void OnMessage_Handler(LogItem logItem);
+        public delegate void OnMessage_Handler(Abraham.HomenetBase.Models.LogItem logItem);
         public OnMessage_Handler OnMessage
         {
             get
@@ -60,13 +58,13 @@ namespace AllOnOnePage.Libs
             }
             set
             {
-                _OnMessage = value != null ? value : delegate (LogItem logItem) { };  // Null object pattern
+                _OnMessage = value != null ? value : delegate (Abraham.HomenetBase.Models.LogItem logItem) { };  // Null object pattern
             }
         }
-        private OnMessage_Handler _OnMessage = delegate (LogItem logItem) { };
+        private OnMessage_Handler _OnMessage = delegate (Abraham.HomenetBase.Models.LogItem logItem) { };
 
 
-        public delegate void OnDataObjectChange_Handler(DataObject Do);
+        public delegate void OnDataObjectChange_Handler(Abraham.HomenetBase.Models.DataObject Do);
         public OnDataObjectChange_Handler OnDataObjectChange
         {
             get
@@ -75,13 +73,13 @@ namespace AllOnOnePage.Libs
             }
             set
             {
-                _OnDataObjectChange = value != null ? value : delegate (DataObject Do) { };  // Null object pattern
+                _OnDataObjectChange = value != null ? value : delegate (Abraham.HomenetBase.Models.DataObject Do) { };  // Null object pattern
             }
         }
-        private OnDataObjectChange_Handler _OnDataObjectChange = delegate (DataObject Do) { };
+        private OnDataObjectChange_Handler _OnDataObjectChange = delegate (Abraham.HomenetBase.Models.DataObject Do) { };
 
 
-        public delegate void OnDeviceChange_Handler(Device Do);
+        public delegate void OnDeviceChange_Handler(Abraham.HomenetBase.Models.Device Do);
         public OnDeviceChange_Handler OnDeviceChange
         {
             get
@@ -90,10 +88,10 @@ namespace AllOnOnePage.Libs
             }
             set
             {
-                _OnDeviceChange = value != null ? value : delegate (Device Do) { };  // Null object pattern
+                _OnDeviceChange = value != null ? value : delegate (Abraham.HomenetBase.Models.Device Do) { };  // Null object pattern
             }
         }
-        private OnDeviceChange_Handler _OnDeviceChange = delegate (Device Do) { };
+        private OnDeviceChange_Handler _OnDeviceChange = delegate (Abraham.HomenetBase.Models.Device Do) { };
 
 
         public delegate void OnConnectionStateChange_Handler(string state);
@@ -138,7 +136,7 @@ namespace AllOnOnePage.Libs
         {
             if (Connection == null)
             {
-                var authenticationHeader = Authentication.BuildAuthenticationHeader(userName, password);
+                var authenticationHeader = HomenetBase.Authentication.BuildAuthenticationHeader(userName, password);
 
                 Connection = new HubConnectionBuilder()
                     .WithUrl($"{server}/HomenetHub", options =>
@@ -157,9 +155,9 @@ namespace AllOnOnePage.Libs
                     await Connection.StartAsync();
                 };
 
-                Connection.On<LogItem>("OnMessageLogged", (logitem) => { OnMessage(logitem); });
-                Connection.On<DataObject>("OnDataObjectChanged", (dataobject) => { OnDataObjectChange(dataobject); });
-                Connection.On<Device>("OnDeviceChanged", (@event) => { OnDeviceChange(@event); });
+                Connection.On<Abraham.HomenetBase.Models.LogItem>("OnMessageLogged", (logitem) => { OnMessage(logitem); });
+                Connection.On<Abraham.HomenetBase.Models.DataObject>("OnDataObjectChanged", (dataobject) => { OnDataObjectChange(dataobject); });
+                Connection.On<Abraham.HomenetBase.Models.Device>("OnDeviceChanged", (@event) => { OnDeviceChange(@event); });
             }
             Connection.StartAsync();
             StartSupervisorThread();

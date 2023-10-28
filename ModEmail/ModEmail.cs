@@ -77,7 +77,7 @@ namespace AllOnOnePage.Plugins
         {
         }
 
-        public override void UpdateContent(HomenetBase.DataObject? dataObject)
+        public override void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
 		{
 			ReadNewEmails();
 			UpdateDisplay();

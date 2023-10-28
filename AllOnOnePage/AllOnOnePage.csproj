@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
@@ -49,8 +49,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.1" />
+    <PackageReference Include="Abraham.HomenetBase" Version="1.0.2" />
+    <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.2" />
     <PackageReference Include="Abraham.ProgramSettingsManager" Version="1.0.2" />
+    <PackageReference Include="Abraham.PrtgClient" Version="1.0.0" />
     <PackageReference Include="Abraham.Scheduler" Version="1.0.0" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.12" />
@@ -59,10 +61,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\NuGet\Abraham.HomenetBase\Abraham.HomenetBase\Abraham.HomenetBase\Abraham.HomenetBase.csproj" />
     <ProjectReference Include="..\Abraham.AutoUpdater\Abraham.AutoUpdater.csproj" />
     <ProjectReference Include="..\Abraham.PluginManager\Abraham.PluginManager.csproj" />
-    <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\PluginBase\PluginBase.csproj" />
   </ItemGroup>
 
@@ -128,7 +128,7 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="..\CreateVersionForDeploy\bin\debug\net8.0\CreateVersionForDeploy.exe" />
+	  <Exec Command="..\CreateVersionForDeploy\bin\debug\net6.0\CreateVersionForDeploy.exe" />
   </Target>
 
 </Project>

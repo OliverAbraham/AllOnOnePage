@@ -9,6 +9,10 @@ namespace AllOnOnePage.DialogWindows
     public partial class EditModule : Window, INotifyPropertyChanged
     {
         #region ------------- Properties ----------------------------------------------------------
+		private ModuleConfig C => _plugin.GetModuleConfig();
+        private ModuleConfig _config => _plugin.GetModuleConfig();
+		public bool DeleteModule { get; private set; }
+        public bool UserWantsToDuplicateTheModule { get; private set; }
 		#endregion
 
 
@@ -100,15 +104,8 @@ namespace AllOnOnePage.DialogWindows
 
         #region ------------- Fields --------------------------------------------------------------
         private IPlugin _plugin;
-		private Window _parentWindow;
 		private HelpTexts _texts;
-
-		private ModuleConfig C => _plugin.GetModuleConfig();
-        private ModuleConfig _config => _plugin.GetModuleConfig();
-
-		public bool DeleteModule { get; private set; }
-
-		private ModuleConfig _configBackup;
+        private ModuleConfig _configBackup;
         [NonSerialized]
         private PropertyChangedEventHandler _propertyChanged;
         #endregion
@@ -119,7 +116,6 @@ namespace AllOnOnePage.DialogWindows
         public EditModule(IPlugin plugin, Window parentWindow, HelpTexts texts)
 		{
             _plugin       = plugin       ?? throw new ArgumentNullException(nameof(plugin      ));
-            _parentWindow = parentWindow ?? throw new ArgumentNullException(nameof(parentWindow));
             _texts        = texts        ?? throw new ArgumentNullException(nameof(texts       ));
 
             _configBackup = _plugin.GetModuleConfig().Clone();
@@ -154,13 +150,6 @@ namespace AllOnOnePage.DialogWindows
             Close();
         }
 
-        private void Button_Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            _config.CopyPropertiesFrom(_configBackup);
-            DialogResult = false;
-            Close();
-        }
-
 		private void Button_ModuleSettings_Click(object sender, RoutedEventArgs e)
 		{
 			var wnd = new EditModuleSettings(_plugin, _texts);
@@ -174,12 +163,27 @@ namespace AllOnOnePage.DialogWindows
 			}
 		}
 
+        private void Button_Duplicate_Click(object sender, RoutedEventArgs e)
+        {
+			_plugin.UpdateLayout();
+            DialogResult = false;
+            UserWantsToDuplicateTheModule = true;
+            Close();
+        }
+
 		private void Button_Delete_Click(object sender, RoutedEventArgs e)
 		{
             DialogResult = true;
             DeleteModule = true;
             Close();
 		}
+
+        private void Button_Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            _config.CopyPropertiesFrom(_configBackup);
+            DialogResult = false;
+            Close();
+        }
 
         private void _propertyGrid_SelectedPropertyItemChanged(object sender, RoutedPropertyChangedEventArgs<Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemBase> e)
         {

@@ -91,7 +91,7 @@ namespace AllOnOnePage.Plugins
             base.Recreate();
         }
 
-        public override void UpdateContent(HomenetBase.DataObject? dataObject)
+        public override void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
 		{
 			UpdateDisplay();
 		}

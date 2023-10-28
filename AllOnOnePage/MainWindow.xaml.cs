@@ -275,10 +275,11 @@ namespace AllOnOnePage
                     _config.HomeAutomationServerPassword, 
                     _config.HomeAutomationServerTimeout);
                 _server.Connect();
+
                 _applicationData._homenetConnector = _server.DataObjectsConnector;
                 ServerInfo.Content = _server.ConnectionStatus;
                 _server.OnDataobjectChange += 
-                    delegate(HomenetBase.DataObject Do)
+                    delegate(Abraham.HomenetBase.Models.DataObject Do)
                     {
                         Dispatcher.Invoke(() => { Update_all_modules(Do); });
                     };
@@ -287,6 +288,7 @@ namespace AllOnOnePage
             catch (Exception ex)
             {
                 ServerInfo.Content = "Error connecting to homenet server";
+                MessageBox.Show(ex.ToString());
                 WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToHomeAutomationServer);
             }
             finally
@@ -390,7 +392,7 @@ namespace AllOnOnePage
             _periodicTimer.Start();
         }
 
-        private void Update_all_modules(HomenetBase.DataObject? Do = null)
+        private void Update_all_modules(Abraham.HomenetBase.Models.DataObject? Do = null)
         {
             if (Do is not null)
                 System.Diagnostics.Debug.WriteLine($"SignalR value change: {Do.Name} = {Do.Value}");
@@ -522,11 +524,26 @@ namespace AllOnOnePage
 			WpfAnimations.FadeOutButLeaveVisible(Button_EditMode   , UIElement.OpacityProperty);
 		}
 		#endregion
-		#region ------------- Visual editor -----------------------------------
+		#region ------------- Buttons -----------------------------------------
 		private void Button_Close_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
+
+		private void Button_Fullscreen_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+            if (_config.FullScreenDisplay)
+			{
+                _config.FullScreenDisplay = false;
+                this.WindowStyle = WindowStyle.SingleBorderWindow;
+			}
+            else
+			{
+                _config.FullScreenDisplay = true;
+                this.WindowState = WindowState.Maximized;
+                this.WindowStyle = WindowStyle.None;
+			}
+		}
 
         private void Button_Edit_Click(object sender, RoutedEventArgs e)
         {
@@ -537,6 +554,22 @@ namespace AllOnOnePage
                 WpfAnimations.FadeOutButLeaveVisible(Button_Add,  UIElement.OpacityProperty);
         }
 
+		private void Button_Wastebasket_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+            _vm.Button_Wastebasket_Click();
+		}
+
+		private void Button_Editmode_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+            _vm.Button_Editmode_Click();
+		}
+
+		private void Button_AddNewModule_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+            _vm.AddNewModule();
+		}
+        #endregion
+		#region ------------- Mouse events ------------------------------------
         private void Window_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             _vm.Window_MouseLeftButtonDown(this, e);
@@ -562,21 +595,6 @@ namespace AllOnOnePage
         {
             _vm.MouseRightButtonDown(this, e);
         }
-
-		private void Button_Wastebasket_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
-		{
-            _vm.Button_Wastebasket_Click();
-		}
-
-		private void Button_Editmode_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
-		{
-            _vm.Button_Editmode_Click();
-		}
-
-		private void Button_Plus_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
-		{
-            _vm.AddNewModule();
-		}
 		#endregion
         #region ------------- UI background -----------------------------------
         private void Init_Background_Size_and_Position()
@@ -593,22 +611,6 @@ namespace AllOnOnePage
                 wnd.Owner = this;
                 wnd.ShowDialog();
                 _config.WelcomeScreenDisabled = true;
-			}
-		}
-		#endregion
-        #region ------------- Fullscreen button -------------------------------
-		private void Button_Fullscreen_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
-		{
-            if (_config.FullScreenDisplay)
-			{
-                _config.FullScreenDisplay = false;
-                this.WindowStyle = WindowStyle.SingleBorderWindow;
-			}
-            else
-			{
-                _config.FullScreenDisplay = true;
-                this.WindowState = WindowState.Maximized;
-                this.WindowStyle = WindowStyle.None;
 			}
 		}
 		#endregion

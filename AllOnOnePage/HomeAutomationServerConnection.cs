@@ -75,7 +75,7 @@ namespace AllOnOnePage
             _signalrClient.Start(_serverUrl, _serverUser, _serverPassword);
         }
 
-        private void OnDataobjectChangeLocal(DataObject Do)
+        private void OnDataobjectChangeLocal(Abraham.HomenetBase.Models.DataObject Do)
         {
             OnDataobjectChange(Do);
         }

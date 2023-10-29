@@ -7,15 +7,15 @@
         mc:Ignorable="d"
         Title="Info" Height="378" Width="430"
         ResizeMode="NoResize"
-        Background="FloralWhite"
+        Style="{StaticResource StandardDialogBackground}" 
         Loaded="Window_Loaded">
     <Grid>
         <Label Content="All on one page" FontSize="30" Margin="10,47,10,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"/>
         <Label Name="labelVersion" Content="Version" FontSize="20"  HorizontalAlignment="Center" Margin="0,97,0,0" VerticalAlignment="Top"/>
-        <Label Name="labelVersionCheck" Content="Version check..." FontSize="16"  HorizontalAlignment="Center" Margin="0,130,0,0" VerticalAlignment="Top"/>
-        <Label Content="Abraham Beratung" FontSize="16"  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,175,0,0"/>
-        <Label Content="www.abraham-beratung.de" FontSize="16"  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,199,0,0"/>
-        <Label Content="2020" FontSize="16"  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,221,0,0"/>
+        <Label Name="labelVersionCheck" Content="Version check..."   HorizontalAlignment="Center" Margin="0,130,0,0" VerticalAlignment="Top"/>
+        <Label Content="Abraham Beratung"   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,175,0,0"/>
+        <Label Content="www.abraham-beratung.de"   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,199,0,0"/>
+        <Label Content="2020"   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,221,0,0"/>
 
         <Button Content="OK" HorizontalAlignment="Center" Margin="0,280,0,0" VerticalAlignment="Top" Height="31" Width="102" Click="Button_Click"/>
     </Grid>

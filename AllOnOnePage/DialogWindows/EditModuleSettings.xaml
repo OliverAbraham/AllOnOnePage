@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="Modul-Einstellungen bearbeiten" 
+        Title="Edit module settings" 
         Height="546" MinHeight="546" Width="566" MinWidth="408"
-        Background="FloralWhite" FontSize="16" 
+        Style="{StaticResource StandardDialogBackground}"  
         Closed="Window_Closed">
     <Grid>
         <xctk:PropertyGrid x:Name="_propertyGrid" 
@@ -19,9 +19,9 @@
                            SelectedPropertyItemChanged="_propertyGrid_SelectedPropertyItemChanged">
         </xctk:PropertyGrid>
 
-        <Button Content="Speichern"  HorizontalAlignment="Left"  Margin="43,0,0,35"  VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_Save_Click"/>
-        <Button Content="Test"       HorizontalAlignment="Left"  Margin="162,0,0,35" VerticalAlignment="Bottom" Height="30" Width="96" Click="Button_Test_Click" />
-        <Button Content="Modul-Info" HorizontalAlignment="Left"  Margin="283,0,0,35" VerticalAlignment="Bottom" Height="30" Width="96" Click="Button_Info_Click" />
-        <Button Content="Abbruch"    HorizontalAlignment="Right" Margin="0,0,41,35"  VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_Cancel_Click"/>
+        <Button Content="Save"        HorizontalAlignment="Left"  Margin="43,0,0,35"  VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_Save_Click"/>
+        <Button Content="Test"        HorizontalAlignment="Left"  Margin="162,0,0,35" VerticalAlignment="Bottom" Height="30" Width="96" Click="Button_Test_Click" />
+        <Button Content="Module info" HorizontalAlignment="Left"  Margin="283,0,0,35" VerticalAlignment="Bottom" Height="30" Width="96" Click="Button_Info_Click" />
+        <Button Content="Cancel"      HorizontalAlignment="Right" Margin="0,0,41,35"  VerticalAlignment="Bottom" Height="30" Width="95" Click="Button_Cancel_Click"/>
     </Grid>
 </Window>

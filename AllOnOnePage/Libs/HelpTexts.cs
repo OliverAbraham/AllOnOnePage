@@ -40,41 +40,41 @@ namespace AllOnOnePage
 		{
 			Data = new Dictionary<string, string>();
 
-			Data.Add(ID.INTRODUCTION1, "Willkommen bei All on one page!"); 
+			Data.Add(ID.INTRODUCTION1, "Welcome to All on one page!"); 
 			Data.Add(ID.INTRODUCTION2, 
-@"Dies ist der erste Programmstart.
-Du kannst jetzt loslegen, Deine Page mit Inhalten zu füllen.
+@"This is the first start of the program.
+You can now start filling your page with content.
 
-Doppelklicke auf den Hintergrund, um ihn anzupassen.
-Doppelklicke auf ein Modul, um es anzupassen.
-Klicke auf Plus, um neue Module hinzuzufügen.
+Double-click the background to customize it.
+Double-click a module to customize it.
+Click Plus to add new modules.
 
-Leg los!");
+Let's go!");
 
-			Data.Add(ID.ERROR_HEADING, "Upps das sollte nicht passieren!");
+			Data.Add(ID.ERROR_HEADING, "Oops, that shouldn't happen!");
 
 			Data.Add(ID.DEMOTILE, 
-@"Willkommen zu Deiner ersten Page!
-Doppelklicke hier, um mich anzupassen.
-Doppelklicke auf den Hintergrund, um ihn anzupassen.");
+@"Welcome to your first page!
+Double click here to customize.
+Double-click the background to customize it.");
 
-			Data.Add(ID.CLICKHERETOEND,  "hier klicken zum Beenden   "    + char.ConvertFromUtf32(0x27A1)); // arrow left: (0x2B05);
-            Data.Add(ID.CLICKHERETOEDIT, "Neues Modul anlegen   " + char.ConvertFromUtf32(0x27A1));
-            Data.Add(ID.CLICKHERETOFULL, "Vollbild   "   + char.ConvertFromUtf32(0x27A1));
-			Data.Add(ID.UPDATETITLE    , "Ein Update ist verfügbar");
+			Data.Add(ID.CLICKHERETOEND,  "click here to end   "    + char.ConvertFromUtf32(0x27A1)); // arrow left: (0x2B05);
+            Data.Add(ID.CLICKHERETOEDIT, "create a new module   " + char.ConvertFromUtf32(0x27A1));
+            Data.Add(ID.CLICKHERETOFULL, "Fullscreen   "   + char.ConvertFromUtf32(0x27A1));
+			Data.Add(ID.UPDATETITLE    , "An update is available!");
 			Data.Add(ID.UPDATEAVAILABLE, 
-@"Ein Update ist verfügbar.
+@"An update is available.
 
-Sie haben Version {0}.
-Verfügbar ist {1}.
+You have version {0}.
+Available is {1}.
 
-Wollen Sie das neueste Update laden?
+Do you want to download the latest update?
 
 ");
-            Data.Add(ID.MODULE_HELP    , "Hilfe zum Modul");
+            Data.Add(ID.MODULE_HELP    , "Help for module");
 
-            Data.Add(ID.DELETE_TITLE   , "Löschen?");
-            Data.Add(ID.DELETE_QUESTION, "Willst Du das Modul wirklich löschen?");
+            Data.Add(ID.DELETE_TITLE   , "Delete?");
+            Data.Add(ID.DELETE_QUESTION, "Do you really want to delete the module?");
 		}
 		#endregion
 	}

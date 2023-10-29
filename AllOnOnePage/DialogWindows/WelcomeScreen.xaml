@@ -8,10 +8,10 @@
         Title="" 
         ResizeMode="NoResize"
         Height="450" Width="682"
-        Background="FloralWhite">
+        Style="{StaticResource StandardDialogBackground}" >
     <Grid>
         <TextBlock Name="textBlock1" FontSize="24" TextAlignment="Center" Margin="33,28,38,0" VerticalAlignment="Top" Height="35"/>
-        <TextBlock Name="textBlock2" FontSize="16" TextAlignment="Center" Margin="33,79,38,0" VerticalAlignment="Top" Height="279"/>
-        <Button    Content="OK"     FontSize="16" HorizontalAlignment="Center"  Margin="0,347,0,0" VerticalAlignment="Top" Height="30" Width="95" Click="ButtonSave_Click"/>
+        <TextBlock Name="textBlock2"  TextAlignment="Center" Margin="33,79,38,0" VerticalAlignment="Top" Height="279"/>
+        <Button    Content="OK"      HorizontalAlignment="Center"  Margin="0,347,0,0" VerticalAlignment="Top" Height="30" Width="95" Click="ButtonSave_Click"/>
     </Grid>
 </Window>

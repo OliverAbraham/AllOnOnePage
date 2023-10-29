@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AllOnOnePage"
         mc:Ignorable="d"
-        Title="Hintergrund anpassen" Width="505" MinWidth="459" Height="548" MinHeight="521"
-        Background="FloralWhite">
+        Title="Edit background" Width="505" MinWidth="459" Height="548" MinHeight="521" 
+        Style="{StaticResource StandardDialogBackground}">
     <Grid>
-        <Label Content="Hintergrund" FontSize="16" HorizontalAlignment="Left" Margin="33,29,0,0" VerticalAlignment="Top"/>
-        <ComboBox Name="comboboxType" FontSize="16" Background="FloralWhite" HorizontalAlignment="Left" Margin="33,65,0,0" VerticalAlignment="Top" Width="224" Height="31"/>
+        <Label Content="Background"  HorizontalAlignment="Left" Margin="33,29,0,0" VerticalAlignment="Top"/>
+        <ComboBox Name="comboboxType"  Background="FloralWhite" HorizontalAlignment="Left" Margin="33,65,0,0" VerticalAlignment="Top" Width="224" Height="31"/>
 
-        <Label Content="Bild auswählen" FontSize="16" HorizontalAlignment="Left" Margin="33,129,0,0" VerticalAlignment="Top"/>
+        <Label Content="Select picture"  HorizontalAlignment="Left" Margin="33,129,0,0" VerticalAlignment="Top"/>
 
         <Grid Margin="33,165,34,234">
             <ScrollViewer x:Name="SV1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
@@ -23,11 +23,11 @@
             </ScrollViewer>
         </Grid>
 
-        <Button Content="Durchsuchen" FontSize="16" HorizontalAlignment="Left" Margin="33,0,0,199" VerticalAlignment="Bottom" Height="30" Width="112" Click="ButtonBrowse_Click"/>
+        <Button Content="Search"  HorizontalAlignment="Left" Margin="33,0,0,199" VerticalAlignment="Bottom" Height="30" Width="112" Click="ButtonBrowse_Click"/>
 
-        <Label Content="Anpassung auswählen" FontSize="16" HorizontalAlignment="Left" Margin="33,0,0,150" VerticalAlignment="Bottom"/>
-        <ComboBox Name="comboboxStretch" FontSize="16" Background="FloralWhite" HorizontalAlignment="Left" Margin="33,0,0,114" VerticalAlignment="Bottom" Width="224" Height="31"/>
-        <Button Content="Speichern" FontSize="16" HorizontalAlignment="Left"  Margin="34,0,0,39" VerticalAlignment="Bottom" Height="30" Width="95" Click="ButtonSave_Click"/>
-        <Button Content="Abbruch"   FontSize="16" HorizontalAlignment="Right" Margin="0,0,34,39" VerticalAlignment="Bottom" Height="30" Width="95" Click="ButtonCancel_Click"/>
+        <Label Content="Alignment"  HorizontalAlignment="Left" Margin="33,0,0,150" VerticalAlignment="Bottom"/>
+        <ComboBox Name="comboboxStretch"  Background="FloralWhite" HorizontalAlignment="Left" Margin="33,0,0,114" VerticalAlignment="Bottom" Width="224" Height="31"/>
+        <Button Content="Save"  HorizontalAlignment="Left"  Margin="34,0,0,39" VerticalAlignment="Bottom" Height="30" Width="95" Click="ButtonSave_Click"/>
+        <Button Content="Cancel"    HorizontalAlignment="Right" Margin="0,0,34,39" VerticalAlignment="Bottom" Height="30" Width="95" Click="ButtonCancel_Click"/>
     </Grid>
 </Window>

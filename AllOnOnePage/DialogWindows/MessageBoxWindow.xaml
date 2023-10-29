@@ -7,21 +7,21 @@
         mc:Ignorable="d"
         Title="All on one page" Height="381" Width="500"
         ResizeMode="NoResize"
-        Background="FloralWhite">
+        Style="{StaticResource StandardDialogBackground}" >
     <Grid>
-        <TextBlock Name="ContentBox" FontSize="16" Margin="30,31,36,138" TextWrapping="Wrap" />
+        <TextBlock Name="ContentBox"  Margin="30,31,36,138" TextWrapping="Wrap" />
                    
 
         <CheckBox Name="checkboxDontShowAgain" 
-                  Content="Diesen Text nicht mehr anzeigen" 
-                  FontSize="16"
+                  Content="Stop showing this message" 
+                  
                   HorizontalAlignment="center" 
                   Margin="0,200,0,100" VerticalAlignment="Bottom" Width="268"/>
 
         <StackPanel Name="PanelOk" Orientation="Horizontal" 
                     HorizontalAlignment="Left" VerticalAlignment="Bottom"  
                     Height="36" Margin="187,0,0,40">
-            <Button Content="OK" FontSize="16" HorizontalAlignment="Center" 
+            <Button Content="OK"  HorizontalAlignment="Center" 
                     Height="36" Width="106" 
                     Click="Button_OK_Click"/>
         </StackPanel>
@@ -29,11 +29,11 @@
         <StackPanel Name="PanelYesNo" Orientation="Horizontal" Visibility="Hidden"
                     HorizontalAlignment="center"  VerticalAlignment="Bottom" Height="36" 
                     Margin="0,266,0,40">
-            <Button Content="Ja" FontSize="16" 
+            <Button Content="Ja"  
                     HorizontalAlignment="Center" VerticalAlignment="Bottom" 
                     Height="36" Width="106" Margin="0,0,20,0" 
                     Click="Button_Yes_Click"/>
-            <Button Content="Nein" FontSize="16" HorizontalAlignment="Center" Height="36" Width="106"
+            <Button Content="Nein"  HorizontalAlignment="Center" Height="36" Width="106"
                     Click="Button_No_Click"/>
         </StackPanel>
     </Grid>

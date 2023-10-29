@@ -1,6 +1,6 @@
 ﻿using AllOnOnePage.Plugins;
-using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace AllOnOnePage
 {
@@ -13,22 +13,33 @@ namespace AllOnOnePage
 
 
 		#region ------------- Properties ----------------------------------------------------------
-        public BackgroundType     Background                   { get; set; }
-        public string             BackgroundImage              { get; set; }
-        public string             BackgroundColorRGB           { get; set; }
+        [Browsable(false)]
+		public BackgroundType     Background                   { get; set; }
+        [Browsable(false)]
+		public string             BackgroundImage              { get; set; }
+        [Browsable(false)]
+		public string             BackgroundColorRGB           { get; set; }
         public int                UpdateIntervalInSeconds      { get; set; }
-        public bool               FullScreenDisplay            { get; set; }
+        [Browsable(false)]
+		public bool               FullScreenDisplay            { get; set; }
+        [Browsable(false)]
         public bool               LogToConsole                 { get; set; }
         public bool               LogToFile                    { get; set; }
         public string             LogfileName                  { get; set; }
 		public bool               WelcomeScreenDisabled        { get; set; }
+		[Browsable(false)]
 		public bool               EditModeWasEntered           { get; set; }
         public bool               DisableUpdate                { get; set; }
+		[Browsable(false)]
         public List<ModuleConfig> Modules                      { get; set; }
         public string             HomeAutomationServerUrl      { get; set; }
         public string             HomeAutomationServerUser     { get; set; }
         public string             HomeAutomationServerPassword { get; set; }
         public int				  HomeAutomationServerTimeout  { get; set; }
+        public string             MqttBrokerUrl                { get; set; }
+        public string             MqttBrokerUser               { get; set; }
+        public string             MqttBrokerPassword           { get; set; }
+        public int				  MqttBrokerTimeout            { get; set; }
         #endregion
 
 

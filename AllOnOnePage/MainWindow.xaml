@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         WindowState="Normal"
         Background="FloralWhite"
-        Title="All on one page !" Height="873" Width="1280"
+        Title="All on one page dashboard" Height="873" Width="1280"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
         Closed="Window_Closed"
@@ -53,11 +53,11 @@
                    Width="40" Height="40" MouseLeftButtonUp="Button_Editmode_Click"
                    Visibility="{Binding EditModeControlsVisibility, Mode=OneWay}" />-->
 
-            <Label Name="HelpText1"   Content="hier klicken zum Beenden"          IsHitTestVisible="False" FontSize="24" Margin="0,30,85,0"  Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Right" Width="337" />
-            <Label Name="HelpText2"   Content="hier klicken zum Bearbeiten"       IsHitTestVisible="False" FontSize="24" Margin="0,90,85,0"  Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
-            <Label Name="HelpText3"   Content="hier klicken für Vollbild"         IsHitTestVisible="False" FontSize="24" Margin="0,150,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
-            <Label Name="HelpText4"   Content="Versionsinfo"                      IsHitTestVisible="False" FontSize="24" Margin="0,210,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
-            <Label Name="HelpText5"   Content="Einstellungen"                     IsHitTestVisible="False" FontSize="24" Margin="0,270,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
+            <Label Name="HelpText1"   Content="click here to end"                 IsHitTestVisible="False" FontSize="24" Margin="0,30,85,0"  Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Right" Width="337" />
+            <Label Name="HelpText2"   Content="click here to edit"                IsHitTestVisible="False" FontSize="24" Margin="0,90,85,0"  Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
+            <Label Name="HelpText3"   Content="click here for fullscreen"         IsHitTestVisible="False" FontSize="24" Margin="0,150,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
+            <Label Name="HelpText4"   Content="Version info"                      IsHitTestVisible="False" FontSize="24" Margin="0,210,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
+            <Label Name="HelpText5"   Content="Settings"                          IsHitTestVisible="False" FontSize="24" Margin="0,270,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>
             <!--<Label Name="HelpText6"   Content="Kachel zum Löschen hierhin ziehen" IsHitTestVisible="False" FontSize="24" Margin="0,330,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="448" HorizontalContentAlignment="Right"/>-->
             <!--<Label Name="HelpText7"   Content="Bearbeitung beenden"               IsHitTestVisible="False" FontSize="24" Margin="0,390,85,0" Foreground="Gray" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Width="337" HorizontalContentAlignment="Right"/>-->
             <StackPanel Orientation="Horizontal" Margin="10,0,10,10" VerticalAlignment="Bottom"  Height="40" IsHitTestVisible="False">

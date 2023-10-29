@@ -6,7 +6,6 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using Abraham.AutoUpdater;
-using Abraham.HomenetBase.Connectors;
 using Abraham.OpenWeatherMap;
 using AllOnOnePage.DialogWindows;
 using AllOnOnePage.Libs;

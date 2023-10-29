@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="Modul bearbeiten" 
+        Title="Edit Module" 
         Height="546" MinHeight="546" Width="697" MinWidth="484"
-        Background="FloralWhite" FontSize="16" 
+        Style="{StaticResource StandardDialogBackground}"  
         Loaded="Window_Loaded">
     <Grid Margin="20">
         <xctk:PropertyGrid x:Name="_propertyGrid" 
@@ -33,11 +33,11 @@
         </xctk:PropertyGrid>
 
         <StackPanel Orientation="Horizontal" Height="30" VerticalAlignment="Bottom">
-            <Button Content="Speichern"             Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Save_Click"/>
-            <Button Content="Modul-Einstellungen"   Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="162" Click="Button_ModuleSettings_Click"/>
-            <Button Content="Duplizieren"           Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Duplicate_Click"/>
-            <Button Content="Löschen"               Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Delete_Click"/>
-            <Button Content="Abbruch"               Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Cancel_Click"/>
+            <Button Content="Save"                  Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Save_Click"/>
+            <Button Content="Module settings"       Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="162" Click="Button_ModuleSettings_Click"/>
+            <Button Content="Duplicate"             Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Duplicate_Click"/>
+            <Button Content="Delete"                Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Delete_Click"/>
+            <Button Content="Cancel"                Margin="0,0,20,0" VerticalAlignment="Bottom" Height="30" Width="95"  Click="Button_Cancel_Click"/>
         </StackPanel>
     </Grid>
 </Window>

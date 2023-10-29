@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Kachel bearbeiten" 
         Height="546" MinHeight="546" Width="408" MinWidth="408"
-        Background="FloralWhite" FontSize="16" 
+        Background="FloralWhite"  
         Loaded="Window_Loaded">
     <Grid>
         <xctk:PropertyGrid x:Name="_propertyGrid" Margin="10,10,10,91" AutoGenerateProperties="False"

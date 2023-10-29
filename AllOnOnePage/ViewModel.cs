@@ -86,14 +86,14 @@ namespace AllOnOnePage
 
 
         #region ------------- Fields --------------------------------------------------------------
-		private Configuration               _configuration;
-		private HelpTexts                   _texts;
-		private PluginLoader                _pluginManager;
-		private List<Processor>             _processors;
-        private List<RuntimeModule>         _runtimeModules;
-        private PropertyChangedEventHandler _propertyChanged;
-		private MainWindow                  _parentWindow;
-		private ApplicationData             _applicationData;
+		private Configuration                _configuration;
+		private HelpTexts                    _texts;
+		private PluginLoader                 _pluginManager;
+		private List<Processor>              _processors;
+        private List<RuntimeModule>          _runtimeModules;
+        private PropertyChangedEventHandler  _propertyChanged;
+		private MainWindow                   _parentWindow;
+		private ApplicationData              _applicationData;
 
 		#region Visual editor
 		private Grid                 _ParentGrid;
@@ -161,7 +161,7 @@ namespace AllOnOnePage
             _processors    = processors;
             _ParentGrid    = parentGrid;
             _Canvas        = canvas;
-
+            
             _runtimeModules = new List<RuntimeModule>();
             foreach (var config in _configuration.Modules)
             {
@@ -541,9 +541,7 @@ namespace AllOnOnePage
         private void SetBackgroundForAllModules()
         {
             foreach (var module in _runtimeModules)
-            {
                 module.Plugin.SwitchEditMode(true);
-            }
         }
 
         private void ResetBackgroundForAllModules()

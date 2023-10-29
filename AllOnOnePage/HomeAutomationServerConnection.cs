@@ -1,14 +1,14 @@
 ﻿using Abraham.HomenetBase.Connectors;
 using AllOnOnePage.Libs;
+using AllOnOnePage.Plugins;
 using HomenetBase;
 using System;
 
 namespace AllOnOnePage
 {
-    internal class HomeAutomationServerConnection
+    internal class HomeAutomationServerConnection : IServerGetter
     {
         #region ------------- Properties ----------------------------------------------------------
-        public DataObjectsConnector DataObjectsConnector;
         public bool Connected { get; private set; }
         public string ConnectionStatus { get; private set; }
         public SignalrClient.OnDataObjectChange_Handler OnDataobjectChange { get; set; }
@@ -21,6 +21,7 @@ namespace AllOnOnePage
         private string _serverUser;
         private string _serverPassword;
         private int _serverTimeout;
+        private DataObjectsConnector _dataObjectsConnector;
         private SignalrClient _signalrClient;
         #endregion
 
@@ -43,7 +44,7 @@ namespace AllOnOnePage
         {
             try
             {
-                DataObjectsConnector  = new DataObjectsConnector(_serverUrl, _serverUser, _serverPassword, _serverTimeout);
+                _dataObjectsConnector = new DataObjectsConnector(_serverUrl, _serverUser, _serverPassword, _serverTimeout);
                 Connected = true;
                 ConnectionStatus = "connected";
                 Start_SignalR_client();
@@ -63,15 +64,25 @@ namespace AllOnOnePage
 
 
 
+        #region ------------- IServerGetter -------------------------------------------------------
+        public ServerDataObject TryGet(string dataObjectName)
+        {
+            var Do = _dataObjectsConnector.TryGet(dataObjectName);
+            return new ServerDataObject(Do.Name, Do.Value);
+        }
+        #endregion
+
+
+
         #region ------------- Implementation ------------------------------------------------------
         #region ------------- SignalR client ----------------------------------
         private void Start_SignalR_client()
         {
             _signalrClient = new SignalrClient();
-            _signalrClient.OnDataObjectChange = OnDataobjectChangeLocal;
-            _signalrClient.OnLogMessage += Handle_SignalR_log_message;
+            _signalrClient.OnDataObjectChange       = OnDataobjectChangeLocal;
+            _signalrClient.OnLogMessage            += Handle_SignalR_log_message;
             _signalrClient.OnConnectionStateChange += Handle_connection_state_changes;
-            _signalrClient.OnForceShutdown = Handle_SignalR_shutdown_request;
+            _signalrClient.OnForceShutdown          = Handle_SignalR_shutdown_request;
             _signalrClient.Start(_serverUrl, _serverUser, _serverPassword);
         }
 

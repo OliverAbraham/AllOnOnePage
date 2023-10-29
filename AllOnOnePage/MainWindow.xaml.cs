@@ -39,8 +39,12 @@ namespace AllOnOnePage
 		private Updater                _updater;
         #endregion
 		#region Home automation server connection
-        private HomeAutomationServerConnection? _server;
-        private bool _serverConnectingInProgress;
+        private HomeAutomationServerConnection? _homeAutomationServer;
+        private bool _homeAutomationServerConnectionInProgress;
+		#endregion
+        #region MQTT broker connection
+        private MqttBrokerConnection? _mqttBroker;
+        private bool _mqttBrokerConnectionInProgress;
 		#endregion
         #endregion
 
@@ -83,7 +87,8 @@ namespace AllOnOnePage
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			CleanupPlugins();
-            _server?.Stop();
+            _homeAutomationServer?.Stop();
+            _mqttBroker?.Stop();
 			Stop_date_time_update_timer();
             _updater?.Stop();
 			_configurationManager.Save();
@@ -153,7 +158,7 @@ namespace AllOnOnePage
         private void Startup()
         {
             if (HomeAutomationServerIsConfigured())
-                ConnectToServer_then_call_Startup2();
+                ConnectToHomeAutomationServer_then_call_Startup2();
             else
                 Startup2();
 		}
@@ -257,10 +262,10 @@ namespace AllOnOnePage
             return !string.IsNullOrWhiteSpace(_config.HomeAutomationServerUrl);
         }
 
-        private void ConnectToServer_then_call_Startup2()
+        private void ConnectToHomeAutomationServer_then_call_Startup2()
         {
-            _serverConnectingInProgress = true;
-            ServerInfo.Content = "Connecting to server...";
+            _homeAutomationServerConnectionInProgress = true;
+            ServerInfo.Content = "Connecting to Homenet...";
             WaitAndThenCallMethod(wait_time_seconds: 1, action: ConnectToHomeAutomationServer);
         }
 
@@ -268,16 +273,16 @@ namespace AllOnOnePage
         {
             try
             {
-                _server = new HomeAutomationServerConnection(
+                _homeAutomationServer = new HomeAutomationServerConnection(
                     _config.HomeAutomationServerUrl, 
                     _config.HomeAutomationServerUser, 
                     _config.HomeAutomationServerPassword, 
                     _config.HomeAutomationServerTimeout);
-                _server.Connect();
+                _homeAutomationServer.Connect();
 
-                _applicationData._homenetConnector = _server.DataObjectsConnector;
-                ServerInfo.Content = _server.ConnectionStatus;
-                _server.OnDataobjectChange += 
+                _applicationData._homenetGetter = _homeAutomationServer;
+                ServerInfo.Content = _homeAutomationServer.ConnectionStatus;
+                _homeAutomationServer.OnDataobjectChange += 
                     delegate(Abraham.HomenetBase.Models.DataObject Do)
                     {
                         Dispatcher.Invoke(() => { Update_all_modules(Do); });
@@ -292,14 +297,17 @@ namespace AllOnOnePage
             }
             finally
             {
-                _serverConnectingInProgress = false;
-                Startup2();
+                _homeAutomationServerConnectionInProgress = false;
+                if (MqttBrokerIsConfigured())
+                    ConnectToMqttBroker_then_call_Startup2();
+                else
+                    Startup2();
             }
         }
 
         private void ReconnectToHomeAutomationServer()
         {
-            _serverConnectingInProgress = true;
+            _homeAutomationServerConnectionInProgress = true;
             ServerInfo.Content = "Reconnecting...";
             WaitAndThenCallMethod(wait_time_seconds: 1, action: ReconnectToHomeAutomationServer2);
         }
@@ -308,15 +316,15 @@ namespace AllOnOnePage
         {
             try
             {
-                _server.Connect();
-                _applicationData._homenetConnector = _server.DataObjectsConnector;
-                ServerInfo.Content = _server.ConnectionStatus;
-                _serverConnectingInProgress = false;
+                _homeAutomationServer.Connect();
+                _applicationData._homenetGetter = _homeAutomationServer;
+                ServerInfo.Content = _homeAutomationServer.ConnectionStatus;
+                _homeAutomationServerConnectionInProgress = false;
                 FadeOutServerInfo();
             }
             catch (Exception ex)
             {
-                _serverConnectingInProgress = false;
+                _homeAutomationServerConnectionInProgress = false;
                 ServerInfo.Content = "Error connecting to homenet server";
                 WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToHomeAutomationServer);
             }
@@ -327,9 +335,90 @@ namespace AllOnOnePage
             // if we are connected to the home automation server
             // and the connection is lost (what will happen regularly after hibernation)
             // we firstly reconnect to the server and then update the UI
-            return (_server is not null &&
-                    !_serverConnectingInProgress &&
-                    _server.ConnectionStatus != "connected");
+            return (_homeAutomationServer is not null &&
+                    !_homeAutomationServerConnectionInProgress &&
+                    _homeAutomationServer.ConnectionStatus != "connected");
+        }
+        #endregion
+        #region ------------- MQTT broker connection --------------------------
+        private bool MqttBrokerIsConfigured()
+        {
+            return !string.IsNullOrWhiteSpace(_config.MqttBrokerUrl);
+        }
+
+        private void ConnectToMqttBroker_then_call_Startup2()
+        {
+            _mqttBrokerConnectionInProgress = true;
+            ServerInfo.Content = "Connecting to MQTT...";
+            WaitAndThenCallMethod(wait_time_seconds: 1, action: ConnectToMqttBroker);
+        }
+
+        private void ConnectToMqttBroker()
+        {
+            try
+            {
+                _mqttBroker = new MqttBrokerConnection(
+                    _config.MqttBrokerUrl, 
+                    _config.MqttBrokerUser, 
+                    _config.MqttBrokerPassword, 
+                    _config.MqttBrokerTimeout);
+                _mqttBroker.Connect();
+
+                _applicationData._mqttGetter = _mqttBroker;
+                ServerInfo.Content = _mqttBroker.ConnectionStatus;
+                _mqttBroker.OnDataobjectChange += 
+                    delegate(Abraham.HomenetBase.Models.DataObject Do)
+                    {
+                        Dispatcher.Invoke(() => { Update_all_modules(Do); });
+                    };
+                FadeOutServerInfo();
+            }
+            catch (Exception ex)
+            {
+                ServerInfo.Content = "Error connecting to MQTT broker";
+                MessageBox.Show(ex.ToString());
+                WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToMqttBroker);
+            }
+            finally
+            {
+                _homeAutomationServerConnectionInProgress = false;
+                Startup2();
+            }
+        }
+
+        private void ReconnectToMqttBroker()
+        {
+            _mqttBrokerConnectionInProgress = true;
+            ServerInfo.Content = "Reconnecting...";
+            WaitAndThenCallMethod(wait_time_seconds: 1, action: ReconnectToMqttBroker2);
+        }
+
+        private void ReconnectToMqttBroker2()
+        {
+            try
+            {
+                _mqttBroker.Connect();
+                _applicationData._mqttGetter = _mqttBroker;
+                ServerInfo.Content = _mqttBroker.ConnectionStatus;
+                _mqttBrokerConnectionInProgress = false;
+                FadeOutServerInfo();
+            }
+            catch (Exception ex)
+            {
+                _mqttBrokerConnectionInProgress = false;
+                ServerInfo.Content = "Error connecting to homenet server";
+                WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectToMqttBroker);
+            }
+        }
+
+        private bool WeHaveLostTheBrokerConnection()
+        {
+            // if we are connected to the home automation server
+            // and the connection is lost (what will happen regularly after hibernation)
+            // we firstly reconnect to the server and then update the UI
+            return (_mqttBroker is not null &&
+                    !_mqttBrokerConnectionInProgress &&
+                    _mqttBroker.ConnectionStatus != "connected");
         }
         #endregion
         #region ------------- Periodic date/time update -----------------------

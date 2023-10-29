@@ -63,21 +63,26 @@ namespace AllOnOnePage
 
 		public void CopyPropertiesFrom(Configuration source)
 		{
-			Background				     = Background			       ;
-			BackgroundImage              = BackgroundImage             ;
-			BackgroundColorRGB           = BackgroundColorRGB          ;
-			UpdateIntervalInSeconds      = UpdateIntervalInSeconds     ;
-			FullScreenDisplay            = FullScreenDisplay           ;
-			LogToConsole                 = LogToConsole                ;
-			LogToFile                    = LogToFile                   ;
-			LogfileName                  = LogfileName                 ;
-			WelcomeScreenDisabled        = WelcomeScreenDisabled       ;
-			EditModeWasEntered           = EditModeWasEntered          ;
-			Modules					     = Modules				       ;
-			DisableUpdate			     = DisableUpdate			   ;
-			HomeAutomationServerUrl      = HomeAutomationServerUrl     ;
-			HomeAutomationServerUser     = HomeAutomationServerUser    ;
-			HomeAutomationServerPassword = HomeAutomationServerPassword;
+			Background				     = source.Background			       ;
+			BackgroundImage              = source.BackgroundImage              ;
+			BackgroundColorRGB           = source.BackgroundColorRGB           ;
+			UpdateIntervalInSeconds      = source.UpdateIntervalInSeconds      ;
+			FullScreenDisplay            = source.FullScreenDisplay            ;
+			LogToConsole                 = source.LogToConsole                 ;
+			LogToFile                    = source.LogToFile                    ;
+			LogfileName                  = source.LogfileName                  ;
+			WelcomeScreenDisabled        = source.WelcomeScreenDisabled        ;
+			EditModeWasEntered           = source.EditModeWasEntered           ;
+			Modules					     = source.Modules				       ;
+			DisableUpdate			     = source.DisableUpdate			       ;
+			HomeAutomationServerUrl      = source.HomeAutomationServerUrl      ;
+			HomeAutomationServerUser     = source.HomeAutomationServerUser     ;
+			HomeAutomationServerPassword = source.HomeAutomationServerPassword ;
+			HomeAutomationServerTimeout  = source.HomeAutomationServerTimeout  ;
+			MqttBrokerUrl                = source.MqttBrokerUrl                ;
+			MqttBrokerUser               = source.MqttBrokerUser               ;
+			MqttBrokerPassword           = source.MqttBrokerPassword           ;
+			MqttBrokerTimeout            = source.MqttBrokerTimeout            ;
 		}
 
         public void AssignUniqueIDsToModules()

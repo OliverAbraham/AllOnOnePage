@@ -10,7 +10,10 @@ namespace AllOnOnePage.Plugins
         public string               DataDirectory    { get; set; }
         
         [JsonIgnore] // exclude from Newtonsoft.Json serialization 
-        public DataObjectsConnector _homenetConnector;
+        public IServerGetter        _homenetGetter;
+
+        [JsonIgnore] // exclude from Newtonsoft.Json serialization 
+        public IServerGetter        _mqttGetter;
 
 		public ApplicationData Clone()
 		{
@@ -21,10 +24,11 @@ namespace AllOnOnePage.Plugins
 
 		public void CopyPropertiesFrom(ApplicationData source)
 		{
-            ProgramDirectory  = source.ProgramDirectory;
-            PluginDirectory   = source.PluginDirectory;
-            DataDirectory     = source.DataDirectory;
-            _homenetConnector = source._homenetConnector;
+            ProgramDirectory = source.ProgramDirectory;
+            PluginDirectory  = source.PluginDirectory;
+            DataDirectory    = source.DataDirectory;
+            _homenetGetter   = source._homenetGetter;
+            _mqttGetter      = source._mqttGetter;
 		}
 	}
 }

@@ -6,7 +6,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:AllOnOnePage.DialogWindows"
         mc:Ignorable="d"
-        Title="Settings" Width="523" MinWidth="430" Height="653" MinHeight="500"
+        Title="Settings" Width="779" MinWidth="430" Height="686" MinHeight="500"
         ResizeMode="CanResizeWithGrip"  Style="{StaticResource StandardDialogBackground}">
     <Grid Margin="20">
 
@@ -16,6 +16,7 @@
                            ShowSearchBox="False"
                            ShowSortOptions="False"
                            NameColumnWidth="250"
+                           Background="DarkGray"
                            >
         </xctk:PropertyGrid>
 

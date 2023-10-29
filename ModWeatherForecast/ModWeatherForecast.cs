@@ -231,7 +231,7 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
         {
 			try
 			{
-				var dataObject = _config.ApplicationData._homenetConnector.TryGet(_myConfiguration.ServerDataObjectName);
+				var dataObject = _config.ApplicationData._homenetGetter.TryGet(_myConfiguration.ServerDataObjectName);
 				if (dataObject is null || dataObject.Value is null)
 					return DefaultWeatherInfo();
 

@@ -15,6 +15,7 @@ namespace AllOnOnePage.Plugins
 		{
 			public string Text				  { get; set; }
 			public string ServerDataObject    { get; set; }
+			public string MqttTopic           { get; set; }
 			public string ServerMessages      { get; set; }
 			public string ServerFadeOutValues { get; set; }
 			public string ServerWarningValues { get; set; }
@@ -103,6 +104,26 @@ namespace AllOnOnePage.Plugins
                 return;
             }
 
+            if (MqttShouldBeUsed())
+            {
+                //if (WeHaveReceivedAValueChangeMessage(dataObject))
+                //{
+                //    if (ThisChangeMessageIsNotForUs(dataObject))
+                //        return;
+                //    Value = dataObject.Value;
+                //}
+                //else
+                {
+                    Value = ReadValueDirectlyFromMqtt();
+                }
+                Value = MapTechnicalValueToDisplayValue(Value);
+                NotifyPropertyChanged(nameof(Value));
+
+                SetWarningColorIfNecessary();
+                SetValueControlVisible();
+                return;
+            }
+
             Value = _myConfiguration.Text;
 			NotifyPropertyChanged(nameof(Value));
 			SetValueControlVisible();
@@ -154,7 +175,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         {
 			try
 			{
-				var dataObject = _config.ApplicationData._homenetConnector.TryGet(_myConfiguration.ServerDataObject);
+				var dataObject = _config.ApplicationData._homenetGetter.TryGet(_myConfiguration.ServerDataObject);
 				return dataObject?.Value ?? "???";
 			}
 			catch (Exception)
@@ -219,6 +240,38 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         {
             return _serverWarningValues is not null && _serverWarningValues.Values.Any();
         }
+        #endregion
+
+
+
+		#region ------------- Home automation server ----------------------------------------------
+		private bool MqttShouldBeUsed()
+        {
+            return !string.IsNullOrWhiteSpace(_myConfiguration.MqttTopic);
+        }
+
+        private string ReadValueDirectlyFromMqtt()
+        {
+			try
+			{
+				var dataObject = _config.ApplicationData._mqttGetter.TryGet(_myConfiguration.MqttTopic);
+				return dataObject?.Value ?? "???";
+			}
+			catch (Exception)
+			{
+				return "???";
+			}
+        }
+
+		//private bool WeHaveReceivedAValueChangeMessage(Abraham.HomenetBase.Models.DataObject dataObject)
+  //      {
+  //          return dataObject is not null;
+  //      }
+
+		//private bool ThisChangeMessageIsNotForUs(Abraham.HomenetBase.Models.DataObject dataObject)
+  //      {
+  //          return dataObject is not null && dataObject.Name != _myConfiguration.ServerDataObject;
+  //      }
         #endregion
     }
 

@@ -3,10 +3,11 @@ using AllOnOnePage.Libs;
 using AllOnOnePage.Plugins;
 using PluginBase;
 using System;
+using System.Threading.Tasks;
 
 namespace AllOnOnePage.Connectors
 {
-    internal class HomeAutomationServerConnection : IServerGetter, IConnector
+    internal class HomenetConnector : IServerGetter, IConnector
     {
         #region ------------- Fields --------------------------------------------------------------
         private string               _serverUrl;
@@ -20,7 +21,7 @@ namespace AllOnOnePage.Connectors
 
 
         #region ------------- Init ----------------------------------------------------------------
-        public HomeAutomationServerConnection()
+        public HomenetConnector()
         {
         }
         #endregion
@@ -50,7 +51,7 @@ namespace AllOnOnePage.Connectors
 
         public ServerDataObjectChange_Handler OnDataobjectChange { get; set; }
 
-        public void Connect(Configuration config)
+        public async Task Connect(Configuration config)
         {
             _serverUrl      = config.HomeAutomationServerUrl;
             _serverUser     = config.HomeAutomationServerUser;
@@ -59,7 +60,7 @@ namespace AllOnOnePage.Connectors
             Connect();
         }
 
-        public void Connect()
+        public async Task Connect()
         {
             try
             {
@@ -78,7 +79,7 @@ namespace AllOnOnePage.Connectors
             }
         }
 
-        public void Reconnect()
+        public async Task Reconnect()
         {
             Connect();
         }

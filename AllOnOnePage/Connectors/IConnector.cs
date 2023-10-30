@@ -1,5 +1,6 @@
 ﻿using AllOnOnePage.Plugins;
 using PluginBase;
+using System.Threading.Tasks;
 
 namespace AllOnOnePage.Connectors
 {
@@ -13,8 +14,8 @@ namespace AllOnOnePage.Connectors
         public string ConnectionStatus { get; }
         public IServerGetter Getter { get; }
         public ServerDataObjectChange_Handler OnDataobjectChange { get; set; }
-        public void Connect(Configuration config);
-        public void Reconnect();
+        public Task Connect(Configuration config);
+        public Task Reconnect();
         public void Stop();
 
     }

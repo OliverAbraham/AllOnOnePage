@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
@@ -44,8 +45,8 @@ namespace AllOnOnePage
 		#region Connectors for Home automation servers
         private List<IConnector> _connectors = new List<IConnector>()
         {
-            new HomeAutomationServerConnection(),
-            new MqttBrokerConnection()
+            new HomenetConnector(),
+            new MqttConnector()
         };
         private bool _endTheReconnectorLoop;
         #endregion
@@ -160,7 +161,7 @@ namespace AllOnOnePage
 
         private void Startup()
         {
-            InitAndReconnectConnectorsLoop();
+            Dispatcher.BeginInvoke( async () => InitAndReconnectConnectorsLoop() );
 		}
 
         private void Startup2()
@@ -311,7 +312,7 @@ namespace AllOnOnePage
         private void Update_all_modules(ServerDataObjectChange? Do = null)
         {
             if (Do is not null)
-                System.Diagnostics.Debug.WriteLine($"SignalR value change: {Do.Name} = {Do.Value}");
+                System.Diagnostics.Debug.WriteLine($"{Do.ConnectorName} change event: {Do.Name} = {Do.Value}");
 
             if (_nowUpdating)
                 return;
@@ -637,7 +638,7 @@ namespace AllOnOnePage
         /// This will connect every connector in the list, then call Startup2.
         /// Afterwards it will go into and endless loop, and reconnect every connector that has lost its connection.
         /// </summary>
-        private void InitAndReconnectConnectorsLoop()
+        private async Task InitAndReconnectConnectorsLoop()
         {
             foreach(var connector in _connectors)
             {
@@ -645,7 +646,7 @@ namespace AllOnOnePage
                 {
                     ServerInfo.Content = $"Connecting to {connector.Name}...";
                     FadeInServerInfo();
-                    connector.Connect(_config);
+                    await connector.Connect(_config);
                     LinkConnector(connector);
                 }
             }

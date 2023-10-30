@@ -682,6 +682,7 @@ namespace AllOnOnePage
                 var x = _InitialPosAndSize.Left + mouse.X - _InitialMouse.X;
                 var y = _InitialPosAndSize.Top  + mouse.Y - _InitialMouse.Y;
                 _CurrentModule.SetPosition(x, y);
+                //DisplayTextGuidelines(_CurrentModule);
             }
             ResetMousePointerOnBorderOfDragRect();
         }

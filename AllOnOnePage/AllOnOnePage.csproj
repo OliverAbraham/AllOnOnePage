@@ -50,7 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="Abraham.HomenetBase" Version="1.0.2" />
-    <PackageReference Include="Abraham.MQTTClient" Version="1.0.2" />
+    <PackageReference Include="Abraham.MQTTClient" Version="1.0.7" />
     <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.2" />
     <PackageReference Include="Abraham.ProgramSettingsManager" Version="1.0.2" />
     <PackageReference Include="Abraham.PrtgClient" Version="1.0.0" />

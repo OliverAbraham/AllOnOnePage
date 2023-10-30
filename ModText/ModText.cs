@@ -56,7 +56,7 @@ namespace AllOnOnePage.Plugins
 		public override void CreateSeedData()
 		{
 			_myConfiguration = new MyConfiguration();
-            _myConfiguration.Text = "Mein Text";
+            _myConfiguration.Text = "My text";
 		}
 
 		public override void Save()
@@ -164,7 +164,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
 
 
-		#region ------------- Home automation server ----------------------------------------------
+		#region ------------- Homenet -------------------------------------------------------------
 		private bool TheHomeAutomationServerShouldBeUsed()
         {
             return !string.IsNullOrWhiteSpace(_myConfiguration.ServerDataObject);
@@ -243,7 +243,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
 
 
-		#region ------------- Home automation server ----------------------------------------------
+		#region ------------- MQTT ----------------------------------------------------------------
 		private bool MqttShouldBeUsed()
         {
             return !string.IsNullOrWhiteSpace(_myConfiguration.MqttTopic);
@@ -261,16 +261,6 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 				return "???";
 			}
         }
-
-		//private bool WeHaveReceivedAValueChangeMessage(Abraham.HomenetBase.Models.DataObject dataObject)
-  //      {
-  //          return dataObject is not null;
-  //      }
-
-		//private bool ThisChangeMessageIsNotForUs(Abraham.HomenetBase.Models.DataObject dataObject)
-  //      {
-  //          return dataObject is not null && dataObject.Name != _myConfiguration.ServerDataObject;
-  //      }
         #endregion
     }
 
@@ -284,7 +274,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         }
     }
 
-    public class Param
+    internal class Param
     {
         public string Value { get; set; }
 		public string Text  { get; set; }

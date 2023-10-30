@@ -3,10 +3,11 @@ using AllOnOnePage.Libs;
 using AllOnOnePage.Plugins;
 using PluginBase;
 using System;
+using System.Threading.Tasks;
 
 namespace AllOnOnePage.Connectors
 {
-    internal class MqttBrokerConnection : IServerGetter, IConnector
+    internal class MqttConnector : IServerGetter, IConnector
     {
         #region ------------- Fields --------------------------------------------------------------
         private string     _serverUrl;
@@ -19,7 +20,7 @@ namespace AllOnOnePage.Connectors
 
 
         #region ------------- Init ----------------------------------------------------------------
-        public MqttBrokerConnection()
+        public MqttConnector()
         {
         }
         #endregion
@@ -48,7 +49,7 @@ namespace AllOnOnePage.Connectors
 
         public ServerDataObjectChange_Handler OnDataobjectChange { get; set; }
 
-        public void Connect(Configuration config)
+        public async Task Connect(Configuration config)
         {
             _serverUrl      = config.MqttBrokerUrl;
             _serverUser     = config.MqttBrokerUser;
@@ -57,7 +58,7 @@ namespace AllOnOnePage.Connectors
             Connect();
         }
 
-        public void Connect()
+        public async Task Connect()
         {
             try
             {
@@ -67,11 +68,16 @@ namespace AllOnOnePage.Connectors
                     .UseUsername(_serverUser)
                     .UsePassword(_serverPassword)
                     .UseTimeout(_serverTimeout)
-                    .Build()
-                    ;//.SubscribeToAllTopics();
+                    .Build();
+
+                await _mqttClient.SubscribeToAllTopicsAsync();
                 IsConnected = true;
 
-                //_mqttClient.OnEvent = OnDataobjectChangeLocal;
+                //var result = await _mqttClient.SubscribeAsync("#", delegate (string topic, string value)
+                //{
+                //    OnDataobjectChangeLocal(topic, value);
+                //});
+                _mqttClient.OnEvent = OnDataobjectChangeLocal;
             }
             catch (Exception ex)
             {
@@ -83,7 +89,7 @@ namespace AllOnOnePage.Connectors
             }
         }
 
-        public void Reconnect()
+        public async Task Reconnect()
         {
             Connect();
         }

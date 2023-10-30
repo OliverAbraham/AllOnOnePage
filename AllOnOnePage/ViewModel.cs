@@ -12,6 +12,7 @@ using AllOnOnePage.DialogWindows;
 using Abraham.PluginManager;
 using AllOnOnePage.Plugins;
 using AllOnOnePage.Libs;
+using PluginBase;
 
 namespace AllOnOnePage
 {
@@ -1022,19 +1023,13 @@ namespace AllOnOnePage
                 module.Plugin.Time();
         }
 
-        public void ServerDataobjectValueChange(Abraham.HomenetBase.Models.DataObject dataObject)
-        {
-			foreach (var module in _runtimeModules)
-				Update_one_module(module, dataObject);
-		}
-
-        public void Update_all_modules(Abraham.HomenetBase.Models.DataObject? @do = null)
+        public void Update_all_modules(ServerDataObjectChange? @do = null)
         {
 			foreach (var module in _runtimeModules)
 				Update_one_module(module, @do);
 		}
 
-		private void Update_one_module(RuntimeModule module, Abraham.HomenetBase.Models.DataObject? @do = null)
+		private void Update_one_module(RuntimeModule module, ServerDataObjectChange? @do = null)
 		{
             try
 			{

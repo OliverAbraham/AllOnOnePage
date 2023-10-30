@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Collections.Generic;
 using System.Reflection;
+using PluginBase;
 
 namespace AllOnOnePage.Plugins
 {
@@ -129,7 +130,7 @@ namespace AllOnOnePage.Plugins
         {
         }
 
-        public virtual void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
+        public virtual void UpdateContent(ServerDataObjectChange? dataObject)
         {
         }
 

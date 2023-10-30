@@ -2,19 +2,15 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows.Controls;
 using Abraham.Prtg;
-using Abraham.Prtg.Models;
 using System.Threading.Tasks;
 using Abraham.Scheduler;
-using System.Xml.Serialization;
-using System.Xml;
-using HomenetBase;
+using PluginBase;
 
 namespace AllOnOnePage.Plugins
 {
-	public class ModPrtg : ModBase, INotifyPropertyChanged
+    public class ModPrtg : ModBase, INotifyPropertyChanged
 	{
 		#region ------------- Settings ------------------------------------------------------------
 		public class MyConfiguration : ModuleSpecificConfig
@@ -91,7 +87,7 @@ namespace AllOnOnePage.Plugins
             base.Recreate();
         }
 
-        public override void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
+        public override void UpdateContent(ServerDataObjectChange? dataObject)
 		{
 			UpdateDisplay();
 		}

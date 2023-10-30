@@ -1,6 +1,6 @@
 ﻿using Abraham.OpenWeatherMap;
-using HomenetBase;
 using Newtonsoft.Json;
+using PluginBase;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -85,7 +85,7 @@ namespace AllOnOnePage.Plugins
             //_stopwatch = null;
         }
 
-        public override void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
+        public override void UpdateContent(ServerDataObjectChange? dataObject)
 		{
 			ReadNewForecastEveryHour();
 			UpdateForecastValues();

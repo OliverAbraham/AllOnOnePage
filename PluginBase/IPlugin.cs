@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using PluginBase;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -13,7 +14,7 @@ namespace AllOnOnePage.Plugins
 		void Recreate();
 		void Time();
 		void UpdateLayout();
-		void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject);
+		void UpdateContent(ServerDataObjectChange? dataObject);
 		bool HitTest(object control, Point mousePosition);
 		string GetName();
 		ModuleConfig GetModuleConfig();

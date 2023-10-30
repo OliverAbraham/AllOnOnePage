@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Controls;
-using HomenetBase;
+using PluginBase;
 
 namespace AllOnOnePage.Plugins
 {
@@ -77,7 +77,7 @@ namespace AllOnOnePage.Plugins
         {
         }
 
-        public override void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
+        public override void UpdateContent(ServerDataObjectChange? dataObject)
 		{
 			ReadNewEmails();
 			UpdateDisplay();

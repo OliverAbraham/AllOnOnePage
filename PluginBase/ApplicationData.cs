@@ -1,5 +1,4 @@
-﻿using Abraham.HomenetBase.Connectors;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace AllOnOnePage.Plugins
 {

@@ -1,6 +1,6 @@
 ﻿using Abraham.OpenWeatherMap;
-using HomenetBase;
 using Newtonsoft.Json;
+using PluginBase;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -121,7 +121,7 @@ namespace AllOnOnePage.Plugins
             CreateGrid();
         }
 
-        public override void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
+        public override void UpdateContent(ServerDataObjectChange? dataObject)
 		{
 			ReadNewForecastEveryHour();
 			UpdateForecastValues();
@@ -358,7 +358,9 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 
             if (_forecast is null)
                 return;
-            
+            if (_forecast.SmallForecast.Count < 4)
+                return;
+
             var forecast1 = _forecast.SmallForecast[0];
             var forecast2 = _forecast.SmallForecast[1];
             var forecast3 = _forecast.SmallForecast[2];

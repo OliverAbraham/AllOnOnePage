@@ -2,9 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Windows.Controls;
-using Newtonsoft.Json.Linq;
 using System.Windows.Media;
-using System.Windows.Markup.Localizer;
+using PluginBase;
 
 namespace AllOnOnePage.Plugins
 {
@@ -82,7 +81,7 @@ namespace AllOnOnePage.Plugins
             UpdateContent(null);
         }
 
-        public override void UpdateContent(Abraham.HomenetBase.Models.DataObject? dataObject)
+        public override void UpdateContent(ServerDataObjectChange? dataObject)
         {
 			if (TheHomeAutomationServerShouldBeUsed())
             {
@@ -184,12 +183,12 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			}
         }
 
-		private bool WeHaveReceivedAValueChangeMessage(Abraham.HomenetBase.Models.DataObject dataObject)
+		private bool WeHaveReceivedAValueChangeMessage(ServerDataObjectChange dataObject)
         {
             return dataObject is not null;
         }
 
-		private bool ThisChangeMessageIsNotForUs(Abraham.HomenetBase.Models.DataObject dataObject)
+		private bool ThisChangeMessageIsNotForUs(ServerDataObjectChange dataObject)
         {
             return dataObject is not null && dataObject.Name != _myConfiguration.ServerDataObject;
         }

@@ -3,13 +3,32 @@ using System.Windows;
 using System.ComponentModel;
 using AllOnOnePage.Plugins;
 using System.Globalization;
+using Abraham.WPFWindowLayoutManager;
 
 namespace AllOnOnePage.DialogWindows
 {
 	public partial class EditModuleSettings : Window, INotifyPropertyChanged
     {
-		#region ------------- INotifyPropertyChanged ----------------------------------------------
-		public event PropertyChangedEventHandler PropertyChanged
+        #region ------------- Properties ----------------------------------------------------------
+        public WindowLayoutManager LayoutManager { get; internal set; }
+        #endregion
+
+
+
+        #region ------------- Fields --------------------------------------------------------------
+        private IPlugin _plugin;
+		private HelpTexts _texts;
+
+		private ModuleConfig _config => _plugin.GetModuleConfig();
+		private ModuleConfig _configBackup;
+        [NonSerialized]
+        private PropertyChangedEventHandler _propertyChanged;
+        #endregion
+
+
+
+        #region ------------- INotifyPropertyChanged ----------------------------------------------
+        public event PropertyChangedEventHandler PropertyChanged
         {
             add
             {
@@ -31,18 +50,6 @@ namespace AllOnOnePage.DialogWindows
 
 
 
-        #region ------------- Fields --------------------------------------------------------------
-        private IPlugin _plugin;
-		private HelpTexts _texts;
-
-		private ModuleConfig _config => _plugin.GetModuleConfig();
-		private ModuleConfig _configBackup;
-        [NonSerialized]
-        private PropertyChangedEventHandler _propertyChanged;
-        #endregion
-
-
-
         #region ------------- Init ----------------------------------------------------------------
         public EditModuleSettings(IPlugin plugin, HelpTexts texts)
 		{
@@ -54,6 +61,16 @@ namespace AllOnOnePage.DialogWindows
             DataContext = this;
             _propertyGrid.SelectedObject = _plugin.GetModuleSpecificConfig();
 		}
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            LayoutManager.RestoreSizeAndPosition(this, nameof(EditModuleSettings));
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            LayoutManager.SaveSizeAndPosition(this, nameof(EditModuleSettings));
+        }
         #endregion
 
 
@@ -137,6 +154,6 @@ namespace AllOnOnePage.DialogWindows
 
 			wnd.ShowDialog();
 		}
-		#endregion
-	}
+        #endregion
+    }
 }

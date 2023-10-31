@@ -26,7 +26,7 @@ namespace AllOnOnePage
         private Configuration          _config => _configurationManager.Config;
    		private ApplicationData        _applicationData;
 		private HelpTexts              _texts;
-        private LayoutManager          _layoutManager;
+        private WindowLayoutManager    _windowLayoutManager;
 		private Logger                 _logger;
         private PluginLoader           _pluginLoader;
         #endregion
@@ -35,7 +35,6 @@ namespace AllOnOnePage
         private bool                   _nowUpdating;
         private Timer                  _periodicTimer;
         private Timer                  _dateTimeUpdateTimer;
-        private WindowLayoutManager     _windowLayoutManager;
         #endregion
 		#region Power management and Supervisor
 		private WindowsPowermanagement _powermanagement;
@@ -193,6 +192,7 @@ namespace AllOnOnePage
 			_vm = new ViewModel(this, _config, _texts, _applicationData);
 			_vm.Dispatcher = Dispatcher;
 			_vm.SaveConfiguration = _configurationManager.Save;
+            _vm.LayoutManager = _windowLayoutManager;
 			DataContext = _vm;
 		}
         #endregion
@@ -232,12 +232,13 @@ namespace AllOnOnePage
         #region ------------- Main window layout ------------------------------
 		private void Init_LayoutManager()
 		{
-			_layoutManager = new LayoutManager(window: this, key: "MainWindow");
+			_windowLayoutManager = new WindowLayoutManager(this, nameof(MainWindow));
+            _windowLayoutManager.RestoreSizeAndPosition(this, nameof(MainWindow));
 		}
 
 		private void Stop_LayoutManager()
 		{
-			_layoutManager.Save();
+			_windowLayoutManager.Save();
 		}
         #endregion
         #region ------------- Plugins -----------------------------------------
@@ -551,6 +552,7 @@ namespace AllOnOnePage
 		{
             var wnd = new EditSettings(_config);
             wnd.Owner = this;
+            wnd.LayoutManager = _windowLayoutManager;
             wnd.ShowDialog();
             if (wnd.DialogResult == true)
 			{

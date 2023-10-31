@@ -1,24 +1,41 @@
-﻿using System.Windows;
+﻿using Abraham.WPFWindowLayoutManager;
+using System.Windows;
 
 namespace AllOnOnePage.DialogWindows
 {
 	public partial class EditSettings : Window
 	{
-		#region ------------- Fields --------------------------------------------------------------
-		private Configuration _configuration;
+        #region ------------- Properties ----------------------------------------------------------
+        public WindowLayoutManager LayoutManager { get; internal set; }
+        #endregion
+
+
+
+        #region ------------- Fields --------------------------------------------------------------
+        private Configuration _configuration;
 		private Configuration _configurationBackup;
-		#endregion
+        #endregion
 
 
 
-		#region ------------- Init ----------------------------------------------------------------
-		public EditSettings(Configuration configuration)
+        #region ------------- Init ----------------------------------------------------------------
+        public EditSettings(Configuration configuration)
 		{
 			_configuration = configuration;
             _configurationBackup = configuration.Clone();
 			InitializeComponent();
             _propertyGrid.SelectedObject = _configuration;
 		}
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            LayoutManager.RestoreSizeAndPosition(this, nameof(EditSettings));
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            LayoutManager.SaveSizeAndPosition(this, nameof(EditSettings));
+        }
 		#endregion
 
 

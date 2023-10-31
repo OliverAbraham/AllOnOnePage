@@ -3,12 +3,14 @@ using System.Windows;
 using System.ComponentModel;
 using System.Windows.Media;
 using AllOnOnePage.Plugins;
+using Abraham.WPFWindowLayoutManager;
 
 namespace AllOnOnePage.DialogWindows
 {
     public partial class EditModule : Window, INotifyPropertyChanged
     {
         #region ------------- Properties ----------------------------------------------------------
+        public WindowLayoutManager LayoutManager { get; internal set; }
 		private ModuleConfig C => _plugin.GetModuleConfig();
         private ModuleConfig _config => _plugin.GetModuleConfig();
 		public bool DeleteModule { get; private set; }
@@ -133,6 +135,7 @@ namespace AllOnOnePage.DialogWindows
         #region ------------- Implementation ------------------------------------------------------
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            LayoutManager.RestoreSizeAndPosition(this, nameof(EditBackground));
             NotifyPropertyChanged(nameof(ModuleName     ));
             NotifyPropertyChanged(nameof(Type           ));
             NotifyPropertyChanged(nameof(FontSize       ));
@@ -141,6 +144,11 @@ namespace AllOnOnePage.DialogWindows
             NotifyPropertyChanged(nameof(FrameColor     ));
             NotifyPropertyChanged(nameof(BackgroundColor));
             NotifyPropertyChanged(nameof(TextColor      ));
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            LayoutManager.SaveSizeAndPosition(this, nameof(EditBackground));
         }
 
         private void Button_Save_Click(object sender, RoutedEventArgs e)
@@ -153,6 +161,7 @@ namespace AllOnOnePage.DialogWindows
 		private void Button_ModuleSettings_Click(object sender, RoutedEventArgs e)
 		{
 			var wnd = new EditModuleSettings(_plugin, _texts);
+            wnd.LayoutManager = LayoutManager;
 			wnd.Owner = this;
 			var result = wnd.ShowDialog();
 			if (result == true)

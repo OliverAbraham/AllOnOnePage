@@ -1,9 +1,10 @@
-﻿using Microsoft.Win32;
+﻿using Abraham.WPFWindowLayoutManager;
+using AllOnOnePage.DialogWindows;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Security.Policy;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,6 +16,12 @@ namespace AllOnOnePage
 {
     public partial class EditBackground : Window
 	{
+        #region ------------- Properties ----------------------------------------------------------
+        public WindowLayoutManager LayoutManager { get; internal set; }
+        #endregion
+
+
+
 		#region ------------- Fields --------------------------------------------------------------
 		private MainWindow _parent;
 		private Configuration _configuration;
@@ -41,6 +48,16 @@ namespace AllOnOnePage
 			WaitAndThenCallMethod(wait_time_seconds:1, action:InitPictureButtons);
 			SaveCurrentBackgroundImage();
 		}
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            LayoutManager.RestoreSizeAndPosition(this, nameof(EditBackground));
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            LayoutManager.SaveSizeAndPosition(this, nameof(EditBackground));
+        }
 		#endregion
 
 
@@ -272,6 +289,6 @@ namespace AllOnOnePage
                     catch (Exception) { }
                 }, wait_time_seconds, repeatedly:false);
         }
-		#endregion
-	}
+        #endregion
+    }
 }

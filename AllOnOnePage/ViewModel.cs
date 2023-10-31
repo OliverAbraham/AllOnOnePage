@@ -13,6 +13,7 @@ using Abraham.PluginManager;
 using AllOnOnePage.Plugins;
 using AllOnOnePage.Libs;
 using PluginBase;
+using Abraham.WPFWindowLayoutManager;
 
 namespace AllOnOnePage
 {
@@ -67,6 +68,9 @@ namespace AllOnOnePage
                     _SaveConfiguration = delegate () { };  // Null object pattern
             }
         }
+
+        public WindowLayoutManager LayoutManager { get; internal set; }
+
         private OnSaveConfiguration_Handler _SaveConfiguration;
         #endregion
 
@@ -923,6 +927,7 @@ namespace AllOnOnePage
 		private void AddnewModule_internal()
 		{
 			var wnd = new NewModule(_applicationData);
+            wnd.LayoutManager = LayoutManager;
 			wnd.Owner = _parentWindow;
 			wnd.Processors = _processors;
 			wnd.ShowDialog();
@@ -967,6 +972,7 @@ namespace AllOnOnePage
 		private void OpenEditDialog(MouseButtonEventArgs e, RuntimeModule module)
 		{
 			var wnd = new EditModule(module.Plugin, _parentWindow, _texts);
+            wnd.LayoutManager = LayoutManager;
 			wnd.Owner = _parentWindow;
 			wnd.Left = e.GetPosition(_parentWindow).X + _parentWindow.Left;
 			wnd.Top = e.GetPosition(_parentWindow).Y;

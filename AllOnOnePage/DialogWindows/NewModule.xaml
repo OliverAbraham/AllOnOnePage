@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Title="New module" Width="394" MinWidth="394" Height="325" MinHeight="325"
         Style="{StaticResource StandardDialogBackground}" 
-        Loaded="Window_Loaded">
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
     <Grid>
         <Label Content="Type" HorizontalAlignment="Left" Margin="43,43,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.181,0.538"/>
         <ComboBox Name="comboboxType" SelectedItem="{Binding ModuleType, Mode=TwoWay}" Margin="42,79,40,0" VerticalAlignment="Top"/>

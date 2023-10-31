@@ -5,12 +5,14 @@ using System.ComponentModel;
 using AllOnOnePage.Plugins;
 using System.Collections.Generic;
 using Abraham.PluginManager;
+using Abraham.WPFWindowLayoutManager;
 
 namespace AllOnOnePage.DialogWindows
 {
 	public partial class NewModule : Window, INotifyPropertyChanged
     {
         #region ------------- Properties ----------------------------------------------------------
+        public WindowLayoutManager LayoutManager { get; internal set; }
         public RuntimeModule Module { get; set; }
 		public List<Processor> Processors { get; internal set; }
 		#endregion
@@ -44,16 +46,22 @@ namespace AllOnOnePage.DialogWindows
 			InitializeComponent();
             DataContext = this;
 		}
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+		{
+            LayoutManager.RestoreSizeAndPosition(this, nameof(NewModule));
+			InitControls();
+		}
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            LayoutManager.SaveSizeAndPosition(this, nameof(NewModule));
+        }
         #endregion
 
 
 
         #region ------------- Implementation ------------------------------------------------------
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-		{
-			InitControls();
-		}
-
 		private void InitControls()
 		{
 			InitName();

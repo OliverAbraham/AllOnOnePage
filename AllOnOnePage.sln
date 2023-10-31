@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllOnOnePage", "AllOnOnePag
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 UI", "1 UI", "{464D9AEC-AB0F-431F-A729-001197524E14}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Domain logic", "2 Domain logic", "{648845D5-D4F6-430C-BF85-E7EB558B5907}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 Plugins", "3 Plugins", "{44DD5028-23B7-4F28-92CC-922CFFBF2F55}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 Crosscutting", "4 Crosscutting", "{88DCD24C-D482-4E25-9AA4-DB440D5F6A09}"
@@ -49,6 +47,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreateVersionForDeploy", "CreateVersionForDeploy\CreateVersionForDeploy.csproj", "{F52A54E3-195E-4636-A465-67D2F329CD15}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModPrtg", "ModPrtg\ModPrtg.csproj", "{B6A2C6A1-CD5C-433C-9D71-59BBB1A2B329}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "7 Solution items", "7 Solution items", "{E1337B62-9F46-46D4-A5AA-0721B655AD9A}"
+	ProjectSection(SolutionItems) = preProject
+		Ciridata.ico = Ciridata.ico
+		Ciridata.png = Ciridata.png
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

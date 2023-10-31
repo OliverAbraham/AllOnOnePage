@@ -19,7 +19,7 @@ namespace AllOnOnePage.Plugins
 		{
 			public string ApiKey { get; set; }
 			public string Decimals { get; set; }
-			public string Unit { get; set; }
+			public string Units { get; set; }
             public string Latitude { get; set; }
             public string Longitude { get; set; }
 			//public TimeSpan TimeMorning { get; set; } = new TimeSpan(6,0,0);
@@ -28,6 +28,7 @@ namespace AllOnOnePage.Plugins
 			//public TimeSpan TimeNight   { get; set; } = new TimeSpan(23,0,0);
             public string UpdateIntervalInMinutes { get; set; }
             public string UpdateIntervalFromServer { get; set; }
+            public string Titles { get; set; }
             public bool FetchDataFromServer { get; set; }
             public string ServerDataObjectName { get; set; }
 		}
@@ -92,11 +93,12 @@ namespace AllOnOnePage.Plugins
 			_myConfiguration                          = new MyConfiguration();
             _myConfiguration.ApiKey                   = "ENTER-YOUR-API-KEY-HERE you get one free at www.openweathermap.org/api";
             _myConfiguration.Decimals                 = "0";
-            _myConfiguration.Unit                     = "°C";
+            _myConfiguration.Units                    = "metric";
             _myConfiguration.Latitude                 = "53.8667";
             _myConfiguration.Longitude                = "9.8833";
             _myConfiguration.UpdateIntervalInMinutes  = "60";
 			_myConfiguration.UpdateIntervalFromServer = "1";
+            _myConfiguration.Titles                   = "morning|noon|evening|night";
 			_myConfiguration.FetchDataFromServer      = false;
 			_myConfiguration.ServerDataObjectName     = "";
 		}
@@ -134,7 +136,8 @@ namespace AllOnOnePage.Plugins
 				    _connector
 					    .UseLogger(ValidationLogger)
 					    .UseApiKey(_myConfiguration.ApiKey)
-					    .UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
+					    .UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude)
+                        ;//.UseUnits(_myConfiguration.Units);
                 }
 
 				ReadForecast();
@@ -193,6 +196,7 @@ To do this, go to www.openweathermap.org/api and register for free.
 Then copy the API Key into the setting here.
 Also enter the coordinates of your location (longitude and latitude).
 You'll find them on www.google.com/maps. Please refer to my Readme.md on github.
+Units may be metric or imperial
 ");
             return texts;
         }
@@ -229,30 +233,31 @@ You'll find them on www.google.com/maps. Please refer to my Readme.md on github.
 
 		private void InitWeatherReader()
 		{
-			if (_myConfiguration.FetchDataFromServer)
-			{
-			}
-			else
+			if (!_myConfiguration.FetchDataFromServer)
 			{
 				_connector = new OpenWeatherMapConnector()
 					.UseApiKey(_myConfiguration.ApiKey)
-					.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
+					.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude)
+                    ;//.UseUnits(_myConfiguration.Units);
 			}
 		}
 
 		private void ReadForecast()
 		{
-			if (_myConfiguration.ApiKey.StartsWith("ENTER-YOUR-API-KEY-HERE") ||
-				string.IsNullOrWhiteSpace(_myConfiguration.ApiKey))
-			{
-				_connectorMessages += "Please enter your API key" + Environment.NewLine;
-                return;
-			}
-
             if (_myConfiguration.FetchDataFromServer)
+            {
                 _forecast = ReadCurrentForecastFromHomenet();
-			else
+            }
+            else
+            {
+			    if (_myConfiguration.ApiKey.StartsWith("ENTER-YOUR-API-KEY-HERE") ||
+				    string.IsNullOrWhiteSpace(_myConfiguration.ApiKey))
+			    {
+				    _connectorMessages += "Please enter your API key" + Environment.NewLine;
+                    return;
+			    }
 			    _forecast = _connector.ReadCurrentTemperatureAndForecast();
+            }
 		}
 
         private WeatherInfo ReadCurrentForecastFromHomenet()
@@ -355,7 +360,6 @@ You'll find them on www.google.com/maps. Please refer to my Readme.md on github.
         {
             var control                 = new TextBlock();
             control.Foreground          = foreground;
-            //control.Background          = background;
             control.FontSize            = fontSize;
             control.FontFamily          = new System.Windows.Media.FontFamily("Yu Gothic UI Light");
             control.FontStretch         = FontStretch.FromOpenTypeStretch(3);
@@ -379,10 +383,31 @@ You'll find them on www.google.com/maps. Please refer to my Readme.md on github.
 
         private void UpdateUI()
         {
-            H1 = "morgens";                                      
-            H2 = "mittags";                                      
-            H3 = "abends" ;                                      
-            H4 = "nachts" ;                           
+            if (_myConfiguration.Titles is null)
+            {
+                H1 = "title1";
+                H2 = "title2";
+                H3 = "title3";
+                H4 = "title4";
+            }
+            else
+            { 
+                var titles = _myConfiguration.Titles.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                if (titles.Length == 4) 
+                {
+                    H1 = titles[0];
+                    H2 = titles[1];
+                    H3 = titles[2];
+                    H4 = titles[3];
+                }
+                else
+                {
+                    H1 = "title1";
+                    H2 = "title2";
+                    H3 = "title3";
+                    H4 = "title4";
+                }
+            }
 
             if (_forecast is null)
                 return;

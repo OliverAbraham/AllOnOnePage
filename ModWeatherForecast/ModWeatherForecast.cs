@@ -57,6 +57,7 @@ namespace AllOnOnePage.Plugins
 		#region ------------- Fields --------------------------------------------------------------
 		private MyConfiguration                _myConfiguration;
         private static OpenWeatherMapConnector _connector;
+        private string                         _connectorMessages;
 		private WeatherInfo                    _forecast;
 		private Stopwatch                      _stopwatch;
 		private const int                      ONE_MINUTE = 60 * 1000;
@@ -88,19 +89,16 @@ namespace AllOnOnePage.Plugins
 
 		public override void CreateSeedData()
 		{
-			_myConfiguration           = new MyConfiguration();
-            _myConfiguration.ApiKey    = "ENTER-YOUR-API-KEY-HERE you get one free at www.openweathermap.org/api";
-			#if DEBUG
-			_myConfiguration.ApiKey    = File.ReadAllText(@"C:\Credentials\OpenWeatherMapApiKey.txt");
-			#endif
-            _myConfiguration.Decimals  = "0";
-            _myConfiguration.Unit      = "°C";
-            _myConfiguration.Latitude  = "53.8667";
-            _myConfiguration.Longitude = "9.8833";
-            _myConfiguration.UpdateIntervalInMinutes = "60";
+			_myConfiguration                          = new MyConfiguration();
+            _myConfiguration.ApiKey                   = "ENTER-YOUR-API-KEY-HERE you get one free at www.openweathermap.org/api";
+            _myConfiguration.Decimals                 = "0";
+            _myConfiguration.Unit                     = "°C";
+            _myConfiguration.Latitude                 = "53.8667";
+            _myConfiguration.Longitude                = "9.8833";
+            _myConfiguration.UpdateIntervalInMinutes  = "60";
 			_myConfiguration.UpdateIntervalFromServer = "1";
-			_myConfiguration.FetchDataFromServer = false;
-			_myConfiguration.ServerDataObjectName = "WEATHER_FORECAST";
+			_myConfiguration.FetchDataFromServer      = false;
+			_myConfiguration.ServerDataObjectName     = "";
 		}
 
 		public override void Save()
@@ -110,7 +108,6 @@ namespace AllOnOnePage.Plugins
 
         public override void Recreate()
         {
-            //_stopwatch = null;
         }
 
         public override void UpdateLayout()
@@ -124,20 +121,44 @@ namespace AllOnOnePage.Plugins
         public override void UpdateContent(ServerDataObjectChange? dataObject)
 		{
 			ReadNewForecastEveryHour();
-			UpdateForecastValues();
+			UpdateUI();
 		}
+
+		public override (bool,string) Validate()
+		{
+			try
+			{
+                if (!_myConfiguration.FetchDataFromServer)
+                {
+				    _connectorMessages = "";
+				    _connector
+					    .UseLogger(ValidationLogger)
+					    .UseApiKey(_myConfiguration.ApiKey)
+					    .UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
+                }
+
+				ReadForecast();
+				UpdateUI();
+				var success = (_forecast is not null);
+				if (!string.IsNullOrWhiteSpace(_connectorMessages))
+                    return (success, _connectorMessages);
+				return (true, "");
+            }
+            catch (Exception ex)
+			{
+                return (false, $"There is a problem. Please check your settings:\n {_connectorMessages}");
+            }
+		}
+
+        private void ValidationLogger(string message)
+        {
+            _connectorMessages += message + Environment.NewLine;
+        }
 
         public override bool HitTest(object module, Point mousePosition)
         {
             return PointIsInsideRectangle(mousePosition, GetPositionAndCorrectSize());
         }
-
-		public override (bool,string) Validate()
-		{
-            CreateGrid();
-			UpdateForecastValues();
-            return (true, "");
-		}
 
 		public override (bool success, string messages) Test()
 		{
@@ -166,12 +187,12 @@ namespace AllOnOnePage.Plugins
 		{
             var texts = new Dictionary<string,string>();
             texts.Add("de-DE", 
-@"Dieses Modul zeigt die aktuelle Temperatur an.
-Die Daten stammen von openweathermap.org.
-Sie brauchen einen API Key von dort. 
-Gehen Sie hierzu auf www.openweathermap.org/api und registrieren Sie sich kostenlos.
-Kopieren Sie dann denn API Key in die Einstellung hier.
-Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
+@"This module displays the current weather forecast, loaded from openweathermap.org.
+You need an API key from there.
+To do this, go to www.openweathermap.org/api and register for free.
+Then copy the API Key into the setting here.
+Also enter the coordinates of your location (longitude and latitude).
+You'll find them on www.google.com/maps. Please refer to my Readme.md on github.
 ");
             return texts;
         }
@@ -221,13 +242,20 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 
 		private void ReadForecast()
 		{
+			if (_myConfiguration.ApiKey.StartsWith("ENTER-YOUR-API-KEY-HERE") ||
+				string.IsNullOrWhiteSpace(_myConfiguration.ApiKey))
+			{
+				_connectorMessages += "Please enter your API key" + Environment.NewLine;
+                return;
+			}
+
             if (_myConfiguration.FetchDataFromServer)
-                _forecast = ReadCurrentForecastFromHomeAutomationServer();
+                _forecast = ReadCurrentForecastFromHomenet();
 			else
 			    _forecast = _connector.ReadCurrentTemperatureAndForecast();
 		}
 
-        private WeatherInfo ReadCurrentForecastFromHomeAutomationServer()
+        private WeatherInfo ReadCurrentForecastFromHomenet()
         {
 			try
 			{
@@ -349,7 +377,7 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
             NotifyPropertyChanged(nameof(Height));
         }
 
-        private void UpdateForecastValues()
+        private void UpdateUI()
         {
             H1 = "morgens";                                      
             H2 = "mittags";                                      

@@ -21,20 +21,18 @@ namespace AllOnOnePage.Plugins
             public string Latitude { get; set; }
             public string Longitude { get; set; }
             public string UpdateIntervalInMinutes { get; set; }
-            public string UpdateIntervalFromServer { get; set; }
-            public bool FetchDataFromServer { get; set; }
-            public string ServerDataObjectName { get; set; }
         }
 		#endregion
 
 
 
 		#region ------------- Fields --------------------------------------------------------------
-		private MyConfiguration _myConfiguration;
+		private MyConfiguration                _myConfiguration;
         private static OpenWeatherMapConnector _connector;
-		private WeatherInfo _forecast;
-		private Stopwatch _stopwatch;
-		private const int ONE_MINUTE = 60 * 1000;
+        private string                         _connectorMessages;
+		private WeatherInfo                    _forecast;
+		private Stopwatch                      _stopwatch;
+        private const int                      ONE_MINUTE = 60 * 1000;
 		#endregion
 
 
@@ -60,19 +58,13 @@ namespace AllOnOnePage.Plugins
 
 		public override void CreateSeedData()
 		{
-			_myConfiguration           = new MyConfiguration();
-            _myConfiguration.ApiKey    = "ENTER-YOUR-API-KEY-HERE you get one free at www.openweathermap.org/api";
-			#if DEBUG
-			_myConfiguration.ApiKey    = File.ReadAllText(@"C:\Credentials\OpenWeatherMapApiKey.txt");
-			#endif
-            _myConfiguration.Decimals  = "0";
-            _myConfiguration.Unit      = "°C";
-            _myConfiguration.Latitude  = "53.8667";
-            _myConfiguration.Longitude = "9.8833";
-            _myConfiguration.UpdateIntervalInMinutes = "60";
-			_myConfiguration.UpdateIntervalFromServer = "1";
-			_myConfiguration.FetchDataFromServer = false;
-			_myConfiguration.ServerDataObjectName = "WEATHER_FORECAST";
+			_myConfiguration                          = new MyConfiguration();
+            _myConfiguration.ApiKey                   = "ENTER-YOUR-API-KEY-HERE you get one free at www.openweathermap.org/api";
+            _myConfiguration.Decimals                 = "0";
+            _myConfiguration.Unit                     = "°C";
+            _myConfiguration.Latitude                 = "53.8667";
+            _myConfiguration.Longitude                = "9.8833";
+            _myConfiguration.UpdateIntervalInMinutes  = "60";
 		}
 
 		public override void Save()
@@ -82,22 +74,42 @@ namespace AllOnOnePage.Plugins
 
         public override void Recreate()
         {
-            //_stopwatch = null;
         }
 
         public override void UpdateContent(ServerDataObjectChange? dataObject)
 		{
 			ReadNewForecastEveryHour();
-			UpdateForecastValues();
+			UpdateUI();
 		}
 
 		public override (bool,string) Validate()
 		{
-			UpdateForecastValues();
-            return (true, "");
+			try
+			{
+				_connectorMessages = "";
+				_connector
+					.UseLogger(ValidationLogger)
+					.UseApiKey(_myConfiguration.ApiKey)
+					.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
+				ReadForecast();
+				UpdateUI();
+				var success = (_forecast is not null);
+				if (!string.IsNullOrWhiteSpace(_connectorMessages))
+                    return (success, _connectorMessages);
+				return (true, "");
+            }
+            catch (Exception ex)
+			{
+                return (false, $"There is a problem. Please check your settings:\n {_connectorMessages}");
+            }
 		}
 
-		public override (bool success, string messages) Test()
+        private void ValidationLogger(string message)
+        {
+            _connectorMessages += message + Environment.NewLine;
+        }
+
+        public override (bool success, string messages) Test()
 		{
             return (false, "");
 		}
@@ -106,12 +118,12 @@ namespace AllOnOnePage.Plugins
 		{
             var texts = new Dictionary<string,string>();
             texts.Add("de-DE", 
-@"Dieses Modul zeigt die aktuelle Temperatur an.
-Die Daten stammen von openweathermap.org.
-Sie brauchen einen API Key von dort. 
-Gehen Sie hierzu auf www.openweathermap.org/api und registrieren Sie sich kostenlos.
-Kopieren Sie dann denn API Key in die Einstellung hier.
-Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
+@"This module displays the current temperature, fetched from openweathermap.org.
+You need an API key from there.
+To do this, go to www.openweathermap.org/api and register for free.
+Then copy the API Key into the settings here.
+Also enter the coordinates of your location (longitude and latitude).
+You'll find them on www.google.com/maps. Please refer to my Readme.md on github.
 ");
             return texts;
         }
@@ -136,61 +148,28 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 
 		private void InitWeatherReader()
 		{
-			if (_myConfiguration.FetchDataFromServer)
-			{
-			}
-			else
-			{
-				_connector = new OpenWeatherMapConnector()
-					.UseApiKey(_myConfiguration.ApiKey)
-					.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
-			}
+			_connector = new OpenWeatherMapConnector()
+				.UseApiKey(_myConfiguration.ApiKey)
+				.UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude);
 		}
 
 		private void ReadForecast()
         {
-            if (_myConfiguration.FetchDataFromServer)
-                _forecast = ReadCurrentTemperatureFromHomeAutomationServer();
-			else
-                _forecast = _connector.ReadCurrentTemperatureAndForecast();
-        }
+			if (_myConfiguration.ApiKey.StartsWith("ENTER-YOUR-API-KEY-HERE") ||
+				string.IsNullOrWhiteSpace(_myConfiguration.ApiKey))
+			{
+				_connectorMessages += "Please enter your API key" + Environment.NewLine;
+                return;
+			}
 
-        private WeatherInfo ReadCurrentTemperatureFromHomeAutomationServer()
-        {
 			try
 			{
-				var dataObject = _config.ApplicationData._homenetGetter.TryGet(_myConfiguration.ServerDataObjectName);
-				if (dataObject is null || dataObject.Value is null)
-					return DefaultWeatherInfo();
-
-				var json = TextEncoder.UnescapeJsonCharacters(dataObject.Value);
-				var forecast = JsonConvert.DeserializeObject<List<Forecast>>(json);
-				if (forecast is null)
-					return DefaultWeatherInfo();
-
-				dataObject = _config.ApplicationData._homenetGetter.TryGet("AUSSENTEMPERATUR");
-				var value = dataObject.Value;
-				if (value.Contains(' '))
-					value = value.Substring(0, value.IndexOf(' '));
-				if (value.Contains('°'))
-					value = value.Substring(0, value.IndexOf('°'));
-				if (value.Contains(','))
-					value = value.Replace(',', '.');
-				
-				// convert value into double with invariant culture
-				var temperature = Convert.ToDouble(value, System.Globalization.CultureInfo.InvariantCulture);
-
-				return new WeatherInfo(temperature, "°", forecast, new WeatherModel(), new WeatherModel());
+				_forecast = _connector.ReadCurrentTemperatureAndForecast();
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				return DefaultWeatherInfo();
+				Value = $"Check your settings. Problem: {ex}";
 			}
-        }
-
-        private static WeatherInfo DefaultWeatherInfo()
-        {
-            return new WeatherInfo(0, "?", new List<Forecast>(), new WeatherModel(), new WeatherModel());
         }
 
         private void ReadNewForecastEveryHour()
@@ -202,10 +181,7 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 			}
 			else
 			{
-				var intervalMilliseconds = (_myConfiguration.FetchDataFromServer) 
-					? Convert.ToInt32(_myConfiguration.UpdateIntervalFromServer) * ONE_MINUTE
-					: Convert.ToInt32(_myConfiguration.UpdateIntervalInMinutes) * ONE_MINUTE;
-
+				var intervalMilliseconds = Convert.ToInt32(_myConfiguration.UpdateIntervalInMinutes) * ONE_MINUTE;
 				if (_stopwatch.ElapsedMilliseconds > intervalMilliseconds)
 				{
 					ReadForecast();
@@ -214,10 +190,22 @@ Geben sie auch die Koordinaten Ihres Ortes ein (Längen und Breitengrad).
 			}
 		}
 
-		private void UpdateForecastValues()
+		private void UpdateUI()
 		{
-			if (_forecast is null)
+			if (_myConfiguration.ApiKey.StartsWith("ENTER-YOUR-API-KEY-HERE"))
+			{
+				Value = "Enter your API key and check your settings";
+				NotifyPropertyChanged(nameof(Value));
                 return;
+			}
+
+			if (_forecast is null)
+			{
+				Value = "check your settings";
+				NotifyPropertyChanged(nameof(Value));
+                return;
+			}
+
 			Value = $"{_forecast.CurrentTemperature}";
 
 			if (!string.IsNullOrWhiteSpace(_myConfiguration.Decimals))

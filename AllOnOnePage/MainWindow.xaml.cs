@@ -358,7 +358,6 @@ namespace AllOnOnePage
         private void Init_HelpTexts()
         {
             VersionInfo.Content = $"Version {AppVersion.Version.VERSION}";
-            ServerInfo.Content = "";
             HelpText1.Content = _texts[HelpTexts.ID.CLICKHERETOEND];
             HelpText2.Content = _texts[HelpTexts.ID.CLICKHERETOEDIT];
             HelpText3.Content = _texts[HelpTexts.ID.CLICKHERETOFULL];
@@ -394,6 +393,11 @@ namespace AllOnOnePage
         private void FadeInServerInfo()
         {
             WpfAnimations.FadeInLabel(ServerInfo);
+        }
+
+        private void SetServerInfotext(string text)
+        {
+            Dispatcher.BeginInvoke(() => { ServerInfo.Content = text; });
         }
 
 		private void ShowButtonsOnMouseHover(Window sender, MouseEventArgs e)
@@ -648,14 +652,16 @@ namespace AllOnOnePage
             {
                 if (!connector.IsConnected)
                 {
-                    ServerInfo.Content = $"Connecting to {connector.Name}...";
-                    FadeInServerInfo();
+                    System.Diagnostics.Debug.WriteLine($"Connecting to {connector.Name}...");
+                    SetServerInfotext($"Connecting to {connector.Name}...");
                     await connector.Connect(_config);
                     LinkConnector(connector);
+                    System.Diagnostics.Debug.WriteLine($"{connector.ConnectionStatus}");
                 }
             }
 
             _endTheReconnectorLoop = false;
+            FadeOutServerInfo();
             WaitAndThenCallMethod(wait_time_seconds: 1, action: Startup2);
             WaitAndThenCallMethod(wait_time_seconds: 10, action: ReconnectLoop);
         }
@@ -666,8 +672,8 @@ namespace AllOnOnePage
             {
                 if (!connector.IsConnected && !connector.ConnectionIsInProgress)
                 {
-                    ServerInfo.Content = $"Reconnecting to {connector.Name}...";
                     FadeInServerInfo();
+                    SetServerInfotext($"Reconnecting to {connector.Name}...");
                     connector.Reconnect();
                 }
             }
@@ -698,11 +704,10 @@ namespace AllOnOnePage
                     };
 
                 ServerInfo.Content = connector.ConnectionStatus;
-                FadeOutServerInfo();
             }
             catch (Exception ex)
             {
-                ServerInfo.Content = $"Error connecting to {connector.Name}";
+                SetServerInfotext($"Error connecting to {connector.Name}");
             }
         }
         #endregion

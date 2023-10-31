@@ -541,12 +541,16 @@ namespace AllOnOnePage
 
         private void SetBackgroundForAllModules()
         {
+            if (_runtimeModules is null) 
+                return;
             foreach (var module in _runtimeModules)
                 module.Plugin.SwitchEditMode(true);
         }
 
         private void ResetBackgroundForAllModules()
         {
+            if (_runtimeModules is null) 
+                return;
             foreach (var module in _runtimeModules)
                 module.Plugin.SwitchEditMode(false);
         }
@@ -1020,12 +1024,16 @@ namespace AllOnOnePage
         #region ------------- Value updates -----------------------------------
 		public void Time()
         {
+            if (_runtimeModules is null) 
+                return;
             foreach (var module in _runtimeModules)
                 module.Plugin.Time();
         }
 
         public void Update_all_modules(ServerDataObjectChange? @do = null)
         {
+            if (_runtimeModules is null) 
+                return;
 			foreach (var module in _runtimeModules)
 				Update_one_module(module, @do);
 		}

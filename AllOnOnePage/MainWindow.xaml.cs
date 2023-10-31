@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Input;
 using Abraham.AutoUpdater;
 using Abraham.OpenWeatherMap;
+using Abraham.WPFWindowLayoutManager;
 using AllOnOnePage.Connectors;
 using AllOnOnePage.DialogWindows;
 using AllOnOnePage.Libs;
@@ -34,7 +35,8 @@ namespace AllOnOnePage
         private bool                   _nowUpdating;
         private Timer                  _periodicTimer;
         private Timer                  _dateTimeUpdateTimer;
-		#endregion
+        private WindowLayoutManager     _windowLayoutManager;
+        #endregion
 		#region Power management and Supervisor
 		private WindowsPowermanagement _powermanagement;
 		private Timer                  _buttonFadeOutTimer;

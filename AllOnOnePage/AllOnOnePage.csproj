@@ -55,6 +55,7 @@
     <PackageReference Include="Abraham.ProgramSettingsManager" Version="1.0.2" />
     <PackageReference Include="Abraham.PrtgClient" Version="1.0.0" />
     <PackageReference Include="Abraham.Scheduler" Version="1.0.0" />
+    <PackageReference Include="Abraham.WPFWindowLayoutManager" Version="1.0.1" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.12" />
     <PackageReference Include="RestSharp" Version="110.2.0" />

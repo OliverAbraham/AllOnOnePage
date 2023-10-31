@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media;
 using PluginBase;
+using System.Globalization;
 
 namespace AllOnOnePage.Plugins
 {
@@ -21,6 +22,11 @@ namespace AllOnOnePage.Plugins
 			public string ServerPlaySound     { get; set; }
 			public string FadeOutAfter        { get; set; }
 			public string WarningTextColor    { get; set; }
+			public string Decimals            { get; set; }
+            public int    MaxLength           { get; set; }
+            public string FormatString        { get; set; }
+            public string ReplaceText         { get; set; }
+            public string ReplaceWith         { get; set; }
 		}
 		#endregion
 
@@ -83,49 +89,44 @@ namespace AllOnOnePage.Plugins
 
         public override void UpdateContent(ServerDataObjectChange? dataObject)
         {
+            var localValue = "";
 			if (TheHomeAutomationServerShouldBeUsed())
             {
                 if (WeHaveReceivedAValueChangeMessage(dataObject))
                 {
                     if (ThisChangeMessageIsNotForUs(dataObject))
                         return;
-                    Value = dataObject.Value;
+                    localValue = dataObject.Value;
                 }
                 else
                 {
-                    Value = ReadValueDirectlyFromHomeAutomationServer();
+                    localValue = ReadValueDirectlyFromHomeAutomationServer();
                 }
-                Value = MapTechnicalValueToDisplayValue(Value);
-                NotifyPropertyChanged(nameof(Value));
-
-                SetWarningColorIfNecessary();
-                SetValueControlVisible();
-                return;
             }
-
-            if (MqttShouldBeUsed())
+            else if (MqttShouldBeUsed())
             {
                 //if (WeHaveReceivedAValueChangeMessage(dataObject))
                 //{
                 //    if (ThisChangeMessageIsNotForUs(dataObject))
                 //        return;
-                //    Value = dataObject.Value;
+                //    value = dataObject.Value;
                 //}
                 //else
                 {
-                    Value = ReadValueDirectlyFromMqtt();
+                    localValue = ReadValueDirectlyFromMqtt();
                 }
-                Value = MapTechnicalValueToDisplayValue(Value);
-                NotifyPropertyChanged(nameof(Value));
-
-                SetWarningColorIfNecessary();
-                SetValueControlVisible();
-                return;
+            }
+            else
+            {
+                localValue = _myConfiguration.Text;
             }
 
-            Value = _myConfiguration.Text;
-			NotifyPropertyChanged(nameof(Value));
-			SetValueControlVisible();
+            Value = MapTechnicalValueToDisplayValue(localValue);
+            NotifyPropertyChanged(nameof(Value));
+
+            SetWarningColorIfNecessary();
+            SetValueControlVisible();
+            return;
         }
 
         public override Dictionary<string,string> GetHelp()
@@ -160,6 +161,80 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			_serverPlaySound     = Deserialize(_myConfiguration.ServerPlaySound);
 			_fadeOutAfter        = Deserialize(_myConfiguration.FadeOutAfter);
 		}
+
+        private Params Deserialize(string data)
+        {
+			if (string.IsNullOrWhiteSpace(data))
+				return null;
+
+            var parts = data.Split('|', StringSplitOptions.RemoveEmptyEntries);
+			var result = new Params();
+            foreach (var part in parts)
+			{
+				var pair = part.Split('=', StringSplitOptions.RemoveEmptyEntries);
+				result.Values.Add(new Param(pair[0], pair[1]));
+			}
+			return result;
+        }
+
+        private string MapTechnicalValueToDisplayValue(string value)
+        {
+            if (value is null)
+                return value;
+
+			if (_myConfiguration.MaxLength > 0)
+            {
+                if (value.Length > _myConfiguration.MaxLength)
+				    value = value.Substring(0, _myConfiguration.MaxLength);
+            }
+
+			if (!string.IsNullOrWhiteSpace(_myConfiguration.ReplaceText))
+            {
+                value = value.Replace(_myConfiguration.ReplaceText, _myConfiguration.ReplaceWith);
+            }
+
+            // if decimals are set, we try to convert the string to a number, then cut off the unwanted decimals
+			if (!string.IsNullOrWhiteSpace(_myConfiguration.Decimals))
+            {
+                if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out double numberValue))
+				    value = numberValue.ToString("N" + _myConfiguration.Decimals);
+            }
+
+			if (!string.IsNullOrWhiteSpace(_myConfiguration.FormatString))
+            {
+                if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out double numberValue))
+				    value = numberValue.ToString(_myConfiguration.FormatString);
+            }
+
+			if (_serverMessages is not null)
+            {
+                var message = _serverMessages.Values.Where(x => x.Value == value).FirstOrDefault();
+			    if (message is not null)
+                    value = message.Text;
+            }
+
+            return value;
+        }
+
+        private void SetWarningColorIfNecessary()
+        {
+            if (WarningTextColorIsSet() && WarningValuesAreSet())
+            {
+                var weHaveAWarning = _serverWarningValues.Values.Any(x => x.Text == Value);
+                var textColor = (weHaveAWarning) ? _myConfiguration.WarningTextColor : _config.TextColor;
+                base._ValueControl.Foreground = (SolidColorBrush)(new BrushConverter().ConvertFrom(textColor));
+            }
+        }
+
+        private bool WarningTextColorIsSet()
+        {
+            return _myConfiguration.WarningTextColor is not null && !string.IsNullOrWhiteSpace(_myConfiguration.WarningTextColor);
+        }
+
+        private bool WarningValuesAreSet()
+        {
+            return _serverWarningValues is not null && _serverWarningValues.Values.Any();
+        }
         #endregion
 
 
@@ -191,53 +266,6 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 		private bool ThisChangeMessageIsNotForUs(ServerDataObjectChange dataObject)
         {
             return dataObject is not null && dataObject.Name != _myConfiguration.ServerDataObject;
-        }
-
-        private Params Deserialize(string data)
-        {
-			if (string.IsNullOrWhiteSpace(data))
-				return null;
-
-            var parts = data.Split('|', StringSplitOptions.RemoveEmptyEntries);
-			var result = new Params();
-            foreach (var part in parts)
-			{
-				var pair = part.Split('=', StringSplitOptions.RemoveEmptyEntries);
-				result.Values.Add(new Param(pair[0], pair[1]));
-			}
-			return result;
-        }
-
-        private string MapTechnicalValueToDisplayValue(string value)
-        {
-			if (_serverMessages is null)
-				return value;
-
-            var message = _serverMessages.Values.Where(x => x.Value == value).FirstOrDefault();
-			if (message is not null)
-                return message.Text;
-			else
-				return value;
-        }
-
-        private void SetWarningColorIfNecessary()
-        {
-            if (WarningTextColorIsSet() && WarningValuesAreSet())
-            {
-                var weHaveAWarning = _serverWarningValues.Values.Any(x => x.Text == Value);
-                var textColor = (weHaveAWarning) ? _myConfiguration.WarningTextColor : _config.TextColor;
-                base._ValueControl.Foreground = (SolidColorBrush)(new BrushConverter().ConvertFrom(textColor));
-            }
-        }
-
-        private bool WarningTextColorIsSet()
-        {
-            return _myConfiguration.WarningTextColor is not null && !string.IsNullOrWhiteSpace(_myConfiguration.WarningTextColor);
-        }
-
-        private bool WarningValuesAreSet()
-        {
-            return _serverWarningValues is not null && _serverWarningValues.Values.Any();
         }
         #endregion
 

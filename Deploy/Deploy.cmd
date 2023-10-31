@@ -2,8 +2,8 @@
 @ECHO -----------------------------------------------------------------------------------
 @ECHO Deploy-Skript
 @ECHO Quelle 1                  : %SOURCE1%
-@ECHO Quelle 2                  : %SOURCE2%
 @ECHO Quelle 3                  : %SOURCE3%
+@ECHO Quelle 4                  : %SOURCE4%
 @ECHO Zielanwendung             : %DESTINATION%
 @ECHO Interprozess-Kommunikation: %COMMUNICATION_DIR%
 @ECHO -----------------------------------------------------------------------------------

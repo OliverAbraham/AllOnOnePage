@@ -90,31 +90,27 @@ namespace AllOnOnePage.Plugins
         public override void UpdateContent(ServerDataObjectChange? dataObject)
         {
             var localValue = "";
-			if (TheHomeAutomationServerShouldBeUsed())
+
+            (var yes1, var forUs1) = WeHaveReceivedAHomenetEvent(dataObject);
+            if (yes1 && !forUs1)
+                return;
+
+            (var yes2, var forUs2) = WeHaveReceivedAnMqttEvent(dataObject);
+            if (yes2 && !forUs2)
+                return;
+
+            if (yes1 || yes2)
             {
-                if (WeHaveReceivedAValueChangeMessage(dataObject))
-                {
-                    if (ThisChangeMessageIsNotForUs(dataObject))
-                        return;
-                    localValue = dataObject.Value;
-                }
-                else
-                {
-                    localValue = ReadValueDirectlyFromHomeAutomationServer();
-                }
+                System.Diagnostics.Debug.WriteLine($"ModText: ServerDataObjectChange: {dataObject}");
+                localValue = dataObject.Value;
             }
-            else if (MqttShouldBeUsed())
+            else if (TheHomenetServerShouldBeUsed())
             {
-                //if (WeHaveReceivedAValueChangeMessage(dataObject))
-                //{
-                //    if (ThisChangeMessageIsNotForUs(dataObject))
-                //        return;
-                //    value = dataObject.Value;
-                //}
-                //else
-                {
-                    localValue = ReadValueDirectlyFromMqtt();
-                }
+                localValue = ReadValueDirectlyFromHomenetServer();
+            }
+            else if (TheMqttBrokerShouldBeUsed())
+            {
+                localValue = ReadValueDirectlyFromMqtt();
             }
             else
             {
@@ -123,7 +119,6 @@ namespace AllOnOnePage.Plugins
 
             Value = MapTechnicalValueToDisplayValue(localValue);
             NotifyPropertyChanged(nameof(Value));
-
             SetWarningColorIfNecessary();
             SetValueControlVisible();
             return;
@@ -240,12 +235,24 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
 
 		#region ------------- Homenet -------------------------------------------------------------
-		private bool TheHomeAutomationServerShouldBeUsed()
+		private (bool,bool) WeHaveReceivedAHomenetEvent(ServerDataObjectChange dataObject)
+        {
+            bool yes = 
+                dataObject is not null && 
+                dataObject.ConnectorName == "HOMENET";
+            bool forUs =
+                yes && 
+                TheHomenetServerShouldBeUsed() &&
+                dataObject.Name == _myConfiguration.ServerDataObject;
+            return (yes, forUs);
+        }
+
+		private bool TheHomenetServerShouldBeUsed()
         {
             return !string.IsNullOrWhiteSpace(_myConfiguration.ServerDataObject);
         }
 
-        private string ReadValueDirectlyFromHomeAutomationServer()
+        private string ReadValueDirectlyFromHomenetServer()
         {
 			try
 			{
@@ -257,22 +264,24 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 				return "???";
 			}
         }
-
-		private bool WeHaveReceivedAValueChangeMessage(ServerDataObjectChange dataObject)
-        {
-            return dataObject is not null;
-        }
-
-		private bool ThisChangeMessageIsNotForUs(ServerDataObjectChange dataObject)
-        {
-            return dataObject is not null && dataObject.Name != _myConfiguration.ServerDataObject;
-        }
         #endregion
 
 
 
 		#region ------------- MQTT ----------------------------------------------------------------
-		private bool MqttShouldBeUsed()
+		private (bool, bool) WeHaveReceivedAnMqttEvent(ServerDataObjectChange dataObject)
+        {
+            bool yes = 
+                dataObject is not null && 
+                dataObject.ConnectorName == "MQTT";
+            bool forUs =
+                yes && 
+                TheMqttBrokerShouldBeUsed() &&
+                dataObject.Name == _myConfiguration.MqttTopic;
+            return (yes, forUs);
+        }
+
+		private bool TheMqttBrokerShouldBeUsed()
         {
             return !string.IsNullOrWhiteSpace(_myConfiguration.MqttTopic);
         }

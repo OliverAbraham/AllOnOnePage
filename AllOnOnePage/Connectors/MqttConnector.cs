@@ -70,13 +70,8 @@ namespace AllOnOnePage.Connectors
                     .Build();
 
                 await _mqttClient.SubscribeToAllTopicsAsync();
-                IsConnected = true;
-
-                //var result = await _mqttClient.SubscribeAsync("#", delegate (string topic, string value)
-                //{
-                //    OnDataobjectChangeLocal(topic, value);
-                //});
                 _mqttClient.OnEvent = OnDataobjectChangeLocal;
+                IsConnected = true;
             }
             catch (Exception ex)
             {

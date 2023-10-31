@@ -314,7 +314,7 @@ namespace AllOnOnePage
         private void Update_all_modules(ServerDataObjectChange? Do = null)
         {
             if (Do is not null)
-                System.Diagnostics.Debug.WriteLine($"{Do.ConnectorName} change event: {Do.Name} = {Do.Value}");
+                System.Diagnostics.Debug.WriteLine($"Update_all_modules: {Do.ConnectorName} change event: {Do.Name} = {Do.Value}");
 
             if (_nowUpdating)
                 return;

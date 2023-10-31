@@ -12,5 +12,10 @@
             Name = name;
             Value = value;
         }
+
+        public override string ToString()
+        {
+            return $"ConnectorName: {ConnectorName}, Name: {Name}, Value: {Value}";
+        }
     }
 }

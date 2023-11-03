@@ -4,27 +4,25 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.Windows.Controls;
 
 namespace AllOnOnePage.Plugins
 {
-	// read this:
-	// https://github.com/ExcelDataReader/ExcelDataReader
-	//
-	// Important note on .NET Core
-	// By default, ExcelDataReader throws a NotSupportedException "No data is available for encoding 1252." 
-	// on .NET Core.
-	// 
-	// To fix, add a dependency to the package System.Text.Encoding.CodePages and then add code to register 
-	// the code page provider during application initialization (f.ex in Startup.cs):
-	// System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-	// 
-	// This is required to parse strings in binary BIFF2-5 Excel documents encoded with DOS-era code pages. 
-	// These encodings are registered by default in the full .NET Framework, but not on .NET Core.
+    // read this:
+    // https://github.com/ExcelDataReader/ExcelDataReader
+    //
+    // Important note on .NET Core
+    // By default, ExcelDataReader throws a NotSupportedException "No data is available for encoding 1252." 
+    // on .NET Core.
+    // 
+    // To fix, add a dependency to the package System.Text.Encoding.CodePages and then add code to register 
+    // the code page provider during application initialization (f.ex in Startup.cs):
+    // System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+    // 
+    // This is required to parse strings in binary BIFF2-5 Excel documents encoded with DOS-era code pages. 
+    // These encodings are registered by default in the full .NET Framework, but not on .NET Core.
 
-	public class ModExcel : ModBase, INotifyPropertyChanged
+    public class ModExcel : ModBase, INotifyPropertyChanged
 	{
 		#region ------------- Settings ------------------------------------------------------------
 		public class MyConfiguration : ModuleSpecificConfig
@@ -69,7 +67,7 @@ namespace AllOnOnePage.Plugins
 		public override void CreateSeedData()
 		{
 			_myConfiguration = new MyConfiguration();
-            _myConfiguration.Filename = @"C:\MeineExceldatei.xlsx";
+            _myConfiguration.Filename = @"DemoExcelFile.xlsx";
             _myConfiguration.CellName = @"A1";
             _myConfiguration.Format   = @"{0} €";
 		}
@@ -81,6 +79,13 @@ namespace AllOnOnePage.Plugins
 
         public override void UpdateContent(ServerDataObjectChange? dataObject)
         {
+			if (!File.Exists(_myConfiguration.Filename))
+			{
+				Value = $"This excel file doesn't exist! ({Path.GetFullPath(_myConfiguration.Filename)}";
+				NotifyPropertyChanged(nameof(Value));
+				return;
+			}
+
 			try
 			{
 				Value = ExcelReader.ReadCellValueFromExcelFile(_myConfiguration.Filename, _myConfiguration.CellName);
@@ -103,14 +108,14 @@ namespace AllOnOnePage.Plugins
 		{
             var texts = new Dictionary<string,string>();
             texts.Add("de-DE", 
-@"Dieses Modul zeigt aus einer Excel-Datei den Inhalt einer Zelle an.
-Anzugeben sind:
-- der volle Dateiname mit Pfad.
-- die Zelle (z.B. A1, B13 usw).
-Im Feld 'Format' kann noch ein abweichendes Format angegeben werden.
-EIn Beispiel: Sie haben eine Excel-Datei, in der Sie ihr Körpergewicht aufzeichnen.
-Eine Zelle enthält das aktuelle Gewicht als Zahl.
-Um hier das Gewicht mit dem Zusatz 'kg' anzuzeigen, geben sie bei Format ein:
+@"This module displays the contents of a cell from an Excel file.
+Must be stated:
+- the full file name with path.
+- the cell (e.g. A1, B13 etc).
+A different format can be specified in the 'Format' field.
+An example: You have an Excel file in which you record your body weight.
+A cell contains the current weight as a number.
+To display the weight with the addition of 'kg', enter the following in Format:
 {0} kg
 ");
             return texts;
@@ -120,7 +125,7 @@ Um hier das Gewicht mit dem Zusatz 'kg' anzuzeigen, geben sie bei Format ein:
 		{
 			if (!File.Exists(_myConfiguration.Filename))
 			{
-				return (false, $"Die angegebene Datei existiert nicht!");
+				return (false, $"This excel file doesn't exist! ({Path.GetFullPath(_myConfiguration.Filename)})");
 			}
             return (true, "");
         }
@@ -133,7 +138,7 @@ Um hier das Gewicht mit dem Zusatz 'kg' anzuzeigen, geben sie bei Format ein:
 			}
 			catch (Exception) 
 			{
-				return (false, $"Die angegebene Datei konnte nicht gelesen werden!");
+				return (false, $"This excel file doesn't exist!");
 			}
 
 			try
@@ -146,10 +151,10 @@ Um hier das Gewicht mit dem Zusatz 'kg' anzuzeigen, geben sie bei Format ein:
 			}
 			catch (Exception) 
 			{
-				return (false, $"Das angegebene Format funktioniert nicht!");
+				return (false, $"The given format doesn't work!");
 			}
 
-            return (true, $"Inhalt der Zelle: {Value}");
+            return (true, $"Cell contents: {Value}");
 		}
         #endregion
 

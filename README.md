@@ -27,6 +27,10 @@ The nuget package was build with DotNET 6.
 
 ## INSTALLATION
 
+- download the latest release from my github repository (zip or installer)
+- or download it from my homepage https://www.abraham-beratung.de/all-on-one-page/				
+- or clone this repository and build it yourself.
+- in the first start, it will create a demo page for you.
 
 
 ## INTEGRATION WITH HOME AUTOMATION SYSTEMS
@@ -57,14 +61,19 @@ https://github.com/OliverAbraham/Abraham.AllOnOnePage
 
 ## SCREENSHOTS
 
-This shows the Producer demo sending a value to topic "garden/temperature":
-![](Screenshots/screenshot1.jpg)
+This first screenshot shows the main window of the application. 
+The middle row shows ages for several backups, loaded from my home automation server.
+The bottom left shows the current solar production, loaded from my MQTT broker.
+To the right Weather information from openweathermap.com.
+(you can sign up and get an api key for free)
 
-This shows the Broker in Homeassistant receiving the value:
-![](Screenshots/screenshot2.jpg)
-
-This shows the Subscriber demo receiving the values (after 2 executions of Publisher demo):
-![](Screenshots/screenshot3.jpg)
+![](Screenshots/Screenshot1.jpg)
+![](Screenshots/Screenshot2.jpg)
+![](Screenshots/Screenshot3.jpg)
+![](Screenshots/Screenshot4.jpg)
+![](Screenshots/Screenshot5.jpg)
+![](Screenshots/Screenshot6.jpg)
+![](Screenshots/Screenshot7.jpg)
 
 
 # MAKE A DONATION !

@@ -948,6 +948,7 @@ namespace AllOnOnePage
 					SaveConfiguration();
                     if (!_EditMode)
                         EnterOrLeaveEditMode();
+                    newModule.Plugin.UpdateContent(null);
 				}
 			}
 		}
@@ -963,6 +964,7 @@ namespace AllOnOnePage
 		{
             var wnd = new EditBackground(_parentWindow, _configuration);
             wnd.Owner = _parentWindow;
+            wnd.LayoutManager = LayoutManager;
             wnd.ShowDialog();
             if (wnd.DialogResult == true)
                 SaveConfiguration();

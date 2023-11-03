@@ -2,6 +2,7 @@
 using AllOnOnePage.Plugins;
 using System;
 using System.IO;
+using System.Reflection;
 
 namespace AllOnOnePage.Libs
 {
@@ -89,6 +90,18 @@ namespace AllOnOnePage.Libs
 		#region ------------- Seed data for first start -------------------------------------------
 		private Configuration CreateSeedData()
 		{
+			var userDocumentsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+			_applicationDirectories.DataDirectory = userDocumentsDirectory + Path.DirectorySeparatorChar + "All on one page";
+
+			// copy the demo excel file to the users' documents directory
+			var sourceFile = Path.Combine(_applicationDirectories.ProgramDirectory, "DemoExcelFile.xlsx");
+			var targetFile = Path.Combine(_applicationDirectories.DataDirectory, "DemoExcelFile.xlsx");
+			try
+			{
+				File.Copy(sourceFile, targetFile, true); 
+			} 
+			catch { } // never ever break the first program start experience when this fails!
+
 			var seed = new Configuration();
             seed.FullScreenDisplay = false;
             seed.Background = Configuration.BackgroundType.Image;
@@ -102,7 +115,11 @@ namespace AllOnOnePage.Libs
 
 			seed.Modules.Add(Create("ModDate"   , 200, 430, 600, 120,  80, "#FF4169E1"));
 			seed.Modules.Add(Create("ModTime"   , 820, 430, 200, 120,  80, "#FFC71585"));
-			seed.Modules.Add(Create("ModWeather", 200, 560, 205, 400, 100, "#FFFFFFFF"));
+			seed.Modules.Add(Create("ModWeather", 200, 560, 205, 150, 100, "#FFFFFFFF"));
+
+			var modExcel = Create("ModExcel"  , 500, 600, 400, 100, 100, "#FFFFFFFF");
+			modExcel.FontSize = 40;
+			seed.Modules.Add(modExcel);
 			return seed;
 		}
 		#endregion

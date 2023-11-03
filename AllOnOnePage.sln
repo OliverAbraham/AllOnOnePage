@@ -52,13 +52,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreateVersionForDeploy", "C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModPrtg", "ModPrtg\ModPrtg.csproj", "{B6A2C6A1-CD5C-433C-9D71-59BBB1A2B329}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "7 Solution items", "7 Solution items", "{E1337B62-9F46-46D4-A5AA-0721B655AD9A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8 Solution items", "8 Solution items", "{E1337B62-9F46-46D4-A5AA-0721B655AD9A}"
 	ProjectSection(SolutionItems) = preProject
 		Ciridata.ico = Ciridata.ico
 		Ciridata.png = Ciridata.png
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "7 Screenshots", "7 Screenshots", "{4F3FE8A5-B80C-474D-AFCA-492C2587DDAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

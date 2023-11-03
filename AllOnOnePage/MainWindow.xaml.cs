@@ -678,7 +678,7 @@ namespace AllOnOnePage
         {
             foreach (var connector in _connectors)
             {
-                if (!connector.IsConnected && !connector.ConnectionIsInProgress)
+                if (connector.IsConfigured(_config) && !connector.IsConnected && !connector.ConnectionIsInProgress)
                 {
                     FadeInServerInfo();
                     SetServerInfotext($"Reconnecting to {connector.Name}...");

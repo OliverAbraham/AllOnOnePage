@@ -2,6 +2,7 @@
   "profiles": {
     "CreateVersionForDeploy": {
       "commandName": "Project",
+      "commandLineArgs": "\"bin\\debug\\net6.0-windows\"   \"C:\\GIT\\AllOnOnePage\\Setup\"",
       "workingDirectory": "C:\\GIT\\AllOnOnePage\\AllOnOnePage"
     }
   }

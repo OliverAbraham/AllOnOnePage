@@ -28,13 +28,13 @@ namespace AllOnOnePage.Plugins
 
 
 		#region ------------- Fields --------------------------------------------------------------
-		private MyConfiguration    _myConfiguration;
-		private Stopwatch          _stopwatch;
-		private const int          ONE_MINUTE = 60 * 1000;
-		private int                _updateIntervalInMinutes = 240;
-		private static string      _messages;
-		private bool _readError;
-		private List<Message>      _emails;
+		private MyConfiguration _myConfiguration;
+		private Stopwatch       _stopwatch;
+		private const int       ONE_MINUTE = 60 * 1000;
+		private int             _updateIntervalInMinutes = 240;
+		private static string   _messages;
+		private bool		    _readError;
+		private List<Message>   _emails;
 		#endregion
 
 

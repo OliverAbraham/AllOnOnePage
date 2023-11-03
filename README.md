@@ -28,6 +28,7 @@ The nuget package was build with DotNET 6.
 ## INSTALLATION
 
 
+
 ## INTEGRATION WITH HOME AUTOMATION SYSTEMS
 
 If you want to use an MQTT broker, I recommend using Mosquitto. It's quite easy to install and configure.

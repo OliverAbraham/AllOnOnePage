@@ -1,0 +1,10 @@
+AllOnOnePage is a WPF Dashboard application that can display values from various sources:
+MQTT brokers, PRTG server, Openweathermap.com, Email postboxes, Google calenders, Excel files, and FinTX bank accounts.
+
+Licensed under Apache licence.
+https://www.apache.org/licenses/LICENSE-2.0
+
+This mean you can use it freely without any charge.
+
+This program is hosted on https://github.com/OliverAbraham/Abraham.AllOnOnePage
+

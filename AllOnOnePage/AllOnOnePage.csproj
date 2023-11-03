@@ -130,7 +130,7 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="..\CreateVersionForDeploy\bin\debug\net6.0\CreateVersionForDeploy.exe" />
+	  <Exec Command="..\CreateVersionForDeploy\bin\debug\net6.0\CreateVersionForDeploy.exe     &quot;$(ProjectDir)bin\debug\net6.0-windows&quot;   &quot;$(SolutionDir)\Setup&quot;" />
   </Target>
 
 </Project>

@@ -44,13 +44,13 @@ namespace AllOnOnePage.Plugins
             W                  = 400;
             H                  = 200;
             FontSize           = 12;
-			IsFrameVisible     = true;
+			IsFrameVisible     = false;
 			FrameColor         = "#FF333333"; // dark gray
-			FrameThickness     = 3;
+			FrameThickness     = 0;
 			FrameRadius        = 10;
-			BackgroundColor    = "#FF778899"; // LightSlateGray
+			BackgroundColor    = "#00FFFFFF"; // Transparent
             ModulePrivateData  = "";
-            TextColor          = "#FF000000"; // Black
+            TextColor          = "#FFFFFFFF"; // White
             ApplicationData    = new ApplicationData();
             TextPadding        = 20;
 		}

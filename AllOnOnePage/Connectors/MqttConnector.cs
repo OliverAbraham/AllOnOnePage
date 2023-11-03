@@ -48,6 +48,11 @@ namespace AllOnOnePage.Connectors
 
         public ServerDataObjectChange_Handler OnDataobjectChange { get; set; }
 
+        public bool IsConfigured(Configuration config)
+        {
+            return !string.IsNullOrEmpty(config.MqttBrokerUrl);
+        }
+
         public async Task Connect(Configuration config)
         {
             _serverUrl      = config.MqttBrokerUrl;

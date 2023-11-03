@@ -51,6 +51,11 @@ namespace AllOnOnePage.Connectors
 
         public ServerDataObjectChange_Handler OnDataobjectChange { get; set; }
 
+        public bool IsConfigured(Configuration config)
+        {
+            return !string.IsNullOrEmpty(config.HomeAutomationServerUrl);
+        }
+
         public async Task Connect(Configuration config)
         {
             _serverUrl      = config.HomeAutomationServerUrl;
@@ -133,7 +138,7 @@ namespace AllOnOnePage.Connectors
 
         private void Stop_SignalR_client()
         {
-            _signalrClient.Stop();
+            _signalrClient?.Stop();
         }
         #endregion
     }

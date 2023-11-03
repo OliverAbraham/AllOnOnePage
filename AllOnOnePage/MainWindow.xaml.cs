@@ -538,10 +538,18 @@ namespace AllOnOnePage
 			{
                 var wnd = new WelcomeScreen(_texts);
                 wnd.Owner = this;
+                CenterWindow(wnd);
                 wnd.ShowDialog();
                 _config.WelcomeScreenDisabled = true;
 			}
 		}
+
+        private void CenterWindow(Window wnd)
+        {
+            wnd.Left = this.Left + (this.Width - wnd.Width) / 2;
+            wnd.Top = this.Top + (this.Height - wnd.Height) / 2;
+        }
+
 		#endregion
         #region ------------- Program info ------------------------------------
 		private void Button_Info_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -650,7 +658,7 @@ namespace AllOnOnePage
         {
             foreach(var connector in _connectors)
             {
-                if (!connector.IsConnected)
+                if (connector.IsConfigured(_config) && !connector.IsConnected)
                 {
                     System.Diagnostics.Debug.WriteLine($"Connecting to {connector.Name}...");
                     SetServerInfotext($"Connecting to {connector.Name}...");

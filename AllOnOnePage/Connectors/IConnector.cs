@@ -14,6 +14,7 @@ namespace AllOnOnePage.Connectors
         public string ConnectionStatus { get; }
         public IServerGetter Getter { get; }
         public ServerDataObjectChange_Handler OnDataobjectChange { get; set; }
+        public bool IsConfigured(Configuration config);
         public Task Connect(Configuration config);
         public Task Reconnect();
         public void Stop();

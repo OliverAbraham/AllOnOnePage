@@ -28,7 +28,7 @@ set ARCHIVEFILENAME=bin\%ARCHIVEWEBSITE%
 set VERSION_INFORMATION_FILE="%BINDIR%\version.html"
 set VERSION_INFORMATION_FILE_SAV="%BINDIR%\version.html.sav"
 
-set INSTALLERFILENAME=AllOnOnePage_Setup_english_%VERSION2%.exe
+set INSTALLERFILENAME="%BINDIR%\AllOnOnePage_Setup_english_%VERSION2%.exe"
 
 
 

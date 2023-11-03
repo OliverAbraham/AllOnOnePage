@@ -28,8 +28,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModExcel", "ModExcel\ModExc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6 Installer", "6 Installer", "{45F9C9D6-B539-4A5C-A5B4-890275BD3A1F}"
 	ProjectSection(SolutionItems) = preProject
-		Setup\AllOnOnePageSetup.ifp = Setup\AllOnOnePageSetup.ifp
-		Setup\AllOnOnePage_Setup_deutsch_version_1.exe = Setup\AllOnOnePage_Setup_deutsch_version_1.exe
+		Setup\AllOnOnePage.nsi = Setup\AllOnOnePage.nsi
+		Setup\AllOnOnePageLicenseText.txt = Setup\AllOnOnePageLicenseText.txt
+		Setup\CreateInstaller.cmd = Setup\CreateInstaller.cmd
+		Setup\setbindir.cmd = Setup\setbindir.cmd
+		Setup\setinstallerversion.cmd = Setup\setinstallerversion.cmd
+		Setup\Upload_to_website_via_FTP.cmd = Setup\Upload_to_website_via_FTP.cmd
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModWeather", "ModWeather\ModWeather.csproj", "{FC012344-66A6-4879-ADC8-365AD7D1E2FE}"

@@ -7,6 +7,7 @@ using Abraham.Prtg;
 using System.Threading.Tasks;
 using Abraham.Scheduler;
 using PluginBase;
+using System.Windows.Threading;
 
 namespace AllOnOnePage.Plugins
 {
@@ -89,13 +90,17 @@ namespace AllOnOnePage.Plugins
 
         public override void UpdateContent(ServerDataObjectChange? dataObject)
 		{
-			UpdateDisplay();
+			if (dataObject is null)
+				UpdateDisplay();
 		}
 
 		public override Dictionary<string,string> GetHelp()
 		{
             var texts = new Dictionary<string,string>();
-            texts.Add("de-DE", @"Dieses Modul fragt einen PRTG server ab und liest alle Sensoren ein.");
+            texts.Add("de-DE", 
+@"This module connects to a PRTG server and reads the complete sensor tree periodically.
+You can pick out any values to display by the sensor ID.
+The connection can be configured by username/password or by API token.");
             return texts;
         }
 
@@ -108,9 +113,10 @@ namespace AllOnOnePage.Plugins
 		{
 			try
 			{
-				ReadSensorTreeNow().GetAwaiter().GetResult();
+				_Dispatcher.BeginInvoke( async () => await ReadSensorTreeNow() );
+				
 				Value = FormatDisplay();
-				return (true, $"Daten vom PRTG Server gelesen!");
+				return (true, $"Data read from PRTG Server!");
 			}
 			catch (Exception ex) 
 			{
@@ -314,13 +320,9 @@ namespace AllOnOnePage.Plugins
 				if (_myConfiguration.TimeoutInSeconds > 0)
 						_client.UseConnectionTimeout(_myConfiguration.TimeoutInSeconds);
 
-				// read the complete sensor tree (once).
-				// you can control with your own code how often you query for updates.
-				// you could use my "Abraham.Scheduler" nuget package to read on a regular basis.
-
 				await _client.GetSensorTree();
 				if (_client?.SensorTree is null)
-					throw new Exception("Kein Zugriff auf den PRTG server!");
+					throw new Exception("Reading the sensor tree failed!");
 
 				_messages = "";
 				_readError = false;

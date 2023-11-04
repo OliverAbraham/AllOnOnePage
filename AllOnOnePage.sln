@@ -57,6 +57,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8 Solution items", "8 Solut
 		Ciridata.ico = Ciridata.ico
 		Ciridata.png = Ciridata.png
 		LICENSE.txt = LICENSE.txt
+		Readme backup monitoring.md = Readme backup monitoring.md
 		README.md = README.md
 	EndProjectSection
 EndProject

@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.2" />
-    <PackageReference Include="Abraham.PrtgClient" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

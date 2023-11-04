@@ -68,12 +68,31 @@ To the right Weather information from openweathermap.com.
 (you can sign up and get an api key for free)
 
 ![](Screenshots/Screenshot1.jpg)
+
+This shows the demo screen that is created on the first start of the application:
 ![](Screenshots/Screenshot2.jpg)
+
+
+Several configuration dialogs:
 ![](Screenshots/Screenshot3.jpg)
 ![](Screenshots/Screenshot4.jpg)
 ![](Screenshots/Screenshot5.jpg)
 ![](Screenshots/Screenshot6.jpg)
 ![](Screenshots/Screenshot7.jpg)
+
+
+
+# CURRENT MODULES
+- ModText: can display simple static text or MQTT topics
+- ModDate
+- ModTime
+- ModExcel: Can display a given cell from an excel file
+- ModWeather: Display the current temperature for a given location 
+- ModWeatherForecase: Display forecast for the next day 
+- ModPrtg: Display PRTG topics
+
+
+# PLANNED AND UNFINISHED MODULES
 
 
 # MAKE A DONATION !

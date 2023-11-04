@@ -32,7 +32,7 @@ namespace AllOnOnePage.Plugins
         #region ------------- Fields --------------------------------------------------------------
         protected ModuleConfig                        _config;
         protected Grid                                _Parent;
-        protected System.Windows.Threading.Dispatcher _Dispatcher;
+        protected System.Windows.Threading.Dispatcher _Dispatcher { get; set; }
         protected TextBlock                           _ValueControl;
         protected TextBlock                           _NameControl;
         protected Timer                               _FadeOutTimer;

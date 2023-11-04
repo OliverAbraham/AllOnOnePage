@@ -91,7 +91,7 @@ namespace AllOnOnePage
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			CleanupPlugins();
+			Stop_all_modules();
             _endTheReconnectorLoop = true;
             StopAllConnectors();
 			Stop_date_time_update_timer();
@@ -170,7 +170,6 @@ namespace AllOnOnePage
             try
             {
                 //Read_saved_state_from_disk();
-
                 Init_all_modules();
                 Start_periodic_UI_update_timer();
                 Start_date_time_update_timer();
@@ -183,7 +182,6 @@ namespace AllOnOnePage
             {
                 _vm.DisplayHardError("Startfehler!");
                 _logger.Log(ex.ToString());
-                //CreateAndStartTimer(ShutdownTimer_Elapsed, 10, repeatedly:false);
             }
         }
 
@@ -254,7 +252,7 @@ namespace AllOnOnePage
 			}
 		}
 
-		private void CleanupPlugins()
+		private void Stop_Plugins()
 		{
             if (_pluginLoader != null)
 			    _pluginLoader.StopPlugins();
@@ -314,8 +312,8 @@ namespace AllOnOnePage
 
         private void Update_all_modules(ServerDataObjectChange? Do = null)
         {
-            if (Do is not null)
-                System.Diagnostics.Debug.WriteLine($"Update_all_modules: {Do.ConnectorName} change event: {Do.Name} = {Do.Value}");
+            //if (Do is not null)
+            //    System.Diagnostics.Debug.WriteLine($"Update_all_modules: {Do.ConnectorName} change event: {Do.Name} = {Do.Value}");
 
             if (_nowUpdating)
                 return;
@@ -327,7 +325,6 @@ namespace AllOnOnePage
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
-                _logger.Log($"Update_all_modules Exception: {ex.ToString()}");
             }
             finally
             {
@@ -340,6 +337,11 @@ namespace AllOnOnePage
         private void Init_all_modules()
         {
             _vm.Init_all_modules(_pluginLoader, _pluginLoader.Processors, this.MainGrid, this.canvas);
+        }
+
+        private void Stop_all_modules()
+        {
+            _vm.Stop_all_modules(_pluginLoader, _pluginLoader.Processors, this.MainGrid, this.canvas);
         }
         #endregion
 		#region ------------- Power management --------------------------------
@@ -666,7 +668,7 @@ namespace AllOnOnePage
             SetServerInfotext($"Connected");
             FadeOutServerInfo();
             WaitAndThenCallMethod(wait_time_seconds: 1, action: Startup2);
-            WaitAndThenCallMethod(wait_time_seconds: 10, action: ReconnectLoop);
+            //WaitAndThenCallMethod(wait_time_seconds: 10, action: ReconnectLoop);
         }
 
         private void ReconnectLoop()

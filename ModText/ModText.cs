@@ -33,6 +33,33 @@ namespace AllOnOnePage.Plugins
 
 
 
+        #region ------------- Types and constants -------------------------------------------------
+
+        private class Params
+        {
+		    public List<Param> Values { get; set; }
+
+            public Params()
+            {
+			    Values = new List<Param>();
+            }
+        }
+
+        private class Param
+        {
+            public string Value { get; set; }
+		    public string Text  { get; set; }
+
+            public Param(string value, string text)
+            {
+			    Value = value;
+                Text  = text;
+            }
+        }
+		#endregion
+
+
+
 		#region ------------- Fields --------------------------------------------------------------
 		private MyConfiguration _myConfiguration;
         private Params _serverMessages;
@@ -300,27 +327,5 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			}
         }
         #endregion
-    }
-
-    internal class Params
-    {
-		public List<Param> Values { get; set; }
-
-        public Params()
-        {
-			Values = new List<Param>();
-        }
-    }
-
-    internal class Param
-    {
-        public string Value { get; set; }
-		public string Text  { get; set; }
-
-        public Param(string value, string text)
-        {
-			Value = value;
-            Text  = text;
-        }
     }
 }

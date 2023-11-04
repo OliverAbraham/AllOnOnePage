@@ -179,6 +179,12 @@ namespace AllOnOnePage
             CreateDragRectInvisible();
         }
 
+        public void Stop_all_modules(PluginLoader pluginLoader, List<Processor> processors, Grid mainGrid, Canvas canvas)
+        {
+			foreach (var module in _runtimeModules)
+    			module.Plugin.Stop();
+        }
+
 		internal void Init_module(RuntimeModule moduleDef)
 		{
             Init_one_module(moduleDef);

@@ -39,27 +39,32 @@ namespace AllOnOnePage.Plugins
 		private bool            _readError;
 		private PrtgClient      _client;
 		private Scheduler		_scheduler;
-		#endregion
+        #endregion
 
 
 
-		#region ------------- Init ----------------------------------------------------------------
-		public override void Init(ModuleConfig config, Grid parent, System.Windows.Threading.Dispatcher dispatcher)
+        #region ------------- Init ----------------------------------------------------------------
+        public override void Init(ModuleConfig config, Grid parent, System.Windows.Threading.Dispatcher dispatcher)
 		{
 			base.Init(config, parent, dispatcher);
-
+			
 			base.LoadAssembly("RestSharp.dll");
 			base.LoadAssembly("Abraham.PrtgClient.dll");
 			base.LoadAssembly("Abraham.Scheduler.dll");
 
 			InitConfiguration();
 		}
-		#endregion
+        public override void Stop()
+        {
+			_scheduler?.Stop();
+            base.Stop();
+        }
+        #endregion
 
 
 
-		#region ------------- Methods -------------------------------------------------------------
-		public override ModuleSpecificConfig GetModuleSpecificConfig()
+        #region ------------- Methods -------------------------------------------------------------
+        public override ModuleSpecificConfig GetModuleSpecificConfig()
 		{
 			return _myConfiguration;
 		}
@@ -173,7 +178,7 @@ The connection can be configured by username/password or by API token.");
 
 			
 			_scheduler = new Scheduler()
-				.UseAsyncAction(async () => await ReadSensorTreeNow())
+				.UseAsyncAction(async () => { await ReadSensorTreeNow(); } )
 				.UseFirstStartRightNow()
 				.UseIntervalSeconds(_myConfiguration.UpdateIntervalInSeconds)
 				.Start();

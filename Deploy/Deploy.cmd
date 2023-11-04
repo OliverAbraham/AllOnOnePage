@@ -18,7 +18,7 @@ echo .
 echo Erst die Dateien kopieren...
 xcopy %SOURCE3%\*.cmd					%DESTINATION%     /s /Y /D
 xcopy %SOURCE3%\*.ttc					%DESTINATION%     /s /Y /D
-xcopy %SOURCE4%\*             			%DESTINATION%\bin /s /Y /D
+xcopy %SOURCE4%\*             			%DESTINATION%\bin /s /Y
 xcopy %SOURCE1%\appsettings.hjson    	%DESTINATION%\bin    /Y
 
 echo .

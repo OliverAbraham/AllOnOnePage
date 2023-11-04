@@ -122,7 +122,16 @@ namespace AllOnOnePage.DialogWindows
                 return;
 			}
 
-            await _plugin?.Save();
+            try
+            {
+                await _plugin?.Save();
+            }
+            catch (Exception ex)
+			{
+                ShowMessageBox("Problem", ex.ToString());
+                return;
+			}
+
             DialogResult = true;
             Close();
         }

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PluginBase\PluginBase.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="md                   &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;&#xD;&#xA;md                   &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;&#xD;&#xA;" />
+  </Target>
+
+</Project>

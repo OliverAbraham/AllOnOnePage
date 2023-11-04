@@ -4,13 +4,13 @@ using System.ComponentModel;
 using System.Windows.Media;
 using AllOnOnePage.Plugins;
 using Abraham.WPFWindowLayoutManager;
+using System.Windows.Threading;
 
 namespace AllOnOnePage.DialogWindows
 {
     public partial class EditModule : Window, INotifyPropertyChanged
     {
         #region ------------- Properties ----------------------------------------------------------
-        public WindowLayoutManager LayoutManager { get; internal set; }
 		private ModuleConfig C => _plugin.GetModuleConfig();
         private ModuleConfig _config => _plugin.GetModuleConfig();
 		public bool DeleteModule { get; private set; }
@@ -107,6 +107,8 @@ namespace AllOnOnePage.DialogWindows
         #region ------------- Fields --------------------------------------------------------------
         private IPlugin _plugin;
 		private HelpTexts _texts;
+        private WindowLayoutManager _layoutManager;
+        private Dispatcher _dispatcher;
         private ModuleConfig _configBackup;
         [NonSerialized]
         private PropertyChangedEventHandler _propertyChanged;
@@ -115,10 +117,12 @@ namespace AllOnOnePage.DialogWindows
 
 
         #region ------------- Init ----------------------------------------------------------------
-        public EditModule(IPlugin plugin, Window parentWindow, HelpTexts texts)
+        public EditModule(IPlugin plugin, Window parentWindow, HelpTexts texts, WindowLayoutManager layoutManager, Dispatcher dispatcher)
 		{
-            _plugin       = plugin       ?? throw new ArgumentNullException(nameof(plugin      ));
-            _texts        = texts        ?? throw new ArgumentNullException(nameof(texts       ));
+            _plugin        = plugin        ?? throw new ArgumentNullException(nameof(plugin       ));
+            _texts         = texts         ?? throw new ArgumentNullException(nameof(texts        ));
+            _layoutManager = layoutManager ?? throw new ArgumentNullException(nameof(layoutManager));
+            _dispatcher    = dispatcher    ?? throw new ArgumentNullException(nameof(dispatcher   ));
 
             _configBackup = _plugin.GetModuleConfig().Clone();
 			InitializeComponent();
@@ -135,7 +139,7 @@ namespace AllOnOnePage.DialogWindows
         #region ------------- Implementation ------------------------------------------------------
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            LayoutManager.RestoreSizeAndPosition(this, nameof(EditBackground));
+            _layoutManager.RestoreSizeAndPosition(this, nameof(EditBackground));
             NotifyPropertyChanged(nameof(ModuleName     ));
             NotifyPropertyChanged(nameof(Type           ));
             NotifyPropertyChanged(nameof(FontSize       ));
@@ -148,7 +152,7 @@ namespace AllOnOnePage.DialogWindows
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            LayoutManager.SaveSizeAndPosition(this, nameof(EditBackground));
+            _layoutManager.SaveSizeAndPosition(this, nameof(EditBackground));
         }
 
         private void Button_Save_Click(object sender, RoutedEventArgs e)
@@ -160,9 +164,8 @@ namespace AllOnOnePage.DialogWindows
 
 		private void Button_ModuleSettings_Click(object sender, RoutedEventArgs e)
 		{
-			var wnd = new EditModuleSettings(_plugin, _texts);
-            wnd.LayoutManager = LayoutManager;
-			wnd.Owner = this;
+			var wnd = new EditModuleSettings(_plugin, _texts, _dispatcher, _layoutManager);
+            wnd.Owner = this;
 			var result = wnd.ShowDialog();
 			if (result == true)
 			{

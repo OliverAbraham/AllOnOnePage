@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -103,7 +104,7 @@ namespace AllOnOnePage.Plugins
 			_myConfiguration.ServerDataObjectName     = "";
 		}
 
-		public override void Save()
+		public override async Task Save()
 		{
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
 		}
@@ -126,7 +127,7 @@ namespace AllOnOnePage.Plugins
 			UpdateUI();
 		}
 
-		public override (bool,string) Validate()
+		public override async Task<(bool,string)> Validate()
 		{
 			try
 			{
@@ -163,7 +164,7 @@ namespace AllOnOnePage.Plugins
             return PointIsInsideRectangle(mousePosition, GetPositionAndCorrectSize());
         }
 
-		public override (bool success, string messages) Test()
+		public override async Task<(bool success, string messages)> Test()
 		{
             ReadForecast();
             return (false, "");

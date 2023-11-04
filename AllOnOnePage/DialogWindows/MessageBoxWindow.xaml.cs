@@ -40,11 +40,27 @@ namespace AllOnOnePage.DialogWindows
 
 
 		#region ------------- Methods -------------------------------------------------------------
-		public static void Show(Window parent, string message)
+		public void ShowDialogEx(Window parent, string title, string message, bool centered = true, bool showCheckbox = false)
 		{
-			var wnd = new MessageBoxWindow(parent);
-			wnd.ContentBox.Text = message;
-			wnd.ShowDialog();
+			Title = title;
+			ContentBox.Text = message;
+
+            if (parent != null && centered)
+            {
+                Left = parent.Left + (parent.Width  - Width)  / 2;
+                Top  = parent.Top  + (parent.Height - Height) / 2;
+            }
+
+			checkboxDontShowAgain.Visibility = (showCheckbox) ? Visibility.Visible : Visibility.Hidden;
+
+			int lineCount = (message is not null) ? message.Split('\n').Length : 1;
+
+			if (lineCount > 9)
+			{
+				var additionalHeight = (lineCount - 9) * 32;
+                Height += additionalHeight;
+            }
+			ShowDialog();
 		}
 
 		#endregion

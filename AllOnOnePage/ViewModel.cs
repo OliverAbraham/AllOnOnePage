@@ -973,8 +973,7 @@ namespace AllOnOnePage
         #region ------------- Edit module dialog ------------------------------
 		private void OpenEditDialog(MouseButtonEventArgs e, RuntimeModule module)
 		{
-			var wnd = new EditModule(module.Plugin, _parentWindow, _texts);
-            wnd.LayoutManager = LayoutManager;
+			var wnd = new EditModule(module.Plugin, _parentWindow, _texts, LayoutManager, Dispatcher);
 			wnd.Owner = _parentWindow;
 			wnd.Left = e.GetPosition(_parentWindow).X + _parentWindow.Left;
 			wnd.Top = e.GetPosition(_parentWindow).Y;

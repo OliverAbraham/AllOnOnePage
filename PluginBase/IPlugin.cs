@@ -1,5 +1,6 @@
 ﻿using PluginBase;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -28,10 +29,10 @@ namespace AllOnOnePage.Plugins
 		Visibility GetVisibility();
 		ModuleSpecificConfig GetModuleSpecificConfig();
 		void CleanupModuleSpecificConfig();
-		void Save();
+		Task Save();
         void Clone(ModuleConfig existingModuleConfig);
 		Dictionary<string,string> GetHelp();
-		(bool,string) Validate();
-		(bool success, string messages) Test();
+		Task<(bool,string)> Validate();
+		Task<(bool success, string messages)> Test();
     }
 }

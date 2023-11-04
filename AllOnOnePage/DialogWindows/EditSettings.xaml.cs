@@ -1,4 +1,5 @@
 ﻿using Abraham.WPFWindowLayoutManager;
+using System;
 using System.Windows;
 
 namespace AllOnOnePage.DialogWindows
@@ -35,6 +36,16 @@ namespace AllOnOnePage.DialogWindows
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             LayoutManager.SaveSizeAndPosition(this, nameof(EditSettings));
+        }
+		#endregion
+
+
+
+		#region ------------- Methods -------------------------------------------------------------
+        public void CenterWindow(Window parent)
+        {
+            Left = parent.Left + (parent.Width  - parent.Width) / 2;
+            Top  = parent.Top  + (parent.Height - parent.Height) / 2;
         }
 		#endregion
 

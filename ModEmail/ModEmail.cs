@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Controls;
 using PluginBase;
+using System.Threading.Tasks;
 
 namespace AllOnOnePage.Plugins
 {
@@ -68,7 +69,7 @@ namespace AllOnOnePage.Plugins
 			_myConfiguration.UpdateInterval = 15;
 		}
 
-		public override void Save()
+		public override async Task Save()
 		{
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
 		}
@@ -93,12 +94,12 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
             return texts;
         }
 
-		public override (bool,string) Validate()
+		public override async Task<(bool,string)> Validate()
 		{
             return (true, "");
         }
 
-		public override (bool,string) Test()
+		public override async Task<(bool,string)> Test()
 		{
 			try
 			{

@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Collections.Generic;
 using System.Reflection;
 using PluginBase;
+using System.Threading.Tasks;
 
 namespace AllOnOnePage.Plugins
 {
@@ -80,17 +81,17 @@ namespace AllOnOnePage.Plugins
 		{
 		}
 
-		public virtual (bool,string) Validate()
+		public virtual async Task<(bool,string)> Validate()
 		{
             return (true, "");
 		}
 
-		public virtual (bool success, string messages) Test()
+		public virtual async Task<(bool success, string messages)> Test()
 		{
             return (false, "Dieses Modul bietet keinen Test");
 		}
 
-		public virtual void Save()
+		public virtual async Task Save()
 		{
 		}
 

@@ -538,18 +538,11 @@ namespace AllOnOnePage
 			{
                 var wnd = new WelcomeScreen(_texts);
                 wnd.Owner = this;
-                CenterWindow(wnd);
+                wnd.CenterWindow(this);
                 wnd.ShowDialog();
                 _config.WelcomeScreenDisabled = true;
 			}
 		}
-
-        private void CenterWindow(Window wnd)
-        {
-            wnd.Left = this.Left + (this.Width - wnd.Width) / 2;
-            wnd.Top = this.Top + (this.Height - wnd.Height) / 2;
-        }
-
 		#endregion
         #region ------------- Program info ------------------------------------
 		private void Button_Info_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -565,6 +558,7 @@ namespace AllOnOnePage
             var wnd = new EditSettings(_config);
             wnd.Owner = this;
             wnd.LayoutManager = _windowLayoutManager;
+            wnd.CenterWindow(this);
             wnd.ShowDialog();
             if (wnd.DialogResult == true)
 			{
@@ -669,6 +663,7 @@ namespace AllOnOnePage
             }
 
             _endTheReconnectorLoop = false;
+            SetServerInfotext($"Connected");
             FadeOutServerInfo();
             WaitAndThenCallMethod(wait_time_seconds: 1, action: Startup2);
             WaitAndThenCallMethod(wait_time_seconds: 10, action: ReconnectLoop);

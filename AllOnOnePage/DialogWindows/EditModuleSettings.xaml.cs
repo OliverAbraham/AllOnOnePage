@@ -4,22 +4,20 @@ using System.ComponentModel;
 using AllOnOnePage.Plugins;
 using System.Globalization;
 using Abraham.WPFWindowLayoutManager;
+using System.Windows.Threading;
+using System.Threading.Tasks;
 
 namespace AllOnOnePage.DialogWindows
 {
 	public partial class EditModuleSettings : Window, INotifyPropertyChanged
     {
-        #region ------------- Properties ----------------------------------------------------------
-        public WindowLayoutManager LayoutManager { get; internal set; }
-        #endregion
-
-
-
         #region ------------- Fields --------------------------------------------------------------
         private IPlugin _plugin;
 		private HelpTexts _texts;
+        private Dispatcher _dispatcher;
+        private WindowLayoutManager _layoutManager;
 
-		private ModuleConfig _config => _plugin.GetModuleConfig();
+        private ModuleConfig _config => _plugin.GetModuleConfig();
 		private ModuleConfig _configBackup;
         [NonSerialized]
         private PropertyChangedEventHandler _propertyChanged;
@@ -51,10 +49,12 @@ namespace AllOnOnePage.DialogWindows
 
 
         #region ------------- Init ----------------------------------------------------------------
-        public EditModuleSettings(IPlugin plugin, HelpTexts texts)
+        public EditModuleSettings(IPlugin plugin, HelpTexts texts, Dispatcher dispatcher, WindowLayoutManager layoutManager)
 		{
             _plugin = plugin ?? throw new ArgumentNullException(nameof(plugin));
             _texts  = texts  ?? throw new ArgumentNullException(nameof(texts ));
+            _dispatcher = dispatcher;
+            _layoutManager = layoutManager;
 
             _configBackup = _plugin.GetModuleConfig().Clone();
 			InitializeComponent();
@@ -64,12 +64,12 @@ namespace AllOnOnePage.DialogWindows
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            LayoutManager.RestoreSizeAndPosition(this, nameof(EditModuleSettings));
+            _layoutManager.RestoreSizeAndPosition(this, nameof(EditModuleSettings));
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            LayoutManager.SaveSizeAndPosition(this, nameof(EditModuleSettings));
+            _layoutManager.SaveSizeAndPosition(this, nameof(EditModuleSettings));
         }
         #endregion
 
@@ -83,44 +83,46 @@ namespace AllOnOnePage.DialogWindows
         }
 
 		private void Button_Test_Click(object sender, RoutedEventArgs e)
-		{
+        {
+            // we need to call the modules in an async context, to enable them to do async tasks
+            // some Nuget packages like Abraham.PrtgClient require this
+            _dispatcher.BeginInvoke( async () => await TestModuleAsync() );
+        }
+
+        private async Task TestModuleAsync()
+        {
             this.Cursor = System.Windows.Input.Cursors.Wait;
-            (bool success, string messages) = _plugin.Validate();
+            (bool success, string messages) = await _plugin.Validate();
             this.Cursor = System.Windows.Input.Cursors.Arrow;
 
             if (!success)
-			{
-                var wnd = new MessageBoxWindow(this);
-                wnd.Title = "Problem";
-                wnd.ContentBox.Text = messages;
-			    wnd.ShowDialog();
-			}
-			else
-			{
-                (success, messages) = _plugin.Test();
+            {
+                ShowMessageBox("Problem", messages);
+            }
+            else
+            {
+                (success, messages) = await _plugin.Test();
+
                 if (!string.IsNullOrWhiteSpace(messages))
-                {
-                    var wnd = new MessageBoxWindow(this);
-                    wnd.Title = "Test";
-                    wnd.ContentBox.Text = messages;
-			        wnd.ShowDialog();
-                }
-			}
-		}
+                    ShowMessageBox("Test", messages);
+            }
+        }
 
         private void Button_Save_Click(object sender, RoutedEventArgs e)
         {
-            (bool success, string messages) = _plugin.Validate();
+            _dispatcher.BeginInvoke( async () => await SaveModuleAsync() );
+        }
+
+        private async Task SaveModuleAsync()
+        {
+            (bool success, string messages) = await _plugin.Validate();
             if (!success)
 			{
-                var wnd = new MessageBoxWindow(this);
-                wnd.Title = "Problem";
-                wnd.ContentBox.Text = messages;
-			    wnd.ShowDialog();
+                ShowMessageBox("Problem", messages);
                 return;
 			}
 
-            _plugin?.Save();
+            await _plugin?.Save();
             DialogResult = true;
             Close();
         }
@@ -140,20 +142,26 @@ namespace AllOnOnePage.DialogWindows
 
         private void Button_Info_Click(object sender, RoutedEventArgs e)
 		{
-            var wnd = new MessageBoxWindow(this);
-            wnd.Title = _texts[HelpTexts.ID.MODULE_HELP];
-            
+            var title = _texts[HelpTexts.ID.MODULE_HELP];
+            string messages;
+
             var moduleHelp = _plugin.GetHelp();
             var cultureInfo = CultureInfo.CurrentCulture;
             if (moduleHelp.ContainsKey(cultureInfo.Name))
-                wnd.ContentBox.Text = moduleHelp[cultureInfo.Name];
+                messages = moduleHelp[cultureInfo.Name];
             else if (moduleHelp.ContainsKey("en-EN"))
-                wnd.ContentBox.Text = moduleHelp["en-EN"];
+                messages = moduleHelp["en-EN"];
             else
-                wnd.ContentBox.Text = "Sorry, the plugin has no help text.";
+                messages = "Sorry, the plugin has no help text.";
 
-			wnd.ShowDialog();
+            ShowMessageBox(title, messages);
 		}
+
+        private void ShowMessageBox(string title, string messages)
+        {
+            var wnd = new MessageBoxWindow(this);
+            wnd.ShowDialogEx(this, title, messages, centered:true, showCheckbox:false);
+        }
         #endregion
     }
 }

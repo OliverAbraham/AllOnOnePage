@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace AllOnOnePage.Plugins
@@ -72,7 +73,7 @@ namespace AllOnOnePage.Plugins
             _myConfiguration.Format   = @"{0} €";
 		}
 
-		public override void Save()
+		public override async Task Save()
 		{
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
 		}
@@ -121,7 +122,7 @@ To display the weight with the addition of 'kg', enter the following in Format:
             return texts;
         }
 
-		public override (bool,string) Validate()
+		public override async Task<(bool,string)> Validate()
 		{
 			if (!File.Exists(_myConfiguration.Filename))
 			{
@@ -130,7 +131,7 @@ To display the weight with the addition of 'kg', enter the following in Format:
             return (true, "");
         }
 
-		public override (bool,string) Test()
+		public override async Task<(bool,string)> Test()
 		{
 			try
 			{

@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AllOnOnePage.DialogWindows"
         mc:Ignorable="d"
-        Title="All on one page" Height="381" Width="500"
-        ResizeMode="NoResize"
+        Title="All on one page" Height="380" Width="500" MinHeight="380" MinWidth="500"
+        ResizeMode="CanResize"
         Style="{StaticResource StandardDialogBackground}" >
     <Grid>
         <TextBlock Name="ContentBox"  Margin="30,31,36,138" TextWrapping="Wrap" />
@@ -14,7 +14,6 @@
 
         <CheckBox Name="checkboxDontShowAgain" 
                   Content="Stop showing this message" 
-                  
                   HorizontalAlignment="center" 
                   Margin="0,200,0,100" VerticalAlignment="Bottom" Width="268"/>
 

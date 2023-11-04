@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -45,7 +46,7 @@ namespace AllOnOnePage.Plugins
             _myConfiguration.Format = @"HH\:mm";
 		}
 
-		public override void Save()
+		public override async Task Save()
 		{
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
 		}

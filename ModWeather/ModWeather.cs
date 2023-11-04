@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace AllOnOnePage.Plugins
@@ -67,7 +68,7 @@ namespace AllOnOnePage.Plugins
             _myConfiguration.UpdateIntervalInMinutes  = "60";
 		}
 
-		public override void Save()
+		public override async Task Save()
 		{
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
 		}
@@ -82,7 +83,7 @@ namespace AllOnOnePage.Plugins
 			UpdateUI();
 		}
 
-		public override (bool,string) Validate()
+		public override async Task<(bool,string)> Validate()
 		{
 			try
 			{
@@ -109,7 +110,7 @@ namespace AllOnOnePage.Plugins
             _connectorMessages += message + Environment.NewLine;
         }
 
-        public override (bool success, string messages) Test()
+        public override async Task<(bool success, string messages)> Test()
 		{
             return (false, "");
 		}

@@ -68,17 +68,17 @@ namespace AllOnOnePage.Plugins
 		{
 			_myConfiguration						   = new MyConfiguration();
             _myConfiguration.PrtgURL                   = "(address of your PRTG server)";
-            _myConfiguration.UsePasshashAuthentication = true; // "true to use username/password authentication, otherwise false";
+            _myConfiguration.UsePasshashAuthentication = true;                   // "true to use username/password authentication, otherwise false";
             _myConfiguration.Username                  = "(your PRTG username)"; //"the PRTG accounts' name";
             _myConfiguration.Passwort                  = "(your PRTG password)"; //the PRTG accounts' password";
-            _myConfiguration.UseApitokenAuthentication = false; //"true to use an apitoken to authenticate, otherwise false";
+            _myConfiguration.UseApitokenAuthentication = false;                  //"true to use an apitoken to authenticate, otherwise false";
             _myConfiguration.Apitoken                  = "(your token if you use apitoken authentication)";
-            _myConfiguration.BypassSslValidation       = true; //"true to skip SSL certificate validation";
-            _myConfiguration.UpdateIntervalInSeconds   = 60;   // "how often to re-read the complete sensor tree";
-			_myConfiguration.TimeoutInSeconds		   = 30;   // "when to about reading";
+            _myConfiguration.BypassSslValidation       = true;                   //"true to skip SSL certificate validation";
+            _myConfiguration.UpdateIntervalInSeconds   = 60;                     // "how often to re-read the complete sensor tree";
+			_myConfiguration.TimeoutInSeconds		   = 30;                     // "when to about reading";
 		}
 
-		public override void Save()
+		public override async Task Save()
 		{
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
 		}
@@ -104,19 +104,49 @@ The connection can be configured by username/password or by API token.");
             return texts;
         }
 
-		public override (bool,string) Validate()
+		public override async Task<(bool,string)> Validate()
 		{
+			if (string.IsNullOrWhiteSpace(_myConfiguration.PrtgURL) || _myConfiguration.PrtgURL == "(address of your PRTG server)")
+				return (false, "Please enter the URL of your PRTG server!");
+
+			var userPassCouldBeValid = 
+				!string.IsNullOrWhiteSpace(_myConfiguration.Username) && _myConfiguration.Username != "(your PRTG username)" &&
+                !string.IsNullOrWhiteSpace(_myConfiguration.Passwort) && _myConfiguration.Passwort != "(your PRTG password)";
+
+			var apiKeyCouldBeValid = 
+                !string.IsNullOrWhiteSpace(_myConfiguration.Apitoken) && _myConfiguration.Apitoken != "(your token if you use apitoken authentication)";
+
+			if (!userPassCouldBeValid && !apiKeyCouldBeValid)
+				return (false, "Please enter username/password to authenticate, or your API key!");
+
+			if (userPassCouldBeValid && !_myConfiguration.UsePasshashAuthentication)
+				return (false, "When you use username/password, you need to check 'UsePasshashAuthentication'!");
+
+			if (apiKeyCouldBeValid && !_myConfiguration.UseApitokenAuthentication)
+				return (false, "When you use an API key, you need to check 'UseApitokenAuthentication'!");
+
             return (true, "");
         }
 
-		public override (bool,string) Test()
+		public override async Task<(bool,string)> Test()
 		{
 			try
 			{
-				_Dispatcher.BeginInvoke( async () => await ReadSensorTreeNow() );
+				await ReadSensorTreeNow();
 				
 				Value = FormatDisplay();
-				return (true, $"Data read from PRTG Server!");
+				NotifyPropertyChanged(nameof(Value));
+
+				if (_readError)
+                    return (false, $"Data read from PRTG Server failed!\n\nMore info:\n{_messages}");
+				else
+				{
+					var sensors = GetAllSensors();
+					var count       = (sensors is not null) ? (sensors.Count) : 0;
+					var sensorNames = (sensors is not null && sensors.Count > 0) ? (sensors.Select(x => $"ID {x.Ids.First()} = {x.Name}").ToList()) : new List<string>();
+					var info = string.Join('\n', sensorNames);
+					return (true, $"Data read from PRTG Server!\n\nMore info:\n{count} sensors read.\n{info}");
+				}
 			}
 			catch (Exception ex) 
 			{
@@ -153,7 +183,7 @@ The connection can be configured by username/password or by API token.");
 		{
             if (_readError)
 			{
-				Value = "???";
+				Value = "??? read error, please check your settings";
 				NotifyPropertyChanged(nameof(Value));
 				return;
 			}
@@ -179,11 +209,16 @@ The connection can be configured by username/password or by API token.");
 		private string FormatDisplay()
 		{
 			var sensors = GetAllSensors();
+			if (sensors is null || sensors.Count == 0)
+                return "??? no sensors found";
 			var sensor = sensors.FirstOrDefault(x => x.Ids.Contains(_myConfiguration.SensorID));
 			if (sensor is null)
 				sensor = sensors.First();
 			if (sensor is null)
 				return "??? sensor not found";
+
+			if (string.IsNullOrWhiteSpace(_myConfiguration.Property))
+				_myConfiguration.Property = "Name";
 
 			var property = _myConfiguration.Property switch
 			{
@@ -214,10 +249,13 @@ The connection can be configured by username/password or by API token.");
 				"CumulatedsinceRaw"      => sensor.CumulatedsinceRaw    ,
 				"Active"                 => sensor.Active               .ToString(),
 				"Text"                   => sensor.Text                 ,
-				_							   => "Property not found"
+				_						 => "Property not found"
 			};
 			
-			return string.Format(_myConfiguration.Format, property);
+			if (string.IsNullOrWhiteSpace(_myConfiguration.Format))
+                return property;
+            else
+                return string.Format(_myConfiguration.Format, property);
 		}
 
 		private Abraham.Prtg.Models.Sensor GetSensorById(int id)

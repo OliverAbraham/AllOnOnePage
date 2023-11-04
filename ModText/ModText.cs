@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using PluginBase;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace AllOnOnePage.Plugins
 {
@@ -65,18 +66,18 @@ namespace AllOnOnePage.Plugins
             _myConfiguration.Text = "My text";
 		}
 
-		public override void Save()
+		public override async Task Save()
 		{
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
 		}
 
-		public override (bool,string) Validate()
+		public override async Task<(bool,string)> Validate()
 		{
 			UpdateContent(null);
             return (true, "");
 		}
 
-		public override (bool success, string messages) Test()
+		public override async Task<(bool success, string messages)> Test()
 		{
             return (false, "");
 		}

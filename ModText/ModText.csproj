@@ -12,13 +12,8 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="md                               &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;&#xD;&#xA;md                               &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="echo setvariables.cmd:&#xD;&#xA;call $(SolutionDir)setvariables.cmd $(SolutionDir) $(ConfigurationName)&#xD;&#xA;echo FXVER         = %25FXVER%25&#xD;&#xA;echo PLUGINTEMPDIR = %25PLUGINTEMPDIR%25&#xD;&#xA;&#xD;&#xA;echo copy &quot;$(TargetPath)&quot; &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(TargetPath)&quot; &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;" />
   </Target>
-
-  <ItemGroup>
-    <PackageReference Include="Abraham.MQTTClient" Version="1.0.7" />
-    <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.2" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PluginBase\PluginBase.csproj" />

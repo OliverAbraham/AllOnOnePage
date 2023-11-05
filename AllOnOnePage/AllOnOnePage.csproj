@@ -49,17 +49,39 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abraham.HomenetBase" Version="1.0.2" />
-    <PackageReference Include="Abraham.MQTTClient" Version="1.0.7" />
-    <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.2" />
-    <PackageReference Include="Abraham.ProgramSettingsManager" Version="1.0.2" />
-    <PackageReference Include="Abraham.PrtgClient" Version="1.0.2" />
-    <PackageReference Include="Abraham.Scheduler" Version="1.0.3" />
-    <PackageReference Include="Abraham.WPFWindowLayoutManager" Version="1.0.1" />
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.12" />
-    <PackageReference Include="RestSharp" Version="110.2.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+    <PackageReference Include="Abraham.HomenetBase" Version="1.0.2">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Abraham.MQTTClient" Version="1.0.7">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.2">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Abraham.ProgramSettingsManager" Version="1.0.2">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Abraham.PrtgClient" Version="1.0.2">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Abraham.Scheduler" Version="1.0.3">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Abraham.WPFWindowLayoutManager" Version="1.0.1">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.4.0">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.12">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="RestSharp" Version="110.2.0">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -136,7 +158,7 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="..\CreateVersionForDeploy\bin\debug\net6.0\CreateVersionForDeploy.exe     &quot;$(ProjectDir)bin\debug\net6.0-windows&quot;   &quot;$(SolutionDir)\Setup&quot;" />
+	  <Exec Command="echo setvariables.cmd:&#xD;&#xA;call $(SolutionDir)setvariables.cmd $(SolutionDir) $(ConfigurationName)&#xD;&#xA;echo FXVER         = %25FXVER%25&#xD;&#xA;echo PLUGINTEMPDIR = %25PLUGINTEMPDIR%25&#xD;&#xA;echo PLUGINDIR     = %25PLUGINDIR%25&#xD;&#xA;&#xD;&#xA;echo copy &quot;%25PLUGINTEMPDIR%25&quot;       &quot;%25PLUGINDIR%25&quot;&#xD;&#xA;     copy &quot;%25PLUGINTEMPDIR%25&quot;       &quot;%25PLUGINDIR%25&quot;&#xD;&#xA;&#xD;&#xA;echo copy &quot;%25BINDIR%25\Newtonsoft*&quot;  &quot;%25PLUGINDIR%25&quot;&#xD;&#xA;     copy &quot;%25BINDIR%25\Newtonsoft*&quot;  &quot;%25PLUGINDIR%25&quot;&#xD;&#xA;&#xD;&#xA;echo copy &quot;%25BINDIR%25\RestSharp*&quot;   &quot;%25PLUGINDIR%25&quot;&#xD;&#xA;     copy &quot;%25BINDIR%25\RestSharp*&quot;   &quot;%25PLUGINDIR%25&quot;&#xD;&#xA; &#xD;&#xA;..\CreateVersionForDeploy\bin\debug\net6.0\CreateVersionForDeploy.exe     &quot;$(ProjectDir)bin\debug\net6.0-windows&quot;   &quot;$(SolutionDir)\Setup&quot;&#xD;&#xA;&#xD;&#xA;" />
   </Target>
 
 </Project>

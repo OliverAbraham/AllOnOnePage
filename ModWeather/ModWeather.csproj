@@ -12,7 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.2" />
+    <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.2">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -20,7 +22,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="set DESTINATION=&quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION%25 md %25DESTINATION%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                              %25DESTINATION%25&#xD;&#xA;copy &quot;%25USERPROFILE%25\.nuget\packages\abraham.openweathermapclient\1.0.0\lib\net8.0\Abraham.OpenWeathermapClient.dll&quot;  %25DESTINATION%25&#xD;&#xA;&#xD;&#xA;set DESTINATION2=&quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION2%25 md %25DESTINATION2%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                               %25DESTINATION2%25&#xD;&#xA;copy %25DESTINATION%25  %25DESTINATION2%25&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="echo setvariables.cmd:&#xD;&#xA;call $(SolutionDir)setvariables.cmd $(SolutionDir) $(ConfigurationName)&#xD;&#xA;echo FXVER         = %25FXVER%25&#xD;&#xA;echo PLUGINTEMPDIR = %25PLUGINTEMPDIR%25&#xD;&#xA;echo NugetPackage1 = $(PkgAbraham_openweathermapclient)&#xD;&#xA;&#xD;&#xA;echo copy &quot;$(TargetPath)&quot;                                     &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(TargetPath)&quot;                                     &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgAbraham_openweathermapclient)\lib\%25FXVER%25&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgAbraham_openweathermapclient)\lib\%25FXVER%25&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;" />
   </Target>
 
 </Project>

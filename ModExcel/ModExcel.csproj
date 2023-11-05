@@ -16,8 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ExcelDataReader" Version="3.6.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+    <PackageReference Include="ExcelDataReader" Version="3.6.0">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -31,7 +35,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="md                               &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;copy &quot;%25USERPROFILE%25\.nuget\packages\system.text.encoding.codepages\5.0.0\lib\netstandard2.0\System.Text.Encoding.CodePages.dll&quot;               &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;copy &quot;%25USERPROFILE%25\.nuget\packages\exceldatareader\3.6.0\lib\netstandard2.0\ExcelDataReader.dll&quot;               &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;&#xD;&#xA;md                               &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;copy &quot;%25USERPROFILE%25\.nuget\packages\exceldatareader\3.6.0\lib\netstandard2.0\ExcelDataReader.dll&quot;               &quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="echo setvariables.cmd:&#xD;&#xA;call $(SolutionDir)setvariables.cmd $(SolutionDir) $(ConfigurationName)&#xD;&#xA;echo FXVER         = %25FXVER%25&#xD;&#xA;echo PLUGINTEMPDIR = %25PLUGINTEMPDIR%25&#xD;&#xA;echo NugetPackage1 = $(PkgExcelDataReader)&#xD;&#xA;echo NugetPackage2 = $(PkgSystem_Text_Encoding_CodePages)&#xD;&#xA;&#xD;&#xA;set FXVER=netstandard2.0&#xD;&#xA;echo copy &quot;$(TargetPath)&quot;                                       &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(TargetPath)&quot;                                       &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgExcelDataReader)\lib\%25FXVER%25&quot;                   &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgExcelDataReader)\lib\%25FXVER%25&quot;                   &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgSystem_Text_Encoding_CodePages)\lib\%25FXVER%25&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgSystem_Text_Encoding_CodePages)\lib\%25FXVER%25&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;" />
   </Target>
 
 </Project>

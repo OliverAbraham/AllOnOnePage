@@ -1,4 +1,5 @@
-﻿using PluginBase;
+﻿using Abraham.GoogleCalendar;
+using PluginBase;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Diagnostics;
+using System.Windows.Input;
 
 namespace AllOnOnePage.Plugins
 {
@@ -16,17 +18,19 @@ namespace AllOnOnePage.Plugins
 		#region ------------- Settings ------------------------------------------------------------
 		public class MyConfiguration : ModuleSpecificConfig
 		{
-            public string HeadingColor { get; set; }
-            public bool LoadDataFromHomenet { get; set; }
-            public string ServerDataObjectName { get; set; }
-            public string UpdateIntervalFromServer { get; set; }
+            public string HeadingColor            { get; set; }
+            public bool   LoadDataFromHomenet     { get; set; }
+            public string HomenetDataObjectName   { get; set; }
 
+            public bool   LoadDataFromGoogle      { get; set; }
+            public string GoogleCredentials       { get; set; }
             public string UpdateIntervalInMinutes { get; set; }
-            public string Entry1 { get; set; }
-            public string Entry2 { get; set; }
-            public string Entry3 { get; set; }
-            public string Entry4 { get; set; }
-		}
+
+            public string Entry1                  { get; set; }
+            public string Entry2                  { get; set; }
+            public string Entry3                  { get; set; }
+            public string Entry4                  { get; set; }
+        }
 		#endregion
 
 
@@ -41,26 +45,10 @@ namespace AllOnOnePage.Plugins
             public string Date;
         }
 
-        private class ValueEntriesList
+        private class Filter
         {
-		    public List<ValueEntry> Values { get; set; }
-
-            public ValueEntriesList()
-            {
-			    Values = new List<ValueEntry>();
-            }
-        }
-
-        private class ValueEntry
-        {
-            public string Value { get; set; }
-		    public string Text  { get; set; }
-
-            public ValueEntry(string value, string text)
-            {
-			    Value = value;
-                Text  = text;
-            }
+            public string Keyword { get; set; }
+		    public string Heading  { get; set; }
         }
         #endregion
 
@@ -90,14 +78,11 @@ namespace AllOnOnePage.Plugins
         private Grid               _grid;
         private List<Entry>        _entries = new();
 		private Stopwatch          _stopwatch;
-		private const int          ONE_MINUTE = 60 * 1000;
+		private const int          _oneMinute = 60 * 1000;
 		private int                _updateIntervalInMinutes = 60;
         private string             _connectorMessages;
         private SolidColorBrush    _headingColor;
-        private ValueEntriesList   _entry1;
-        private ValueEntriesList   _entry2;
-        private ValueEntriesList   _entry3;
-        private ValueEntriesList   _entry4;
+        private List<Filter>       _filters;
         #endregion
 
 
@@ -121,14 +106,16 @@ namespace AllOnOnePage.Plugins
 
 		public override void CreateSeedData()
 		{
-			_myConfiguration = new MyConfiguration();
-            _myConfiguration.HeadingColor = "#FF90EE90"; //Brushes.LightGreen;
+			_myConfiguration                          = new MyConfiguration();
+            _myConfiguration.HeadingColor             = "#FF90EE90"; //Brushes.LightGreen;
+            _myConfiguration.LoadDataFromHomenet      = false;
+            _myConfiguration.LoadDataFromGoogle       = true;
+			_myConfiguration.GoogleCredentials        = "(Enter your Google credentials)";
             _myConfiguration.UpdateIntervalInMinutes  = "60";
-			_myConfiguration.UpdateIntervalFromServer = "1";
-            _myConfiguration.Entry1 = "ABHOLUNG_BIOTONNE";
-            _myConfiguration.Entry2 = "ABHOLUNG_GELBERSACK";
-            _myConfiguration.Entry3 = "ABHOLUNG_PAPIERTONNE";
-            _myConfiguration.Entry4 = "ABHOLUNG_RESTMUELL";
+            _myConfiguration.Entry1                   = "ABHOLUNG_BIOTONNE";
+            _myConfiguration.Entry2                   = "ABHOLUNG_GELBERSACK";
+            _myConfiguration.Entry3                   = "ABHOLUNG_PAPIERTONNE";
+            _myConfiguration.Entry4                   = "ABHOLUNG_RESTMUELL";
 		}
 
 		public override async Task Save()
@@ -161,24 +148,6 @@ namespace AllOnOnePage.Plugins
 		{
 			try
 			{
-                _headingColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(_myConfiguration.HeadingColor));
-				/*
-                if (!_myConfiguration.FetchDataFromServer)
-                {
-				    _connectorMessages = "";
-				    _connector
-					    .UseLogger(ValidationLogger)
-					    .UseApiKey(_myConfiguration.ApiKey)
-					    .UseLocation(_myConfiguration.Latitude, _myConfiguration.Longitude)
-                        ;//.UseUnits(_myConfiguration.Units);
-                }
-
-				ReadForecast();
-				UpdateUI();
-				var success = (_forecast is not null);
-				if (!string.IsNullOrWhiteSpace(_connectorMessages))
-                    return (success, _connectorMessages);
-                */
 				return (true, "");
             }
             catch (Exception ex)
@@ -199,7 +168,9 @@ namespace AllOnOnePage.Plugins
 
 		public override async Task<(bool success, string messages)> Test()
 		{
+            CopyFilterEntriesToFilterList();
             ReadCalendar();
+            UpdateUI();
             return (false, "");
 		}
 
@@ -236,26 +207,56 @@ To display the weight with the addition of 'kg', enter the following in Format:
 
 
 		#region ------------- Implementation ------------------------------------------------------
-		#region ------------- Create Grid ---------------------------------------------------------
+		#region ------------- General -------------------------------------------------------------
 		private void InitConfiguration()
-		{
-			try
-			{
-				_myConfiguration = System.Text.Json.JsonSerializer.Deserialize<MyConfiguration>(_config.ModulePrivateData);
-			}
+        {
+            try
+            {
+                _myConfiguration = System.Text.Json.JsonSerializer.Deserialize<MyConfiguration>(_config.ModulePrivateData);
+            }
             catch (Exception)
-			{
-			}
+            {
+            }
 
-			if (_myConfiguration == null)
-				CreateSeedData();
+            if (_myConfiguration == null)
+                CreateSeedData();
 
             _headingColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(_myConfiguration.HeadingColor));
-			_entry1 = Deserialize(_myConfiguration.Entry1);
-			_entry2 = Deserialize(_myConfiguration.Entry2);
-			_entry3 = Deserialize(_myConfiguration.Entry3);
-			_entry4 = Deserialize(_myConfiguration.Entry4);
-		}
+            CopyFilterEntriesToFilterList();
+        }
+
+        private void CopyFilterEntriesToFilterList()
+        {
+            _filters = new();
+            CopyEntry(ref _filters, _myConfiguration.Entry1);
+            CopyEntry(ref _filters, _myConfiguration.Entry2);
+            CopyEntry(ref _filters, _myConfiguration.Entry3);
+            CopyEntry(ref _filters, _myConfiguration.Entry4);
+        }
+
+        private void CopyEntry(ref List<Filter> filters, string entry)
+        {
+            Filter filter = Deserialize(entry);
+            if (filter is not null) 
+                _filters.Add(filter);
+        }
+
+        private Filter Deserialize(string data)
+        {
+			if (string.IsNullOrWhiteSpace(data))
+				return null;
+
+            var parts = data.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            if (parts is null || parts.Length < 1)
+                return null;
+
+			var result = new Filter();
+			result.Keyword = parts[0];
+            result.Heading =(parts.Length >= 2) ? parts[1] : parts[0];
+			return result;
+        }
+        #endregion
+		#region ------------- Create Grid ---------------------------------------------------------
 
         private void CreateGrid()
         {
@@ -348,22 +349,7 @@ To display the weight with the addition of 'kg', enter the following in Format:
             NotifyPropertyChanged(nameof(Height));
         }
         #endregion
-		#region ------------- Load data from Google -----------------------------------------------
-        private ValueEntriesList Deserialize(string data)
-        {
-			if (string.IsNullOrWhiteSpace(data))
-				return null;
-
-            var parts = data.Split('|', StringSplitOptions.RemoveEmptyEntries);
-			var result = new ValueEntriesList();
-            foreach (var part in parts)
-			{
-				var pair = part.Split('=', StringSplitOptions.RemoveEmptyEntries);
-				result.Values.Add(new ValueEntry(pair[0], pair[1]));
-			}
-			return result;
-        }
-
+		#region ------------- Load data -----------------------------------------------------------
 		private void ReadCalendarEveryHour()
         {
             if (_stopwatch == null)
@@ -373,7 +359,7 @@ To display the weight with the addition of 'kg', enter the following in Format:
             }
             else
             {
-				if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * ONE_MINUTE)
+				if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * _oneMinute)
 				{
 					ReadCalendar();
 					_stopwatch.Restart();
@@ -388,96 +374,105 @@ To display the weight with the addition of 'kg', enter the following in Format:
             else
                 LoadCalendarEntriesFromGoogle();
         }
+        #endregion
+		#region ------------- Load data from Google -----------------------------------------------
+        private void LoadCalendarEntriesFromGoogle()
+        {
+            try
+            {
+                var reader = new GoogleCalendarReader()
+                    .UseCredentialsFile(_myConfiguration.GoogleCredentials)
+                    .UseApplicationName("AllOnOnePage");
 
+                var events = reader.ReadEvents(50); // read the next 50 events since now
+
+            }
+            catch (Exception)
+            {
+            }
+        }
+        #endregion
+		#region ------------- Load data from Homenet ----------------------------------------------
         private void LoadCalendarEntriesFromHomenet()
         {
 			try
 			{
-                var basketNames = new List<string>();
-                basketNames.Add("ABHOLUNG_BIOTONNE");
-                basketNames.Add("ABHOLUNG_GELBERSACK");
-                basketNames.Add("ABHOLUNG_PAPIERTONNE");
-                basketNames.Add("ABHOLUNG_RESTMUELL");
-
                 _entries.Clear();
-                foreach (var name in basketNames)
+                foreach (var filter in _filters)
                 {
-                    var entry = new Entry();
-                    entry.Heading = GetHeadingFromDataobjectName(name) + ":";
-                    entry.DataObject = _config.ApplicationData._homenetGetter.TryGet(name);
+                    var entry = LoadEntry(filter);
                     _entries.Add(entry);
                 }
-			}
+                FormatEventDates();
+            }
 			catch (Exception)
 			{
 			}
         }
 
-        private void LoadCalendarEntriesFromGoogle()
+        private Entry LoadEntry(Filter filter)
         {
-        }
-        #endregion
-		#region ------------- Update Values -------------------------------------------------------
-        //private bool FindAndCopyNewValueToListElement(DataObject dataObject)
-        //{
-        //    foreach (var day in _WastebasketDays)
-        //    {
-        //        if (day.DataObject.DOID == dataObject.DOID)
-        //        {
-        //            day.DataObject.CopyPropertiesFrom(dataObject);
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //}
-
-        private void UpdateUI()
-        {
-            FormatData();
-            SortByDate();
-            CopyToWpfProperties(_entries);
+            var entry = new Entry();
+            entry.Heading = filter.Heading;
+            try
+            {
+                entry.DataObject = _config.ApplicationData._homenetGetter.TryGet(filter.Keyword);
+            }
+            catch (Exception)
+            {
+                entry.DataObject = new ServerDataObject(filter.Keyword, "???");
+            }
+            return entry;
         }
 
-        private void FormatData()
+        private void FormatEventDates()
         {
             foreach (var entry in _entries)
             {
-                if (entry.DataObject == null)
+                FormatEventDate(entry);
+            }
+        }
+
+        /// <summary>
+        /// Replace near dates to yesterday/today/tomorrow
+        /// </summary>
+        private void FormatEventDate(Entry entry)
+        {
+            if (entry.DataObject == null)
+            {
+                entry.DataObject = new ServerDataObject("", "");
+                entry.ConvertedDate = new DateTime(1, 1, 1);
+                entry.Weekday = "??";
+            }
+            else
+            {
+                entry.Date = entry.DataObject.Value;
+                string dateString = entry.DataObject.Value;
+                if (dateString == "gestern")
+                    dateString = DateTime.Today.AddDays(-1).ToString("dd.MM.yyyy");
+                else if (dateString == "heute")
+                    dateString = DateTime.Today.ToString("dd.MM.yyyy");
+                else if (dateString == "morgen")
+                    dateString = DateTime.Today.AddDays(1).ToString("dd.MM.yyyy");
+                else if (dateString.Length < 10)
+                    dateString = entry.DataObject.Value + DateTime.Today.Year;
+                try
                 {
-                    entry.DataObject = new ServerDataObject("", "");
-                    entry.ConvertedDate = new DateTime(1,1,1);
-                    entry.Weekday = "??";
+                    entry.ConvertedDate = DateTime.ParseExact(dateString, "d.M.yyyy", null);
+                    if (entry.DataObject.Value == "gestern" ||
+                        entry.DataObject.Value == "heute" ||
+                        entry.DataObject.Value == "morgen")
+                    {
+                        entry.Weekday = entry.DataObject.Value;
+                        entry.Date = "";
+                    }
+                    else
+                        entry.Weekday = GetWeekdayNameFromDate(entry.ConvertedDate);
                 }
-                else
+                catch (Exception)
                 {
-                    entry.Date = entry.DataObject.Value;
-                    string dateString = entry.DataObject.Value;
-                    if (dateString == "gestern")
-                        dateString = DateTime.Today.AddDays(-1).ToString("dd.MM.yyyy");
-                    else if (dateString == "heute")
-                        dateString = DateTime.Today.ToString("dd.MM.yyyy");
-                    else if (dateString == "morgen")
-                        dateString = DateTime.Today.AddDays(1).ToString("dd.MM.yyyy");
-                    else if (dateString.Length < 10) 
-                        dateString = entry.DataObject.Value + DateTime.Today.Year;
-                    try
-                    {
-                        entry.ConvertedDate = DateTime.ParseExact(dateString,"d.M.yyyy",null);
-                        if (entry.DataObject.Value == "gestern" ||
-                            entry.DataObject.Value == "heute" ||
-                            entry.DataObject.Value == "morgen")
-                        {
-                            entry.Weekday = entry.DataObject.Value;
-                            entry.Date = "";
-                        }
-                        else
-                            entry.Weekday = GetWeekdayNameFromDate(entry.ConvertedDate);
-                    }
-                    catch (Exception)
-                    {
-                        entry.ConvertedDate = new DateTime(1,1,1);
-                        entry.Weekday = "??";
-                    }
+                    entry.ConvertedDate = new DateTime(1, 1, 1);
+                    entry.Weekday = "??";
                 }
             }
         }
@@ -496,17 +491,12 @@ To display the weight with the addition of 'kg', enter the following in Format:
                 default                 : return "???";
             }
         }
-
-        private string GetHeadingFromDataobjectName(string name)
+        #endregion
+		#region ------------- Update UI -----------------------------------------------------------
+        private void UpdateUI()
         {
-            switch (name)
-            {
-                case "ABHOLUNG_BIOTONNE"   : return "Biotonne";
-                case "ABHOLUNG_GELBERSACK" : return "Gelber Sack";
-                case "ABHOLUNG_PAPIERTONNE": return "Papier";
-                case "ABHOLUNG_RESTMUELL"  : return "Restmüll";
-                default: return "????????";
-            }
+            SortByDate();
+            CopyToWpfProperties(_entries);
         }
 
         private void SortByDate()

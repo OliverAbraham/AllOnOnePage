@@ -52,18 +52,24 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreateVersionForDeploy", "C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModPrtg", "ModPrtg\ModPrtg.csproj", "{B6A2C6A1-CD5C-433C-9D71-59BBB1A2B329}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8 Solution items", "8 Solution items", "{E1337B62-9F46-46D4-A5AA-0721B655AD9A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9 Solution items", "9 Solution items", "{E1337B62-9F46-46D4-A5AA-0721B655AD9A}"
 	ProjectSection(SolutionItems) = preProject
 		Ciridata.ico = Ciridata.ico
 		Ciridata.png = Ciridata.png
 		LICENSE.txt = LICENSE.txt
 		Readme backup monitoring.md = Readme backup monitoring.md
 		README.md = README.md
+		setvariables.cmd = setvariables.cmd
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "7 Screenshots", "7 Screenshots", "{4F3FE8A5-B80C-474D-AFCA-492C2587DDAD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModGoogleCalendar", "ModGoogleCalendar\ModGoogleCalendar.csproj", "{1B248680-0E84-4D02-8779-7F79B634B4F3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8 PluginArtifactsTemp", "8 PluginArtifactsTemp", "{B6665A98-7665-4786-B631-139B90193976}"
+	ProjectSection(SolutionItems) = preProject
+		PluginArtifactsTemp\TemporaryPluginDlls.txt = PluginArtifactsTemp\TemporaryPluginDlls.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

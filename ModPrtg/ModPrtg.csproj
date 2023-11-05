@@ -12,12 +12,16 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="set BINDIR=&quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows&quot;&#xD;&#xA;&#xD;&#xA;set DESTINATION=&quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION%25 md %25DESTINATION%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                              %25DESTINATION%25&#xD;&#xA;&#xD;&#xA;set DESTINATION2=&quot;$(SolutionDir)AllOnOnePage\bin\publish\plugins&quot;&#xD;&#xA;if not exist %25DESTINATION2%25 md %25DESTINATION2%25&#xD;&#xA;copy &quot;$(TargetPath)&quot;                               %25DESTINATION2%25&#xD;&#xA;copy %25DESTINATION%25  %25DESTINATION2%25&#xD;&#xA;&#xD;&#xA;rem echo copy &quot;%25USERPROFILE%25\.nuget\packages\restsharp\108.0.2\lib\net8.0\RestSharp.dll&quot;               &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;rem copy &quot;%25USERPROFILE%25\.nuget\packages\restsharp\108.0.2\lib\net8.0\RestSharp.dll&quot;                &quot;$(SolutionDir)AllOnOnePage\bin\$(ConfigurationName)\net6.0-windows\plugins&quot;&#xD;&#xA;&#xD;&#xA;echo copy &quot;%25BINDIR%25\Abraham.PrtgClient.dll&quot;    &quot;%25DESTINATION%25&quot;&#xD;&#xA;     copy &quot;%25BINDIR%25\Abraham.PrtgClient.dll&quot;    &quot;%25DESTINATION%25&quot;&#xD;&#xA;&#xD;&#xA;echo copy &quot;%25BINDIR%25\Abraham.PrtgClient.dll&quot;    &quot;%25DESTINATION2%25&quot;&#xD;&#xA;     copy &quot;%25BINDIR%25\Abraham.PrtgClient.dll&quot;    &quot;%25DESTINATION2%25&quot;&#xD;&#xA;&#xD;&#xA;echo copy &quot;%25BINDIR%25\Abraham.Scheduler.dll&quot;    &quot;%25DESTINATION%25&quot;&#xD;&#xA;     copy &quot;%25BINDIR%25\Abraham.Scheduler.dll&quot;    &quot;%25DESTINATION%25&quot;&#xD;&#xA;&#xD;&#xA;echo copy &quot;%25BINDIR%25\Abraham.Scheduler.dll&quot;    &quot;%25DESTINATION2%25&quot;&#xD;&#xA;     copy &quot;%25BINDIR%25\Abraham.Scheduler.dll&quot;    &quot;%25DESTINATION2%25&quot;&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="echo setvariables.cmd:&#xD;&#xA;call $(SolutionDir)setvariables.cmd $(SolutionDir) $(ConfigurationName)&#xD;&#xA;echo FXVER         = %25FXVER%25&#xD;&#xA;echo PLUGINTEMPDIR = %25PLUGINTEMPDIR%25&#xD;&#xA;echo NugetPackage1 = $(PkgAbraham_PrtgClient)&#xD;&#xA;echo NugetPackage2 = $(PkgAbraham_Scheduler)&#xD;&#xA;&#xD;&#xA;echo copy &quot;$(TargetPath)&quot;                          &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(TargetPath)&quot;                          &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgAbraham_PrtgClient)\lib\%25FXVER%25&quot;   &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgAbraham_PrtgClient)\lib\%25FXVER%25&quot;   &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgAbraham_Scheduler)\lib\%25FXVER%25&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgAbraham_Scheduler)\lib\%25FXVER%25&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;&#xD;&#xA;echo copy &quot;%25BINDIR%25\Abraham.PrtgClient.dll&quot;    &quot;%25DESTINATION%25&quot;&#xD;&#xA;     copy &quot;%25BINDIR%25\Abraham.PrtgClient.dll&quot;    &quot;%25DESTINATION%25&quot;&#xD;&#xA;&#xD;&#xA;echo copy &quot;%25BINDIR%25\Abraham.Scheduler.dll&quot;    &quot;%25DESTINATION%25&quot;&#xD;&#xA;     copy &quot;%25BINDIR%25\Abraham.Scheduler.dll&quot;    &quot;%25DESTINATION%25&quot;&#xD;&#xA;" />
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="Abraham.PrtgClient" Version="1.0.2" />
-    <PackageReference Include="Abraham.Scheduler" Version="1.0.3" />
+    <PackageReference Include="Abraham.PrtgClient" Version="1.0.2">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Abraham.Scheduler" Version="1.0.3">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

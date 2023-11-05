@@ -23,7 +23,7 @@ rem this file was created by my tool "CreateVersionForDeploy.exe"
 call setinstallerversion.cmd
 
 set ARCHIVEWEBSITE=AllOnOnePage_%VERSION2%.zip
-set ARCHIVEFILENAME=bin\%ARCHIVEWEBSITE%
+set ARCHIVEFILENAME=%BINDIR%\%ARCHIVEWEBSITE%
 
 set VERSION_INFORMATION_FILE="%BINDIR%\version.html"
 set VERSION_INFORMATION_FILE_SAV="%BINDIR%\version.html.sav"

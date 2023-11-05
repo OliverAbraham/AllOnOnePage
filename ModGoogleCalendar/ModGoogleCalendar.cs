@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Diagnostics;
-using System.Windows.Input;
 
 namespace AllOnOnePage.Plugins
 {
@@ -25,6 +24,7 @@ namespace AllOnOnePage.Plugins
             public bool   LoadDataFromGoogle      { get; set; }
             public string GoogleCredentials       { get; set; }
             public string UpdateIntervalInMinutes { get; set; }
+            public int    DaysToReadInAdvance     { get; set; }
 
             public string Entry1                  { get; set; }
             public string Entry2                  { get; set; }
@@ -43,12 +43,27 @@ namespace AllOnOnePage.Plugins
             public string Heading;
             public string Weekday;
             public string Date;
+            public string Keyword;
+
+            public Entry()
+            {
+            }
+
+            public Entry(DateTime? date, string heading, string keyword, string weekday)
+            {
+                Date = date?.ToString() ?? "";
+                ConvertedDate = date ?? new DateTime(1, 1, 1);
+                Heading = heading;
+                Keyword = keyword;
+                Weekday = weekday;
+            }
         }
 
         private class Filter
         {
             public string Keyword { get; set; }
 		    public string Heading  { get; set; }
+		    public int    ResultsCount { get; set; }
         }
         #endregion
 
@@ -83,6 +98,7 @@ namespace AllOnOnePage.Plugins
         private string             _connectorMessages;
         private SolidColorBrush    _headingColor;
         private List<Filter>       _filters;
+        private List<GoogleCalendarReader.Event> _calendarEvents;
         #endregion
 
 
@@ -91,6 +107,7 @@ namespace AllOnOnePage.Plugins
         public override void Init(ModuleConfig config, Grid parent, System.Windows.Threading.Dispatcher dispatcher)
 		{
 			base.Init(config, parent, dispatcher);
+			base.LoadAssembly("Abraham.GoogleCalendar.dll");
 			InitConfiguration();
             CreateGrid();
 		}
@@ -112,6 +129,7 @@ namespace AllOnOnePage.Plugins
             _myConfiguration.LoadDataFromGoogle       = true;
 			_myConfiguration.GoogleCredentials        = "(Enter your Google credentials)";
             _myConfiguration.UpdateIntervalInMinutes  = "60";
+            _myConfiguration.DaysToReadInAdvance      = 14;
             _myConfiguration.Entry1                   = "ABHOLUNG_BIOTONNE";
             _myConfiguration.Entry2                   = "ABHOLUNG_GELBERSACK";
             _myConfiguration.Entry3                   = "ABHOLUNG_PAPIERTONNE";
@@ -170,8 +188,17 @@ namespace AllOnOnePage.Plugins
 		{
             CopyFilterEntriesToFilterList();
             ReadCalendar();
+            FindEventsInGoogleCalendarToDisplay();
             UpdateUI();
-            return (false, "");
+            
+            var formattedResult = 
+                "Events that were read from Google Calendar:\n\n" +
+                string.Join('\n', _calendarEvents) + 
+                "\n\n" + 
+                "Found these events by given filters:\n" +
+                string.Join('\n', _filters.Select(x => $"FilterKeyword: {x.Keyword} Results: {x.ResultsCount} events"));
+
+            return (false, formattedResult);
 		}
 
 		public override Dictionary<string,string> GetHelp()
@@ -380,16 +407,45 @@ To display the weight with the addition of 'kg', enter the following in Format:
         {
             try
             {
+                if (_myConfiguration.DaysToReadInAdvance < 1)
+                    _myConfiguration.DaysToReadInAdvance = 1;
+
                 var reader = new GoogleCalendarReader()
                     .UseCredentialsFile(_myConfiguration.GoogleCredentials)
                     .UseApplicationName("AllOnOnePage");
 
-                var events = reader.ReadEvents(50); // read the next 50 events since now
-
+                _calendarEvents = reader.ReadEventsByStartTime(
+                    DateTime.Now, 
+                    DateTime.Now.AddDays(_myConfiguration.DaysToReadInAdvance));
             }
             catch (Exception)
             {
             }
+        }
+
+        private void FindEventsInGoogleCalendarToDisplay()
+        {
+            if (_calendarEvents is null)
+                return;
+			try
+			{
+                _entries.Clear();
+                foreach(var filter in _filters)
+                {
+                    var @event = _calendarEvents.FirstOrDefault(e => e.Summary.Contains(filter.Keyword));
+                    if (@event is not null)
+                    {
+                        filter.ResultsCount = _calendarEvents.Where(e => e.Summary.Contains(filter.Keyword)).Count();
+                        var weekday = GetWeekdayNameFromDate(@event?.When ?? DateTime.MinValue);
+                        _entries.Add(new Entry(@event.When, filter.Heading, filter.Keyword, weekday));
+                    }
+                }
+//                FormatEventDates();
+            }
+			catch (Exception ex)
+			{
+                _connectorMessages += ex.Message;
+			}
         }
         #endregion
 		#region ------------- Load data from Homenet ----------------------------------------------

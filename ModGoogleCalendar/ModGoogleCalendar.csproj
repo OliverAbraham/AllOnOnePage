@@ -12,8 +12,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abraham.GoogleCalendar" Version="1.0.0">
+    <PackageReference Include="Abraham.GoogleCalendar" Version="1.0.2">
       <GeneratePathProperty>true</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Google.Apis" Version="1.63.0">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Google.Apis.Auth" Version="1.63.0">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.63.0.3171">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="Google.Apis.Core" Version="1.63.0">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0-rc.2.23479.6">
+      <GeneratePathProperty>True</GeneratePathProperty>
     </PackageReference>
   </ItemGroup>
 
@@ -22,7 +37,7 @@
   </ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="echo setvariables.cmd:&#xD;&#xA;call $(SolutionDir)setvariables.cmd $(SolutionDir) $(ConfigurationName)&#xD;&#xA;echo FXVER         = %25FXVER%25&#xD;&#xA;echo PLUGINTEMPDIR = %25PLUGINTEMPDIR%25&#xD;&#xA;echo NugetPackage1 = $(PkgAbraham_GoogleCalendar)&#xD;&#xA;&#xD;&#xA;echo copy &quot;$(TargetPath)&quot;                               &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(TargetPath)&quot;                               &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgAbraham_GoogleCalendar)\lib\%25FXVER%25&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgAbraham_GoogleCalendar)\lib\%25FXVER%25&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;" />
+    <Exec Command="echo setvariables.cmd:&#xD;&#xA;call $(SolutionDir)setvariables.cmd $(SolutionDir) $(ConfigurationName)&#xD;&#xA;echo FXVER         = %25FXVER%25&#xD;&#xA;echo PLUGINTEMPDIR = %25PLUGINTEMPDIR%25&#xD;&#xA;echo NugetPackage1 = $(PkgAbraham_GoogleCalendar)&#xD;&#xA;echo NugetPackage2 = $(PkgGoogle_Apis)&#xD;&#xA;echo NugetPackage3 = $(PkgGoogle_Apis_Auth)&#xD;&#xA;echo NugetPackage4 = $(PkgGoogle_Apis_Core)&#xD;&#xA;echo NugetPackage5 = $(PkgGoogle_Apis_Calendar_v3)&#xD;&#xA;echo NugetPackage6 = $(PkgSystem_Configuration_ConfigurationManager)&#xD;&#xA;&#xD;&#xA;echo copy &quot;$(TargetPath)&quot;                                       &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(TargetPath)&quot;                                       &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgAbraham_GoogleCalendar)\lib\%25FXVER%25&quot;            &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgAbraham_GoogleCalendar)\lib\%25FXVER%25&quot;            &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgGoogle_Apis)\lib\netstandard2.0&quot;                &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgGoogle_Apis)\lib\netstandard2.0&quot;                &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgGoogle_Apis_Auth)\lib\netstandard2.0&quot;           &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgGoogle_Apis_Auth)\lib\netstandard2.0&quot;           &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgGoogle_Apis_Core)\lib\netstandard2.0&quot;           &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgGoogle_Apis_Core)\lib\netstandard2.0&quot;           &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgGoogle_Apis_Calendar_v3)\lib\netstandard2.0&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgGoogle_Apis_Calendar_v3)\lib\netstandard2.0&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;echo copy &quot;$(PkgSystem_Configuration_ConfigurationManager)\lib\netstandard2.0&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgSystem_Configuration_ConfigurationManager)\lib\netstandard2.0&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;" />
   </Target>
 
 </Project>

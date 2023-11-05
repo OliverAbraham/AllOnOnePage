@@ -79,6 +79,7 @@ Several configuration dialogs:
 ![](Screenshots/Screenshot5.jpg)
 ![](Screenshots/Screenshot6.jpg)
 ![](Screenshots/Screenshot7.jpg)
+![](Screenshots/Screenshot8.jpg)
 
 
 
@@ -90,7 +91,9 @@ Several configuration dialogs:
 - ModWeather: Display the current temperature for a given location 
 - ModWeatherForecase: Display forecast for the next day 
 - ModPrtg: Display PRTG topics
-
+- ModGoogleCalendar: Display appointments from a google calendar. Searches for up to four
+events by given search terms.
+- a general calendar is planned.
 
 # PLANNED AND UNFINISHED MODULES
 

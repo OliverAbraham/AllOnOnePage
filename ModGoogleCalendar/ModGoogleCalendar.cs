@@ -25,6 +25,7 @@ namespace AllOnOnePage.Plugins
             public string GoogleCredentials       { get; set; }
             public string UpdateIntervalInMinutes { get; set; }
             public int    DaysToReadInAdvance     { get; set; }
+            public string DateFormatting          { get; set; }
 
             public string Entry1                  { get; set; }
             public string Entry2                  { get; set; }
@@ -49,13 +50,13 @@ namespace AllOnOnePage.Plugins
             {
             }
 
-            public Entry(DateTime? date, string heading, string keyword, string weekday)
+            public Entry(DateTime? date, string heading, string keyword, string weekday, string formattedDate)
             {
-                Date = date?.ToString() ?? "";
                 ConvertedDate = date ?? new DateTime(1, 1, 1);
                 Heading = heading;
                 Keyword = keyword;
                 Weekday = weekday;
+                Date = formattedDate;
             }
         }
 
@@ -130,6 +131,7 @@ namespace AllOnOnePage.Plugins
 			_myConfiguration.GoogleCredentials        = "(Enter your Google credentials)";
             _myConfiguration.UpdateIntervalInMinutes  = "60";
             _myConfiguration.DaysToReadInAdvance      = 14;
+            _myConfiguration.DateFormatting           = "dd.MM";
             _myConfiguration.Entry1                   = "ABHOLUNG_BIOTONNE";
             _myConfiguration.Entry2                   = "ABHOLUNG_GELBERSACK";
             _myConfiguration.Entry3                   = "ABHOLUNG_PAPIERTONNE";
@@ -159,7 +161,6 @@ namespace AllOnOnePage.Plugins
                 return;
             System.Diagnostics.Debug.WriteLine($"UpdateContent:");
 			ReadCalendarEveryHour();
-			UpdateUI();
 		}
 
 		public override async Task<(bool,string)> Validate()
@@ -205,15 +206,13 @@ namespace AllOnOnePage.Plugins
 		{
             var texts = new Dictionary<string,string>();
             texts.Add("de-DE", 
-@"This module displays the contents of a cell from an Excel file.
-Must be stated:
-- the full file name with path.
-- the cell (e.g. A1, B13 etc).
-A different format can be specified in the 'Format' field.
-An example: You have an Excel file in which you record your body weight.
-A cell contains the current weight as a number.
-To display the weight with the addition of 'kg', enter the following in Format:
-{0} kg
+@"This module displays up to four events from your Google calendar, sorted by date
+You need to give a filter for each entry. The filter is a keyword that is contained in the event's title.
+This module was planned to list recurring events like garbage collection dates.
+In the four filter settings, specify the filter word, a separator | and the heading for the event.
+For example: 'Garbage can|Garbage:'
+The module will read the events from your Google calendar and search for the given filter 'Garbage can' in the subjects.
+The Word 'Garbage:' will be the heading.
 ");
             return texts;
         }
@@ -285,6 +284,18 @@ To display the weight with the addition of 'kg', enter the following in Format:
         #endregion
 		#region ------------- Create Grid ---------------------------------------------------------
 
+        public override void Delete()
+		{
+            if (_grid is not null)
+            {
+                _Parent.Children.Remove(_grid);
+                _grid.Children.Clear();
+                _grid.RowDefinitions.Clear();
+                _grid.ColumnDefinitions.Clear();
+                _grid = null;
+            }
+        }
+
         private void CreateGrid()
         {
             _ValueControl.Height = 0;
@@ -317,15 +328,15 @@ To display the weight with the addition of 'kg', enter the following in Format:
 
         private TextBlock CreateRow1(int row, string heading)
         {
-            var row1 = new RowDefinition() { Height = new GridLength(25) };
+            var row1 = new RowDefinition() { Height = new GridLength(_config.FontSize*25/45) };
             _grid.RowDefinitions.Add(row1);
 
-            var textBlock = CreateGridTextBlock(_headingColor, 20, heading);
+            var textBlock = CreateGridTextBlock(_headingColor, _config.FontSize*20/45, heading);
             Grid.SetRow(textBlock, row);
             _grid.Children.Add(textBlock);
             Panel.SetZIndex(textBlock, 2);
 
-            var row2 = new RowDefinition() { Height = new GridLength(45) };
+            var row2 = new RowDefinition() { Height = new GridLength(_config.FontSize) };
             _grid.RowDefinitions.Add(row2);
             Panel.SetZIndex(textBlock, 2);
             return textBlock;
@@ -340,8 +351,8 @@ To display the weight with the addition of 'kg', enter the following in Format:
             var col2 = new ColumnDefinition();
             columnGrid.ColumnDefinitions.Add(col1);
             columnGrid.ColumnDefinitions.Add(col2);
-            var textBlock1 = CreateGridTextBlock(_textColor, 30, weekday);
-            var textBlock2 = CreateGridTextBlock(_textColor, 30, date);
+            var textBlock1 = CreateGridTextBlock(_textColor, _config.FontSize*30/45, weekday);
+            var textBlock2 = CreateGridTextBlock(_textColor, _config.FontSize * 30 / 45, date);
             Panel.SetZIndex(textBlock1, 2);
             Panel.SetZIndex(textBlock2, 2);
             Grid.SetColumn(textBlock2, 0);
@@ -383,12 +394,16 @@ To display the weight with the addition of 'kg', enter the following in Format:
             {
 				_stopwatch = Stopwatch.StartNew();
                 ReadCalendar();
+                FindEventsInGoogleCalendarToDisplay();
+			    UpdateUI();
             }
             else
             {
 				if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * _oneMinute)
 				{
 					ReadCalendar();
+                    FindEventsInGoogleCalendarToDisplay();
+			        UpdateUI();
 					_stopwatch.Restart();
 				}
 			}
@@ -436,11 +451,11 @@ To display the weight with the addition of 'kg', enter the following in Format:
                     if (@event is not null)
                     {
                         filter.ResultsCount = _calendarEvents.Where(e => e.Summary.Contains(filter.Keyword)).Count();
-                        var weekday = GetWeekdayNameFromDate(@event?.When ?? DateTime.MinValue);
-                        _entries.Add(new Entry(@event.When, filter.Heading, filter.Keyword, weekday));
+                        var weekday = @event.When?.DayOfWeek.ToString() ?? "???";
+                        var formattedDate = @event.When?.ToString(_myConfiguration.DateFormatting) ?? "???";
+                        _entries.Add(new Entry(@event.When, filter.Heading, filter.Keyword, weekday, formattedDate));
                     }
                 }
-//                FormatEventDates();
             }
 			catch (Exception ex)
 			{
@@ -552,7 +567,30 @@ To display the weight with the addition of 'kg', enter the following in Format:
         private void UpdateUI()
         {
             SortByDate();
+            ReplaceNearEventByTodayTomorrow(_entries);
             CopyToWpfProperties(_entries);
+        }
+
+        private void ReplaceNearEventByTodayTomorrow(List<Entry> entries)
+        {
+            foreach (var entry in entries)
+            {
+                if (entry.ConvertedDate == DateTime.Today)
+                {
+                    entry.Weekday = "Today";
+                    entry.Date    = "";
+                }
+                else if (entry.ConvertedDate == DateTime.Today.AddDays(1))
+                {
+                    entry.Weekday = "Tomorrow";
+                    entry.Date    = "";
+                }
+                else if (entry.ConvertedDate == DateTime.Today.AddDays(-1))
+                {
+                    entry.Weekday = "Yesterday";
+                    entry.Date    = "";
+                }
+            }
         }
 
         private void SortByDate()

@@ -1,10 +1,6 @@
 # Abraham.AllOnOnePage
 
-https://img.shields.io/github/downloads/oliverabraham/AllOnOnePage/total
-https://img.shields.io/github/license/oliverabraham/AllOnOnePage
-https://img.shields.io/github/languages/count/oliverabraham/AllOnOnePage
-https://img.shields.io/github/stars/oliverabraham/AllOnOnePage
-https://img.shields.io/github/stars/oliverabraham
+![](https://img.shields.io/github/downloads/oliverabraham/AllOnOnePage/total) ![](https://img.shields.io/github/license/oliverabraham/AllOnOnePage) ![](https://img.shields.io/github/languages/count/oliverabraham/AllOnOnePage) ![GitHub Repo stars](https://img.shields.io/github/stars/oliverabraham/AllOnOnePage?label=repo%20stars) ![GitHub Repo stars](https://img.shields.io/github/stars/oliverabraham?label=user%20stars)
 
 
 ## OVERVIEW
@@ -34,8 +30,7 @@ The nuget package was build with DotNET 6.
 
 ## INSTALLATION
 
-- download the latest release from my github repository (zip or installer)
-- or download it from my homepage https://www.abraham-beratung.de/all-on-one-page/				
+- download the latest release from my github repository (zip)
 - or clone this repository and build it yourself.
 - in the first start, it will create a demo page for you.
 

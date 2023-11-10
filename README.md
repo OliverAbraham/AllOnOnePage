@@ -1,5 +1,12 @@
 # Abraham.AllOnOnePage
 
+https://img.shields.io/github/downloads/oliverabraham/AllOnOnePage/total
+https://img.shields.io/github/license/oliverabraham/AllOnOnePage
+https://img.shields.io/github/languages/count/oliverabraham/AllOnOnePage
+https://img.shields.io/github/stars/oliverabraham/AllOnOnePage
+https://img.shields.io/github/stars/oliverabraham
+
+
 ## OVERVIEW
 
 AllOnOnePage is a WPF Dashboard application that can display values from various sources:
@@ -55,7 +62,7 @@ Please feel free to comment and suggest improvements!
 
 The source code is hosted at:
 
-https://github.com/OliverAbraham/Abraham.AllOnOnePage
+https://github.com/OliverAbraham/AllOnOnePage
 
 
 

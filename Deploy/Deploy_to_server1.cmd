@@ -1,13 +1,15 @@
-@set SOURCE1=..\AllOnOnePage
-@set SOURCE2=..\AllOnOnePage\bin\Debug\net6.0-windows
-@set SOURCE3=..\DeployDirectory
-@set SOURCE4=..\AllOnOnePage\bin\publish
-@set DESTINATION=\\server1\Hausnet$\Dashboard5
-@set COMMUNICATION_DIR=\\server1\Hausnet$\Dashboard5
+@ECHO -----------------------------------------------------------------------------------
+@ECHO
+@ECHO CIRIDATA DESKTOP APPLICATION RUNNER
+@ECHO
+@ECHO Oliver Abraham 2023, mail@oliver-abraham.de
+@ECHO This program is hosted at http://www.github.com/oliverabraham/desktopapplicationrunner
+@ECHO
+@ECHO -----------------------------------------------------------------------------------
+@ECHO off
 
+set BIN_SOURCE=..\AllOnOnePage\bin\publish\*
+set SETTINGS_SOURCE=%USERPROFILE%\Documents\All on one page\appsettings.hjson
+set ROOT=\\server1\Hausnet$\Dashboard5
 
-REM use the local configuration for deployment to the dashboard
-xcopy "%USERPROFILE%\Documents\All on one page\appsettings.hjson"   %DESTINATION% /D /Y
-
-
-@call Deploy.cmd
+call worker.cmd

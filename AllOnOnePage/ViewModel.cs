@@ -950,6 +950,7 @@ namespace AllOnOnePage
             _perimeterTimer.Stop();
             Dispatcher.Invoke(() =>
             {
+                RemoveModuleSelectionIndicator();
                 RemoveModuleHoverIndicator();
                 SetStandardMouseCursorShape();
             });

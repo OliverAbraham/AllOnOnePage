@@ -66,6 +66,7 @@ namespace AllOnOnePage
                 Init_LayoutManager();
                 Init_Plugins();
                 InitializeComponent();
+                LayoutManager_RestorePosition();
                 Init_GlobalExceptionHandler();
                 Init_ViewModel();
                 Init_Background_Size_and_Position();
@@ -231,6 +232,10 @@ namespace AllOnOnePage
 		private void Init_LayoutManager()
 		{
 			_windowLayoutManager = new WindowLayoutManager(this, nameof(MainWindow));
+		}
+
+		private void LayoutManager_RestorePosition()
+		{
             _windowLayoutManager.RestoreSizeAndPosition(this, nameof(MainWindow));
 
             // hide mouse pointer in fullscreen mode

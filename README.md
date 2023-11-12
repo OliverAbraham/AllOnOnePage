@@ -96,8 +96,10 @@ Several configuration dialogs:
 - ModGoogleCalendar: Display appointments from a google calendar. Searches for up to four
 events by given search terms.
 - a general calendar is planned.
+- Email: displays the number of unread emails in a given postbox
 
-- 
+
+ 
 # PLANNED AND UNFINISHED MODULES
 - Notification Area: can display events. You can define a set of MQTT topics with values.
 When a topic changes to a certain value, that value or a appropriate text is shown in the

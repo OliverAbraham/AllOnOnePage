@@ -1,6 +1,4 @@
-﻿using OpenPop.Mime;
-using OpenPop.Pop3;
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +6,8 @@ using System.Diagnostics;
 using System.Windows.Controls;
 using PluginBase;
 using System.Threading.Tasks;
+using Abraham.Mail;
+
 
 namespace AllOnOnePage.Plugins
 {
@@ -18,9 +18,9 @@ namespace AllOnOnePage.Plugins
 		{
 			public string Email          { get; set; }
 			public string Username       { get; set; }
-			public string Passwort       { get; set; }
-			public string Pop3Server     { get; set; }
-			public int    Pop3Port       { get; set; }
+			public string Password       { get; set; }
+			public string ImapServer     { get; set; }
+			public int    ImapPort       { get; set; }
 			public bool   UseSSL         { get; set; }
 			public int    UpdateInterval { get; set; }
 		}
@@ -31,17 +31,17 @@ namespace AllOnOnePage.Plugins
 		#region ------------- Fields --------------------------------------------------------------
 		private MyConfiguration _myConfiguration;
 		private Stopwatch       _stopwatch;
-		private const int       ONE_MINUTE = 60 * 1000;
-		private int             _updateIntervalInMinutes = 240;
+		private const int       _oneMinute = 60 * 1000;
+		private int             _updateIntervalInMinutes = 60;
 		private static string   _messages;
 		private bool		    _readError;
-		private List<Message>   _emails;
-		#endregion
+        private IEnumerable<Message> _emails;
+        #endregion
 
 
 
-		#region ------------- Init ----------------------------------------------------------------
-		public override void Init(ModuleConfig config, Grid parent, System.Windows.Threading.Dispatcher dispatcher)
+        #region ------------- Init ----------------------------------------------------------------
+        public override void Init(ModuleConfig config, Grid parent, System.Windows.Threading.Dispatcher dispatcher)
 		{
 			base.Init(config, parent, dispatcher);
 			InitConfiguration();
@@ -60,13 +60,13 @@ namespace AllOnOnePage.Plugins
 		public override void CreateSeedData()
 		{
 			_myConfiguration                = new MyConfiguration();
-            _myConfiguration.Email          = "(Deine Email-Adresse)";
-            _myConfiguration.Username       = "(Login für Dein Email-Konto, meist auch die Email-Adresse)";
-            _myConfiguration.Passwort       = "(Dein Email-Kenwort)";
-            _myConfiguration.Pop3Server     = "(Servername POP3)";
-            _myConfiguration.Pop3Port       = 25;
-            _myConfiguration.UseSSL         = false;
-			_myConfiguration.UpdateInterval = 15;
+            _myConfiguration.Email          = "(Your email address)";
+            _myConfiguration.Username       = "(Login for your email account, often your email address)";
+            _myConfiguration.Password       = "(Your password)";
+            _myConfiguration.ImapServer     = "(Server name IMAP)";
+            _myConfiguration.ImapPort       = 993;
+            _myConfiguration.UseSSL         = true;
+			_myConfiguration.UpdateInterval = 30;
 		}
 
 		public override async Task Save()
@@ -82,15 +82,14 @@ namespace AllOnOnePage.Plugins
 		{
 			ReadNewEmails();
 			UpdateDisplay();
+			_messages = "";
 		}
 
 		public override Dictionary<string,string> GetHelp()
 		{
             var texts = new Dictionary<string,string>();
             texts.Add("de-DE", 
-@"Dieses Modul sucht bestimmte Emails in Deinem Postfach und zeigt die Betreffzeilen an.
-Die Zugangsdaten werden verschlüsselt abgelegt.
-");
+@"This module displays the number of unread emails in a given postbox");
             return texts;
         }
 
@@ -104,7 +103,8 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 			try
 			{
 				ReadNewEmailsNow();
-				return (true, $"{_emails.Count} Emails gelesen!");
+				UpdateDisplay();
+				return (false, _messages);
 			}
 			catch (Exception) 
 			{
@@ -143,24 +143,20 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 			{
 				if (!string.IsNullOrWhiteSpace(_messages) || _emails is null)
 				{
-					Value = "";
+					Value = "???";
 					NotifyPropertyChanged(nameof(Value));
 					return;
 				}
 
-				var emails = (from e in _emails orderby e.Headers.DateSent select e).ToList();
-				Value = emails.FirstOrDefault()?.Headers?.Subject;
-
-				//int anzahlDhlPakete = 0;
-				//foreach (var email in emails)
-				//{
-				//	if (email.Headers.Subject.Contains("Ihr DHL Paket kommt bald"))
-				//	{
-				//		anzahlDhlPakete++;
-				//		var rawMessage = Encoding.ASCII.GetString(email.RawMessage);
-				//	}
-				//}
-				//Value = $"{anzahlDhlPakete} DHL-{((anzahlDhlPakete > 1) ? "Pakete" : "Paket")}";
+				if (_emails is null)
+				{
+					Value = "???";
+				}
+				else
+				{
+					var unreadEmails = _emails.ToList();
+					Value = unreadEmails.Count().ToString();
+				}
 			}
 			catch (Exception)
 			{
@@ -172,7 +168,9 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 
 		private void InitEmailReader()
 		{
-			base.LoadAssembly("OpenPop.dll");
+			base.LoadAssembly("Abraham.Mail.dll");
+			base.LoadAssembly("MailKit.dll");
+			base.LoadAssembly("MimeKit.dll");
 			RegisterCodepageProvider();
 		}
 
@@ -183,10 +181,11 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 				if (_stopwatch == null)
 				{
 					_stopwatch = Stopwatch.StartNew();
+					ReadNewEmailsNow();
 				}
 				else
 				{
-					if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * ONE_MINUTE)
+					if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * _oneMinute)
 					{
 						ReadNewEmailsNow();
 						_stopwatch.Restart();
@@ -201,66 +200,48 @@ Die Zugangsdaten werden verschlüsselt abgelegt.
 
 		private void ReadNewEmailsNow()
 		{
-            if (string.IsNullOrWhiteSpace(_myConfiguration.Pop3Server) ||
-				string.IsNullOrWhiteSpace(_myConfiguration.Username  ) ||
-				string.IsNullOrWhiteSpace(_myConfiguration.Passwort  ) ||
-				string.IsNullOrWhiteSpace(_myConfiguration.Email     ))
-			{
-				_readError = false;
-                return;
-			}
-
 			try
 			{
-				_emails = ReadAllEmails(_myConfiguration.Pop3Server, 
-										_myConfiguration.Pop3Port, 
-										_myConfiguration.UseSSL, 
-										_myConfiguration.Username, 
-										_myConfiguration.Passwort);
-				if (_emails is null)
-					throw new Exception("Kein Zugriff auf das Postfach!");
-
-				_messages = "";
+				ReadAllEmails();
 				_readError = false;
 			}
 			catch (Exception ex)
 			{
-				_messages = ex.ToString();
+				_messages += ex.ToString();
 				_readError = true;
 			}
 		}
 
-        private List<Message> ReadAllEmails(string hostname, int port, bool useSsl, string username, string password)
+        private void ReadAllEmails()
         {
-            // The client disconnects from the server when being disposed
-            using(Pop3Client client = new Pop3Client())
-            {
-                client.Connect(hostname, port, useSsl);
-                client.Authenticate(username, password);
+			_messages = "";
 
-                int messageCount = client.GetMessageCount();
-                var allMessages = new List<Message>(messageCount);
+			_messages += "Connecting to the Email server...\n";
+			var client = new Abraham.Mail.ImapClient()
+				.UseHostname(_myConfiguration.ImapServer)
+				.UseSecurityProtocol(_myConfiguration.UseSSL ? Abraham.Mail.Security.Ssl : Abraham.Mail.Security.None)
+				.UsePort(_myConfiguration.ImapPort)
+				.UseAuthentication(_myConfiguration.Username, _myConfiguration.Password)
+				.Open();
 
-                // Messages are numbered in the interval: [1, messageCount]
-                // Ergo: message numbers are 1-based.
-                // Most servers give the latest message the highest number
-                for (int i = messageCount; i > 0; i--)
-                {
-					try
-					{
-	                    allMessages.Add(client.GetMessage(i));
-					}
-					catch (Exception)
-					{
-					}
-                }
-                return allMessages;
-            }
+			_messages += "Reading the folders...\n";
+			var folders = client.GetAllFolders().ToList();
+
+			_messages += "Selecting the inbox...\n";
+			var inbox = client.GetFolderByName(folders, "inbox");
+
+			_messages += "Reading all unread messages from inbox...\n";
+			_emails = client.GetUnreadMessagesFromFolder(inbox);
+
+			if (_emails is null)
+				_messages += "Unable to read your inbox!\n";
+            else
+				_messages += $"{_emails?.Count()} Emails were read!";
         }
 
 		public void RegisterCodepageProvider()
 		{
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            //System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 		}
         #endregion
     }

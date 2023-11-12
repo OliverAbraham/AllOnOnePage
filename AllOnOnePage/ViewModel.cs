@@ -930,6 +930,7 @@ namespace AllOnOnePage
         /// </summary>
         private void StartPerimeterTimer()
         {
+            System.Diagnostics.Debug.WriteLine("StartPerimeterTimer");
             if (_perimeterTimer is null)
             {
                 _perimeterTimer = new Timer();
@@ -947,6 +948,7 @@ namespace AllOnOnePage
 
         private void RemovePerimeterIndicator(object? sender, ElapsedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine("RemovePerimeterIndicator");
             _perimeterTimer.Stop();
             Dispatcher.Invoke(() =>
             {

@@ -111,4 +111,7 @@ set FTP_URL= >NUL
 set FTP_USERNAME= >NUL
 set FTP_PASSWORD= >NUL
 set ARCHIVER= >NUL
+
+
+pause
 :end

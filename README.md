@@ -97,8 +97,14 @@ Several configuration dialogs:
 events by given search terms.
 - a general calendar is planned.
 
+- 
 # PLANNED AND UNFINISHED MODULES
-
+- Notification Area: can display events. You can define a set of MQTT topics with values.
+When a topic changes to a certain value, that value or a appropriate text is shown in the
+notification area.
+The notification will disappear after a defined time.
+If more topics come in, newer data replaces older.
+This can also play a small notification sound.
 
 # MAKE A DONATION !
 

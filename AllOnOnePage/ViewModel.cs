@@ -131,6 +131,8 @@ namespace AllOnOnePage
 		private bool                 _MouseIsOverWastebasket;
         private HighLight?           _HoveredModule;
         private HighLight?           _SelectedModule;
+        private const int            _mouseMoveEventThreshold = 100;
+        private int                  _mouseMoveEventCounter;
         #endregion
         #endregion
 
@@ -434,6 +436,9 @@ namespace AllOnOnePage
 		public void Window_MouseMove(Window sender, System.Windows.Input.MouseEventArgs e)
         {
             if (_runtimeModules == null)
+                return;
+
+            if (!EnoughMoveMovementDetected(e))
                 return;
 
             Highlight_Wastebasket_if_mouse_pointer_is_over(e.GetPosition(sender));
@@ -1063,6 +1068,22 @@ namespace AllOnOnePage
                 ((ModBase)module.Plugin).Value = "???";
 			}
 		}
+        #endregion
+        #region ------------- Mouse movement detector -----------------------------------
+        /// <summary>
+        /// When running on a dashboard, nobody moves the mouse and the mouse pointer will most likely always be in the middle of the screen.
+        /// My DashboardController will send left mouse clicks to reactivate the screen when the blank screen saver is running.
+        /// The problem is that the mouse pointer will activate the highlight function of the module editor,
+        /// when there's a module in the middle of the screen.
+        /// To avoid this, I check if the mouse has moved at least 100 events before enabling the module editor.
+        /// </summary>
+        private bool EnoughMoveMovementDetected(MouseEventArgs e)
+        {
+            if (_mouseMoveEventCounter >= _mouseMoveEventThreshold)
+                return true;
+            _mouseMoveEventCounter++;
+            return false;
+        }
         #endregion
         #endregion
         #endregion

@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Diagnostics;
+using System.IO;
 
 namespace AllOnOnePage.Plugins
 {
@@ -424,6 +425,14 @@ The Word 'Garbage:' will be the heading.
             {
                 if (_myConfiguration.DaysToReadInAdvance < 1)
                     _myConfiguration.DaysToReadInAdvance = 1;
+
+                // If we cannot find the credentials file, try to find it in the user directory (our subdirectory)
+                if (!File.Exists(_myConfiguration.GoogleCredentials))
+                {
+                    var tryInUserDirectory = Path.Combine(_config.ApplicationData.DataDirectory, _myConfiguration.GoogleCredentials);
+                    if (File.Exists(tryInUserDirectory))
+                        _myConfiguration.GoogleCredentials = tryInUserDirectory;
+                }
 
                 var reader = new GoogleCalendarReader()
                     .UseCredentialsFile(_myConfiguration.GoogleCredentials)

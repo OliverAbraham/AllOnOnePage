@@ -232,6 +232,10 @@ namespace AllOnOnePage
 		{
 			_windowLayoutManager = new WindowLayoutManager(this, nameof(MainWindow));
             _windowLayoutManager.RestoreSizeAndPosition(this, nameof(MainWindow));
+
+            // hide mouse pointer in fullscreen mode
+            if (_config.FullScreenDisplay)
+                Cursor = Cursors.None;
 		}
 
 		private void Stop_LayoutManager()

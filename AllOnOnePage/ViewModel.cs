@@ -14,6 +14,7 @@ using AllOnOnePage.Plugins;
 using AllOnOnePage.Libs;
 using PluginBase;
 using Abraham.WPFWindowLayoutManager;
+using System.Timers;
 
 namespace AllOnOnePage
 {
@@ -133,6 +134,8 @@ namespace AllOnOnePage
         private HighLight?           _SelectedModule;
         private const int            _mouseMoveEventThreshold = 100;
         private int                  _mouseMoveEventCounter;
+        private Timer                _perimeterTimer;
+        private const int            _removePerimeterAfter = 60;
         #endregion
         #endregion
 
@@ -856,6 +859,8 @@ namespace AllOnOnePage
 
             foreach (var element in shape.Elements)
                 _Canvas.Children.Add(element);
+
+            StartPerimeterTimer();
         }
 
         private void CreateEdges(HighLight shape, bool dashed, int thickness, SolidColorBrush strokeColor, double left, double top, double right, double bottom)
@@ -917,6 +922,37 @@ namespace AllOnOnePage
                     _Canvas.Children.Remove(element);
                 shape = null;
             }
+        }
+
+        /// <summary>
+        /// Every time we display the perimeter rectangles, we also set a timer.
+        /// It will remove the perimeter rectangles after some minutes.
+        /// </summary>
+        private void StartPerimeterTimer()
+        {
+            if (_perimeterTimer is null)
+            {
+                _perimeterTimer = new Timer();
+                _perimeterTimer.Interval = _removePerimeterAfter * 1000;
+                _perimeterTimer.Elapsed += RemovePerimeterIndicator;
+                _perimeterTimer.AutoReset = false;
+                _perimeterTimer.Start();
+            }
+            else
+            {
+                _perimeterTimer.Stop();
+                _perimeterTimer.Start();
+            }
+        }
+
+        private void RemovePerimeterIndicator(object? sender, ElapsedEventArgs e)
+        {
+            _perimeterTimer.Stop();
+            Dispatcher.Invoke(() =>
+            {
+                RemoveModuleHoverIndicator();
+                SetStandardMouseCursorShape();
+            });
         }
         #endregion
         #region ------------- Add new module ----------------------------------

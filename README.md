@@ -97,10 +97,6 @@ Several configuration dialogs:
 events by given search terms.
 - a general calendar is planned.
 - Email: displays the number of unread emails in a given postbox
-
-
- 
-# PLANNED AND UNFINISHED MODULES
 - Notification Area: can display events. You can define a set of MQTT topics with values.
 When a topic changes to a certain value, that value or a appropriate text is shown in the
 notification area.
@@ -111,6 +107,14 @@ Or display the text in a separate color.
 You can define rules, i.e. display negative values in red, values above a threshold in yellow. 
 Play a sound when your cat comes throught the cat flap.
 
+ 
+# PLANNED AND UNFINISHED MODULES
+- REST call. Display the result of a REST GET call.
+- LibFintx is a library to access bank accounts via FinTX. 					
+It will display the current Balance of a given bank account.
+Maybe the number of new transactions.
+
+- 
 # MAKE A DONATION !
 
 If you find this application useful, buy me a coffee!

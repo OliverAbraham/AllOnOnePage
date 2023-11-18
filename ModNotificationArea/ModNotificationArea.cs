@@ -7,6 +7,7 @@ using PluginBase;
 using System.Globalization;
 using System.Threading.Tasks;
 using static AllOnOnePage.Plugins.ModNotificationArea;
+using System.IO;
 
 namespace AllOnOnePage.Plugins
 {
@@ -121,6 +122,10 @@ namespace AllOnOnePage.Plugins
                 Value = rule.Text;
                 SetUserDefinedColor(rule.ForegroundColor);
                 _dismissCurrentValueAfter = (rule.DismissAfter > 0) ? rule.DismissAfter : 0;
+
+                var soundFile = FindSoundFile(rule.SoundFile);
+                if (soundFile is not null)
+                    PlaySound(soundFile);
             }
             else
             {
@@ -270,6 +275,36 @@ Play a sound when your cat comes throught the cat flap.");
                 return;
 
             base._ValueControl.Foreground = (SolidColorBrush)(new BrushConverter().ConvertFrom(rgbColor));
+        }
+
+        private string? FindSoundFile(string path)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                if (File.Exists(path))
+                    return path;
+
+                var fullPath = Path.Combine(_config.ApplicationData.DataDirectory, "Sounds", path);
+                if (File.Exists(fullPath))
+                    return fullPath;
+
+                fullPath = Path.Combine(_config.ApplicationData.ProgramDirectory, "Sounds", path);
+                if (File.Exists(fullPath))
+                    return fullPath;
+            }
+            return null;
+        }
+
+        private void PlaySound(string soundFile)
+        {
+            try
+            {
+                var player = new SoundPlayer();
+                player.Play(soundFile);
+            }
+            catch (Exception)
+            {
+            }
         }
         #endregion
 

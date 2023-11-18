@@ -35,7 +35,7 @@ namespace AllOnOnePage.Plugins
 		private int             _updateIntervalInMinutes = 60;
 		private static string   _messages;
 		private bool		    _readError;
-        private IEnumerable<Message> _emails;
+        private List<Message>   _emails;
         #endregion
 
 
@@ -80,8 +80,8 @@ namespace AllOnOnePage.Plugins
 
         public override void UpdateContent(ServerDataObjectChange? dataObject)
 		{
+			System.Diagnostics.Debug.WriteLine("ModEmail: UpdateContent()");
 			ReadNewEmails();
-			UpdateDisplay();
 			_messages = "";
 		}
 
@@ -141,7 +141,7 @@ namespace AllOnOnePage.Plugins
 
 			try
 			{
-				if (!string.IsNullOrWhiteSpace(_messages) || _emails is null)
+				if (!string.IsNullOrWhiteSpace(_messages) && _emails is null)
 				{
 					Value = "???";
 					NotifyPropertyChanged(nameof(Value));
@@ -182,12 +182,14 @@ namespace AllOnOnePage.Plugins
 				{
 					_stopwatch = Stopwatch.StartNew();
 					ReadNewEmailsNow();
+					UpdateDisplay();
 				}
 				else
 				{
 					if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * _oneMinute)
 					{
 						ReadNewEmailsNow();
+						UpdateDisplay();
 						_stopwatch.Restart();
 					}
 				}
@@ -209,6 +211,7 @@ namespace AllOnOnePage.Plugins
 			{
 				_messages += ex.ToString();
 				_readError = true;
+				_emails = null;
 			}
 		}
 
@@ -231,7 +234,7 @@ namespace AllOnOnePage.Plugins
 			var inbox = client.GetFolderByName(folders, "inbox");
 
 			_messages += "Reading all unread messages from inbox...\n";
-			_emails = client.GetUnreadMessagesFromFolder(inbox);
+			_emails = client.GetUnreadMessagesFromFolder(inbox).ToList();
 
 			if (_emails is null)
 				_messages += "Unable to read your inbox!\n";

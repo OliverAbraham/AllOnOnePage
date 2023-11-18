@@ -71,6 +71,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8 PluginArtifactsTemp", "8 
 		PluginArtifactsTemp\TemporaryPluginDlls.txt = PluginArtifactsTemp\TemporaryPluginDlls.txt
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModNotificationArea", "ModNotificationArea\ModNotificationArea.csproj", "{2EE930AA-5E40-49B8-B0A0-69DCD3FEC7E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -133,6 +135,10 @@ Global
 		{1B248680-0E84-4D02-8779-7F79B634B4F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B248680-0E84-4D02-8779-7F79B634B4F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B248680-0E84-4D02-8779-7F79B634B4F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EE930AA-5E40-49B8-B0A0-69DCD3FEC7E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EE930AA-5E40-49B8-B0A0-69DCD3FEC7E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EE930AA-5E40-49B8-B0A0-69DCD3FEC7E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EE930AA-5E40-49B8-B0A0-69DCD3FEC7E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,6 +158,7 @@ Global
 		{F52A54E3-195E-4636-A465-67D2F329CD15} = {91B17C59-0906-4D30-95F5-43375EA6A3FE}
 		{B6A2C6A1-CD5C-433C-9D71-59BBB1A2B329} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
 		{1B248680-0E84-4D02-8779-7F79B634B4F3} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
+		{2EE930AA-5E40-49B8-B0A0-69DCD3FEC7E7} = {44DD5028-23B7-4F28-92CC-922CFFBF2F55}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {487D0146-B39B-4379-823C-8ED3CA383038}

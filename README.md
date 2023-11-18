@@ -106,7 +106,10 @@ When a topic changes to a certain value, that value or a appropriate text is sho
 notification area.
 The notification will disappear after a defined time.
 If more topics come in, newer data replaces older.
-This can also play a small notification sound.
+This can also play a small notification sound, like a bell. Some sounds a shipped with the app.
+Or display the text in a separate color.
+You can define rules, i.e. display negative values in red, values above a threshold in yellow. 
+Play a sound when your cat comes throught the cat flap.
 
 # MAKE A DONATION !
 

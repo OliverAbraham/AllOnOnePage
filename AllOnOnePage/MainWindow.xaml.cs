@@ -305,6 +305,7 @@ namespace AllOnOnePage
         
         private void Periodic_timer_elapsed(object sender, ElapsedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine("Periodic_timer_elapsed");   
             _periodicTimer.Stop();
             
             Dispatcher.Invoke(() =>
@@ -714,7 +715,11 @@ namespace AllOnOnePage
                 connector.OnDataobjectChange += 
                     delegate(ServerDataObjectChange Do)
                     {
-                        Dispatcher.Invoke(() => { Update_all_modules(Do); });
+                        Dispatcher.Invoke(() => 
+                        { 
+                            System.Diagnostics.Debug.WriteLine("MQTT LinkConnector event -> Update_all_modules");   
+                            Update_all_modules(Do); 
+                        });
                     };
 
                 ServerInfo.Content = connector.ConnectionStatus;

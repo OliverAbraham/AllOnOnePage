@@ -28,9 +28,10 @@ namespace AllOnOnePage.Plugins
 		#region ------------- Settings ------------------------------------------------------------
 		public class MyConfiguration : ModuleSpecificConfig
 		{
-			public string Filename { get; set; }
-			public string CellName { get; set; }
-			public string Format   { get; set; }
+			public string Filename          { get; set; }
+			public string CellName          { get; set; }
+			public string Format            { get; set; }
+			public int    ReadEveryNMinutes { get; set; }
 		}
 		#endregion
 
@@ -38,12 +39,13 @@ namespace AllOnOnePage.Plugins
 
 		#region ------------- Fields --------------------------------------------------------------
 		private MyConfiguration _myConfiguration;
-		#endregion
+        private DateTime        _lastRead = DateTime.Now.AddYears(-1);
+        #endregion
 
 
 
-		#region ------------- Init ----------------------------------------------------------------
-		public override void Init(ModuleConfig config, Grid parent, System.Windows.Threading.Dispatcher dispatcher)
+        #region ------------- Init ----------------------------------------------------------------
+        public override void Init(ModuleConfig config, Grid parent, System.Windows.Threading.Dispatcher dispatcher)
 		{
 			base.Init(config, parent, dispatcher);
 			InitConfiguration();
@@ -71,6 +73,7 @@ namespace AllOnOnePage.Plugins
             _myConfiguration.Filename = @"DemoExcelFile.xlsx";
             _myConfiguration.CellName = @"A1";
             _myConfiguration.Format   = @"{0} €";
+			_myConfiguration.ReadEveryNMinutes = 60;
 		}
 
 		public override async Task Save()
@@ -88,16 +91,10 @@ namespace AllOnOnePage.Plugins
 			}
 
 			try
-			{
-				Value = ExcelReader.ReadCellValueFromExcelFile(_myConfiguration.Filename, _myConfiguration.CellName);
-
-				if (!string.IsNullOrWhiteSpace(_myConfiguration.Format) &&
-					_myConfiguration.Format.Contains("{0}"))
-				{
-					Value = _myConfiguration.Format.Replace("{0}", Value);
-				}
-			}
-			catch (Exception) 
+            {
+                ReadExcelFileEveryNMinutes();
+            }
+            catch (Exception) 
 			{
 				Value = "???";
 			}
@@ -105,7 +102,7 @@ namespace AllOnOnePage.Plugins
 			NotifyPropertyChanged(nameof(Value));
         }
 
-		public override Dictionary<string,string> GetHelp()
+        public override Dictionary<string,string> GetHelp()
 		{
             var texts = new Dictionary<string,string>();
             texts.Add("de-DE", 
@@ -175,6 +172,25 @@ To display the weight with the addition of 'kg', enter the following in Format:
 			if (_myConfiguration == null)
 				CreateSeedData();
 		}
+
+        private void ReadExcelFileEveryNMinutes()
+        {
+            if (DateTime.Now.Subtract(_lastRead).TotalMinutes < _myConfiguration.ReadEveryNMinutes)
+                return;
+            ReadAndFormatValue();
+            _lastRead = DateTime.Now;
+        }
+
+        private void ReadAndFormatValue()
+        {
+            Value = ExcelReader.ReadCellValueFromExcelFile(_myConfiguration.Filename, _myConfiguration.CellName);
+
+            if (!string.IsNullOrWhiteSpace(_myConfiguration.Format) &&
+                _myConfiguration.Format.Contains("{0}"))
+            {
+                Value = _myConfiguration.Format.Replace("{0}", Value);
+            }
+        }
         #endregion
     }
 }

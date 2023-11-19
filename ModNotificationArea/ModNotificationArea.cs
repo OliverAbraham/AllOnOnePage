@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media;
 using PluginBase;
 using System.Globalization;
 using System.Threading.Tasks;
-using static AllOnOnePage.Plugins.ModNotificationArea;
 using System.IO;
+using Abraham.Scheduler;
 
 namespace AllOnOnePage.Plugins
 {
@@ -45,15 +44,18 @@ namespace AllOnOnePage.Plugins
 		    public string SoundFile       { get; set; }
 		    public string ForegroundColor { get; set; }
 		    public int    DismissAfter    { get; set; }
+		    public bool   Ignore          { get; set; }
         }
 		#endregion
 
 
 
 		#region ------------- Fields --------------------------------------------------------------
-		private MyConfiguration _myConfiguration;
-		private List<Event>     _events;
-        private int             _dismissCurrentValueAfter;
+		private MyConfiguration    _myConfiguration;
+		private List<Event>        _events;
+        private int                _dismissCurrentValueAfter;
+        private static SoundPlayer _player = new ();
+        private Scheduler          _scheduler;
         #endregion
 
 
@@ -63,13 +65,23 @@ namespace AllOnOnePage.Plugins
 		{
 			base.Init(config, parent, dispatcher);
 			InitConfiguration();
+			base.LoadAssembly("Abraham.Scheduler.dll");
+
+			_scheduler = new Scheduler()
+				.UseAction(() => { DismissText(); } );
 		}
-		#endregion
+
+        public override void Stop()
+        {
+			_scheduler?.Stop();
+            base.Stop();
+        }
+        #endregion
 
 
 
-		#region ------------- Methods -------------------------------------------------------------
-		public override ModuleSpecificConfig GetModuleSpecificConfig()
+        #region ------------- Methods -------------------------------------------------------------
+        public override ModuleSpecificConfig GetModuleSpecificConfig()
 		{
 			return _myConfiguration;
 		}
@@ -119,9 +131,15 @@ namespace AllOnOnePage.Plugins
 
             if (rule is not null)
             {
+                if (rule.Ignore)
+                    return;
+
                 Value = rule.Text;
                 SetUserDefinedColor(rule.ForegroundColor);
+
                 _dismissCurrentValueAfter = (rule.DismissAfter > 0) ? rule.DismissAfter : 0;
+                if (_dismissCurrentValueAfter > 0)
+                    _scheduler.UseIntervalSeconds(_dismissCurrentValueAfter).Start();
 
                 var soundFile = FindSoundFile(rule.SoundFile);
                 if (soundFile is not null)
@@ -190,6 +208,12 @@ Play a sound when your cat comes throught the cat flap.");
                 _events = new();
             }
             _dismissCurrentValueAfter = 0;
+        }
+
+        private void DismissText()
+        {
+            Value = "";
+            NotifyPropertyChanged(nameof(Value));
         }
 
         private (bool, TextRule) FindMatchingEvent(ServerDataObjectChange dataObject)
@@ -299,8 +323,7 @@ Play a sound when your cat comes throught the cat flap.");
         {
             try
             {
-                var player = new SoundPlayer();
-                player.Play(soundFile);
+                _player.Play(soundFile);
             }
             catch (Exception)
             {

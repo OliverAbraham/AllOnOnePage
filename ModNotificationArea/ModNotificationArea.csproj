@@ -12,8 +12,12 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="echo setvariables.cmd:&#xD;&#xA;call $(SolutionDir)setvariables.cmd $(SolutionDir) $(ConfigurationName)&#xD;&#xA;echo FXVER         = %25FXVER%25&#xD;&#xA;echo PLUGINTEMPDIR = %25PLUGINTEMPDIR%25&#xD;&#xA;&#xD;&#xA;echo copy &quot;$(TargetPath)&quot; &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(TargetPath)&quot; &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;" />
+    <Exec Command="echo setvariables.cmd:&#xD;&#xA;call $(SolutionDir)setvariables.cmd $(SolutionDir) $(ConfigurationName)&#xD;&#xA;echo FXVER         = %25FXVER%25&#xD;&#xA;echo PLUGINTEMPDIR = %25PLUGINTEMPDIR%25&#xD;&#xA;echo NugetPackage2 = $(PkgAbraham_Scheduler)&#xD;&#xA;&#xD;&#xA;echo copy &quot;$(TargetPath)&quot; &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(TargetPath)&quot; &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;&#xD;&#xA;echo copy &quot;$(PkgAbraham_Scheduler)\lib\%25FXVER%25&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;     copy &quot;$(PkgAbraham_Scheduler)\lib\%25FXVER%25&quot;    &quot;%25PLUGINTEMPDIR%25&quot;&#xD;&#xA;&#xD;&#xA;echo copy &quot;%25BINDIR%25\Abraham.Scheduler.dll&quot;    &quot;%25DESTINATION%25&quot;&#xD;&#xA;     copy &quot;%25BINDIR%25\Abraham.Scheduler.dll&quot;    &quot;%25DESTINATION%25&quot;&#xD;&#xA;" />
   </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Abraham.Scheduler" Version="1.0.3" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PluginBase\PluginBase.csproj" />

@@ -7,7 +7,6 @@ using Abraham.Prtg;
 using System.Threading.Tasks;
 using Abraham.Scheduler;
 using PluginBase;
-using System.Windows.Threading;
 
 namespace AllOnOnePage.Plugins
 {
@@ -54,6 +53,7 @@ namespace AllOnOnePage.Plugins
 
 			InitConfiguration();
 		}
+
         public override void Stop()
         {
 			_scheduler?.Stop();

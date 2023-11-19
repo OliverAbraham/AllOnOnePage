@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 namespace AllOnOnePage.Plugins
 {
@@ -19,6 +20,7 @@ namespace AllOnOnePage.Plugins
 				throw new Exception($"Soundfile does not exist: '{filename}'");
             Close();
             Open(filename);
+			Thread.Sleep(100);
             Play(loop:false);
 		}
 

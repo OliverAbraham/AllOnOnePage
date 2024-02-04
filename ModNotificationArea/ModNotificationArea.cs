@@ -73,7 +73,7 @@ namespace AllOnOnePage.Plugins
 
         public override void Stop()
         {
-			if (_scheduler is not null && _scheduler.IsRunning)
+			if (_scheduler is not null)
                 _scheduler?.Stop();
             base.Stop();
         }

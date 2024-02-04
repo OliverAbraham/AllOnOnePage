@@ -95,8 +95,10 @@ namespace AllOnOnePage.Plugins
 
         public override void UpdateContent(ServerDataObjectChange? dataObject)
 		{
-			if (dataObject is null)
-				UpdateDisplay();
+			// we're not interested in MQTT or Home Automation messages
+			if (dataObject is not null)
+				return;
+			UpdateDisplay();
 		}
 
 		public override Dictionary<string,string> GetHelp()

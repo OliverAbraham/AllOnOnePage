@@ -15,6 +15,7 @@ using AllOnOnePage.Libs;
 using PluginBase;
 using Abraham.WPFWindowLayoutManager;
 using System.Timers;
+using System.Diagnostics;
 
 namespace AllOnOnePage
 {
@@ -1091,8 +1092,13 @@ namespace AllOnOnePage
         {
             if (_runtimeModules is null) 
                 return;
+            
+            var stopwatch = new Stopwatch();
+
 			foreach (var module in _runtimeModules)
 				Update_one_module(module, @do);
+
+            System.Diagnostics.Debug.WriteLine($"Update_all_modules took {stopwatch.ElapsedMilliseconds} ms");
 		}
 
 		private void Update_one_module(RuntimeModule module, ServerDataObjectChange? @do = null)

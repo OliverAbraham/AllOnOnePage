@@ -127,6 +127,7 @@ namespace AllOnOnePage.Plugins
             if (yes2 && !forUs2)
                 return;
 
+            System.Diagnostics.Debug.WriteLine($"ModText: UpdateContent");
             if (yes1 || yes2)
             {
                 System.Diagnostics.Debug.WriteLine($"ModText: ServerDataObjectChange: {dataObject}");

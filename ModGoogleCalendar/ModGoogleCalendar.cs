@@ -158,8 +158,9 @@ namespace AllOnOnePage.Plugins
 
         public override void UpdateContent(ServerDataObjectChange? dataObject)
         {
-            if (dataObject is not null)
-                return;
+			// we're not interested in MQTT or Home Automation messages
+			if (dataObject is not null)
+				return;
             System.Diagnostics.Debug.WriteLine($"UpdateContent:");
 			ReadCalendarEveryHour();
 		}

@@ -721,7 +721,7 @@ namespace AllOnOnePage
                     {
                         Dispatcher.Invoke(() => 
                         { 
-                            System.Diagnostics.Debug.WriteLine("MQTT LinkConnector event -> Update_all_modules");   
+                            System.Diagnostics.Debug.WriteLine($"MQTT LinkConnector event -> dataobject {Do.Name} changed. Update_all_modules");   
                             Update_all_modules(Do); 
                         });
                     };

@@ -83,6 +83,10 @@ namespace AllOnOnePage.Plugins
 
         public override void UpdateContent(ServerDataObjectChange? dataObject)
         {
+			// we're not interested in MQTT or Home Automation messages
+			if (dataObject is not null)
+				return;
+
 			if (!File.Exists(_myConfiguration.Filename))
 			{
 				Value = $"This excel file doesn't exist! ({Path.GetFullPath(_myConfiguration.Filename)}";
@@ -134,9 +138,9 @@ To display the weight with the addition of 'kg', enter the following in Format:
 			{
 				Value = ExcelReader.ReadCellValueFromExcelFile(_myConfiguration.Filename, _myConfiguration.CellName);
 			}
-			catch (Exception) 
+			catch (Exception ex) 
 			{
-				return (false, $"This excel file doesn't exist!");
+				return (false, $"This excel file doesn't exist!\n{ex}");
 			}
 
 			try
@@ -147,9 +151,9 @@ To display the weight with the addition of 'kg', enter the following in Format:
 					Value = _myConfiguration.Format.Replace("{0}", Value);
 				}
 			}
-			catch (Exception) 
+			catch (Exception ex) 
 			{
-				return (false, $"The given format doesn't work!");
+				return (false, $"The given format doesn't work!\n{ex}");
 			}
 
             return (true, $"Cell contents: {Value}");

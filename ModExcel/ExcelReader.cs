@@ -51,10 +51,17 @@ namespace Abraham.Office
                             currentRow++;
                             if (currentRow == wantedRow)
 							{
-                                var value = reader.GetValue((int)wantedColumn-1);
-                                cellValue = Convert.ToString(value);
-    						    System.Diagnostics.Debug.WriteLine($"cell value is '{cellValue}'");
-                                return cellValue;
+                                try
+                                {
+                                    var value = reader.GetValue((int)wantedColumn-1);
+                                    cellValue = Convert.ToString(value);
+    						        System.Diagnostics.Debug.WriteLine($"cell value is '{cellValue}'");
+                                    return cellValue;
+                                }
+                                catch (Exception ex) 
+                                {
+                                    return $"Cell {cellName} does not exist!";
+                                }
 							}
                         }
                     } 

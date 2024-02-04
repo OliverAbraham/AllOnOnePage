@@ -73,8 +73,7 @@ namespace AllOnOnePage.Plugins
 
         public override void Stop()
         {
-			if (_scheduler is not null)
-                _scheduler?.Stop();
+            _scheduler?.Stop();
             base.Stop();
         }
         #endregion
@@ -140,11 +139,15 @@ namespace AllOnOnePage.Plugins
 
                 _dismissCurrentValueAfter = (rule.DismissAfter > 0) ? rule.DismissAfter : 0;
                 if (_dismissCurrentValueAfter > 0)
-                    _scheduler.UseIntervalSeconds(_dismissCurrentValueAfter).Start();
+                    _scheduler?.UseIntervalSeconds(_dismissCurrentValueAfter).Start();
 
-                var soundFile = FindSoundFile(rule.SoundFile);
-                if (soundFile is not null)
-                    PlaySound(soundFile);
+                try
+                {
+                    var soundFile = FindSoundFile(rule.SoundFile);
+                    if (soundFile is not null)
+                        PlaySound(soundFile);
+                }
+                catch (Exception) {}
             }
             else
             {

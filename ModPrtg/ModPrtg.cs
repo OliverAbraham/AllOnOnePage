@@ -56,7 +56,8 @@ namespace AllOnOnePage.Plugins
 
         public override void Stop()
         {
-			_scheduler?.Stop();
+			if (_scheduler is not null)
+				_scheduler?.Stop();
             base.Stop();
         }
         #endregion

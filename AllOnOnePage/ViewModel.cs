@@ -187,8 +187,15 @@ namespace AllOnOnePage
 
         public void Stop_all_modules(PluginLoader pluginLoader, List<Processor> processors, Grid mainGrid, Canvas canvas)
         {
-			foreach (var module in _runtimeModules)
-    			module.Plugin.Stop();
+            try
+            {
+			    foreach (var module in _runtimeModules)
+    			    module.Plugin.Stop();
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
         }
 
 		internal void Init_module(RuntimeModule moduleDef)

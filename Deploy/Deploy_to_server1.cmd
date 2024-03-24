@@ -10,6 +10,6 @@
 
 set BIN_SOURCE=..\AllOnOnePage\bin\publish\*
 set SETTINGS_SOURCE=%USERPROFILE%\Documents\All on one page\*.hjson
-set ROOT=\\server1\Hausnet$\Dashboard5
+set ROOT=\\server1\Dashboard5
 
 call worker.cmd

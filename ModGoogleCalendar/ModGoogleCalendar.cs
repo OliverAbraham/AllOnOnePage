@@ -150,6 +150,7 @@ namespace AllOnOnePage.Plugins
 
         public override void UpdateLayout()
         {
+            _headingColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(_myConfiguration.HeadingColor));
             Delete();
             CreateBackground();
             SetPositionAndSize();

@@ -8,7 +8,7 @@
 @ECHO -----------------------------------------------------------------------------------
 @ECHO off
 
-set CONFIGDIR=C:\GIT\AllOnOnePage\Deploy\Config_Dashboard5
+set CONFIGDIR=C:\Credentials\AllOnOnePage\Config_Dashboard5
 set BIN_SOURCE=..\AllOnOnePage\bin\publish\*
 set SETTINGS_SOURCE=%USERPROFILE%\Documents\All on one page\*.hjson
 set ROOT=\\server1\Dashboard5

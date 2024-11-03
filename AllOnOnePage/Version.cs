@@ -1,1 +1,1 @@
-﻿namespace AppVersion { public static class Version{ public const string VERSION = "2024-03-29"; } }
+﻿namespace AppVersion { public static class Version{ public const string VERSION = "2024-11-03"; } }

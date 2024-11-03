@@ -411,9 +411,14 @@ namespace AllOnOnePage
             WpfAnimations.FadeInLabel(ServerInfo);
         }
 
+        private void FadeInImmediatelyServerInfo()
+        {
+            WpfAnimations.FadeInImmediatelyLabel(ServerInfo);
+        }
+
         private void SetServerInfotext(string text)
         {
-            Dispatcher.BeginInvoke(() => { ServerInfo.Content = text; });
+            Dispatcher.BeginInvoke(() => { ServerInfo.Content = text.Replace("_", "__"); });
         }
 
 		private void ShowButtonsOnMouseHover(Window sender, MouseEventArgs e)
@@ -682,20 +687,31 @@ namespace AllOnOnePage
             SetServerInfotext($"Connected");
             FadeOutServerInfo();
             WaitAndThenCallMethod(wait_time_seconds: 1, action: Startup2);
-            //WaitAndThenCallMethod(wait_time_seconds: 10, action: ReconnectLoop);
+            WaitAndThenCallMethod(wait_time_seconds: 10, action: ReconnectLoop);
         }
 
         private void ReconnectLoop()
         {
+            var statusText = "";
+
             foreach (var connector in _connectors)
             {
-                if (connector.IsConfigured(_config) && !connector.IsConnected && !connector.ConnectionIsInProgress)
+                if (connector.IsConfigured(_config))
                 {
-                    FadeInServerInfo();
-                    SetServerInfotext($"Reconnecting to {connector.Name}...");
-                    connector.Reconnect();
+                    if (!connector.IsConnected && !connector.ConnectionIsInProgress)
+                    {
+                        ServerInfo2.Content = $"Reconnecting to {connector.Name}...";
+                        connector.Reconnect();
+                    }
+                    if (!connector.IsConnected)
+                        statusText += $"{connector.Name} disconnected ";
+                    if (connector.ConnectionIsInProgress)
+                        statusText += $"{connector.Name} connecting... ";
                 }
             }
+
+            if (statusText.Length > 0) 
+                ServerInfo2.Content = statusText;
 
             if (!_endTheReconnectorLoop)
                 WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectLoop);
@@ -722,6 +738,8 @@ namespace AllOnOnePage
                         Dispatcher.Invoke(() => 
                         { 
                             System.Diagnostics.Debug.WriteLine($"MQTT LinkConnector event -> dataobject {Do.Name} changed. Update_all_modules");   
+                            FadeInImmediatelyServerInfo();
+                            SetServerInfotext($"{connector.Name} event ({Do.Name})");
                             Update_all_modules(Do); 
                         });
                     };
@@ -730,7 +748,7 @@ namespace AllOnOnePage
             }
             catch (Exception ex)
             {
-                SetServerInfotext($"Error connecting to {connector.Name}");
+                SetServerInfotext($"Error in {connector.Name} event");
             }
         }
         #endregion

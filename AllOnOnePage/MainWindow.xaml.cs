@@ -742,7 +742,6 @@ namespace AllOnOnePage
 
 
             StatusText.Content = "Connected";
-            ServerInfo2.Content = "Connected";
             _logger.Log("Connected");
         }
 
@@ -757,7 +756,6 @@ namespace AllOnOnePage
                 {
                     if (!connector.IsConnected && !connector.ConnectionIsInProgress)
                     {
-                        ServerInfo2.Content = $"Reconnecting to {connector.Name}...";
                         _logger.Log(          $"Reconnecting to {connector.Name}...");
                         connector.Reconnect();
                         changes = true;
@@ -782,7 +780,6 @@ namespace AllOnOnePage
 
             if (changes)
             {
-                ServerInfo2.Content = statusText;
                 StatusText.Content = statusText;
                 _logger.Log(statusText);
             }

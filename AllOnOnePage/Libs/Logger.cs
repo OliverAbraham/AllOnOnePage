@@ -29,8 +29,12 @@ namespace AllOnOnePage
 			
 			if (_configuration.LogToFile) 
 			{
-				string Line = $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}    {message}\r\n";
-				File.AppendAllText(_configuration.LogfileName, Line);
+				try
+				{
+					string Line = $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}    {message}\r\n";
+					File.AppendAllText(_configuration.LogfileName, Line);
+				}
+				catch (Exception) { }
 			}
 		}
 	}

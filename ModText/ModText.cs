@@ -28,6 +28,7 @@ namespace AllOnOnePage.Plugins
             public string FormatString        { get; set; }
             public string ReplaceText         { get; set; }
             public string ReplaceWith         { get; set; }
+            public string Unit                { get; set; }
 		}
 		#endregion
 
@@ -236,6 +237,9 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			    if (message is not null)
                     value = message.Text;
             }
+
+            if (!string.IsNullOrEmpty(_myConfiguration.Unit))
+                value += " " + _myConfiguration.Unit;
 
             return value;
         }

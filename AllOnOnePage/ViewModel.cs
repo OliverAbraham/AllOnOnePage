@@ -1105,7 +1105,9 @@ namespace AllOnOnePage
 			foreach (var module in _runtimeModules)
 				Update_one_module(module, @do);
 
-            System.Diagnostics.Debug.WriteLine($"Update_all_modules took {stopwatch.ElapsedMilliseconds} ms");
+            stopwatch.Stop();
+            if (stopwatch.ElapsedMilliseconds > 10)
+                System.Diagnostics.Debug.WriteLine($"Update_all_modules took {stopwatch.ElapsedMilliseconds} ms");
 		}
 
 		private void Update_one_module(RuntimeModule module, ServerDataObjectChange? @do = null)

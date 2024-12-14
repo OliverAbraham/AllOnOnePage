@@ -34,6 +34,8 @@ namespace AllOnOnePage
         private ViewModel              _vm;
         private bool                   _nowUpdating;
         private Timer                  _periodicTimer;
+        private Timer                  _hibernationDetector;
+        private DateTime               _hibernationDetectorLastTick = default(DateTime);
         private Timer                  _dateTimeUpdateTimer;
         #endregion
 		#region Power management and Supervisor
@@ -50,6 +52,7 @@ namespace AllOnOnePage
             new MqttConnector()
         };
         private bool _endTheReconnectorLoop;
+        private int _reconnectCounter = 0;
         #endregion
         #endregion
 
@@ -86,12 +89,14 @@ namespace AllOnOnePage
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            _logger.Log("Window_Loaded");
 			Init_Updater();
             WaitAndThenCallMethod(wait_time_seconds:1, action:Startup);
 		}
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
+            _logger.Log("Window_Closing");
 			Stop_all_modules();
             _endTheReconnectorLoop = true;
             StopAllConnectors();
@@ -163,7 +168,12 @@ namespace AllOnOnePage
 
         private void Startup()
         {
-            Dispatcher.BeginInvoke( async () => InitAndReconnectConnectorsLoop() );
+            Dispatcher.BeginInvoke( 
+                async () => 
+                {
+                    InitAndReconnectConnectorsLoop();
+                    WaitAndThenCallMethod(wait_time_seconds: 1, action: Startup2);
+                });
 		}
 
         private void Startup2()
@@ -173,6 +183,7 @@ namespace AllOnOnePage
                 //Read_saved_state_from_disk();
                 Init_all_modules();
                 Start_periodic_UI_update_timer();
+                Start_HibernationDetector();
                 Start_date_time_update_timer();
                 //StartSupervisorThread();
                 Show_Welcome_Screen();
@@ -209,6 +220,7 @@ namespace AllOnOnePage
         private void ShutdownTheApp()
 		{
 			Stop_periodic_UI_update_timer();
+            Stop_HibernationDetector();
 			Stop_LayoutManager();
             _updater.Stop();
 			Close();
@@ -347,6 +359,42 @@ namespace AllOnOnePage
         }
 
         #endregion
+        #region ------------- Hibernation Detector ----------------------------
+        private void Start_HibernationDetector()
+        {
+            System.Diagnostics.Debug.WriteLine("HibernationDetector started");
+            _hibernationDetectorLastTick = DateTime.Now;
+            _hibernationDetector = new Timer();
+            _hibernationDetector.Interval = 1000;
+            _hibernationDetector.Elapsed += HibernationDetector_elapsed;
+            _hibernationDetector.Start();
+        }
+        
+        private void Stop_HibernationDetector()
+        {
+            System.Diagnostics.Debug.WriteLine("HibernationDetector stopped");
+            if (_hibernationDetector != null)
+                _hibernationDetector.Stop();
+        }
+        
+        private void HibernationDetector_elapsed(object sender, ElapsedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("HibernationDetector_elapsed");   
+            
+            var elapsed = DateTime.Now - _hibernationDetectorLastTick;
+            if (elapsed.TotalMinutes > 1.0)
+            {
+                _hibernationDetector.Stop();
+                _logger.Log($"Hibernation detected! (program was paused for {elapsed.TotalMinutes:N0} minutes. Now reconnecting to home automation server and MQTT");
+                Dispatcher.Invoke(() =>
+                {
+                    InitAndReconnectConnectorsLoop();
+                });
+                _hibernationDetector.Start();
+            }
+            _hibernationDetectorLastTick = DateTime.Now;
+        }
+        #endregion
         #region ------------- Modules -----------------------------------------
         private void Init_all_modules()
         {
@@ -419,6 +467,7 @@ namespace AllOnOnePage
         private void SetServerInfotext(string text)
         {
             Dispatcher.BeginInvoke(() => { ServerInfo.Content = text.Replace("_", "__"); });
+            Dispatcher.BeginInvoke(() => { _logger.Log(text); });
         }
 
 		private void ShowButtonsOnMouseHover(Window sender, MouseEventArgs e)
@@ -671,11 +720,14 @@ namespace AllOnOnePage
         /// </summary>
         private async Task InitAndReconnectConnectorsLoop()
         {
+            _logger.Log(        $"InitAndReconnectConnectorsLoop");
+            StatusText.Content = "InitAndReconnectConnectorsLoop";
+
             foreach(var connector in _connectors)
             {
                 if (connector.IsConfigured(_config) && !connector.IsConnected)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Connecting to {connector.Name}...");
+                    _logger.Log(      $"Connecting to {connector.Name}...");
                     SetServerInfotext($"Connecting to {connector.Name}...");
                     await connector.Connect(_config);
                     LinkConnector(connector);
@@ -686,13 +738,18 @@ namespace AllOnOnePage
             _endTheReconnectorLoop = false;
             SetServerInfotext($"Connected");
             FadeOutServerInfo();
-            WaitAndThenCallMethod(wait_time_seconds: 1, action: Startup2);
             WaitAndThenCallMethod(wait_time_seconds: 10, action: ReconnectLoop);
+
+
+            StatusText.Content = "Connected";
+            ServerInfo2.Content = "Connected";
+            _logger.Log("Connected");
         }
 
         private void ReconnectLoop()
         {
-            var statusText = "";
+            var statusText = $"ReconnectLoop {++_reconnectCounter} ";
+            var changes = false;
 
             foreach (var connector in _connectors)
             {
@@ -701,20 +758,38 @@ namespace AllOnOnePage
                     if (!connector.IsConnected && !connector.ConnectionIsInProgress)
                     {
                         ServerInfo2.Content = $"Reconnecting to {connector.Name}...";
+                        _logger.Log(          $"Reconnecting to {connector.Name}...");
                         connector.Reconnect();
+                        changes = true;
                     }
-                    if (!connector.IsConnected)
-                        statusText += $"{connector.Name} disconnected ";
                     if (connector.ConnectionIsInProgress)
+                    {
                         statusText += $"{connector.Name} connecting... ";
+                        changes = true;
+                    }
+                    else if (!connector.IsConnected)
+                    {
+                        statusText += $"{connector.Name} still disconnected after reconnect attempt";
+                        changes = true;
+                    }
                 }
             }
 
-            if (statusText.Length > 0) 
-                ServerInfo2.Content = statusText;
 
             if (!_endTheReconnectorLoop)
                 WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectLoop);
+
+
+            if (changes)
+            {
+                ServerInfo2.Content = statusText;
+                StatusText.Content = statusText;
+                _logger.Log(statusText);
+            }
+            else
+            {
+                StatusText.Content = "";
+            }
         }
 
         private void StopAllConnectors()
@@ -722,6 +797,8 @@ namespace AllOnOnePage
             foreach(var connector in _connectors)
                 connector.Stop();
         }
+
+        Dictionary<string, string> _dataObjectsCache = new Dictionary<string, string>();
 
         private void LinkConnector(IConnector connector)
         {
@@ -735,11 +812,22 @@ namespace AllOnOnePage
                 connector.OnDataobjectChange += 
                     delegate(ServerDataObjectChange Do)
                     {
+                        if (_dataObjectsCache.ContainsKey(Do.Name))
+                        {
+                            if (_dataObjectsCache[Do.Name] == Do.Value)
+                                return; // duplicate message!
+                            _dataObjectsCache[Do.Name] = Do.Value; // value has changed!
+                        }
+                        else
+                        {
+                            _dataObjectsCache.Add(Do.Name, Do.Value);
+                        }
+
                         Dispatcher.Invoke(() => 
                         { 
-                            System.Diagnostics.Debug.WriteLine($"MQTT LinkConnector event -> dataobject {Do.Name} changed. Update_all_modules");   
                             FadeInImmediatelyServerInfo();
-                            SetServerInfotext($"{connector.Name} event ({Do.Name})");
+                            System.Diagnostics.Debug.WriteLine($"{connector.Name} event ({Do.Name} = {Do.Value})");
+                            SetServerInfotext($"{connector.Name} event ({Do.Name} = {Do.Value})");
                             Update_all_modules(Do); 
                         });
                     };

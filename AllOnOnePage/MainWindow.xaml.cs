@@ -259,7 +259,8 @@ namespace AllOnOnePage
             // hide mouse pointer and title bar in fullscreen mode
             if (_config.FullScreenDisplay)
             {
-                this.WindowState = WindowState.Maximized;
+                if (Environment.OSVersion.Version.Major >= 10)
+                    this.WindowState = WindowState.Maximized;
                 this.WindowStyle = WindowStyle.None;
                 Cursor = Cursors.None;
             }
@@ -545,7 +546,8 @@ namespace AllOnOnePage
             else
 			{
                 _config.FullScreenDisplay = true;
-                this.WindowState = WindowState.Maximized;
+                if (Environment.OSVersion.Version.Major >= 10)
+                    this.WindowState = WindowState.Maximized;
                 this.WindowStyle = WindowStyle.None;
 			}
 		}

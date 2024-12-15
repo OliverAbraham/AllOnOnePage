@@ -502,7 +502,7 @@ The Word 'Garbage:' will be the heading.
             }
             catch (Exception)
             {
-                entry.DataObject = new ServerDataObject(filter.Keyword, "???");
+                entry.DataObject = new ServerDataObject(filter.Keyword, "???", new DateTimeOffset());
             }
             return entry;
         }
@@ -522,7 +522,7 @@ The Word 'Garbage:' will be the heading.
         {
             if (entry.DataObject == null)
             {
-                entry.DataObject = new ServerDataObject("", "");
+                entry.DataObject = new ServerDataObject("", "", new DateTimeOffset());
                 entry.ConvertedDate = new DateTime(1, 1, 1);
                 entry.Weekday = "??";
             }

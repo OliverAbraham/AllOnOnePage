@@ -128,6 +128,7 @@ namespace AllOnOnePage.Plugins
             if (yes2 && !forUs2)
                 return;
 
+            var timestamp = new DateTimeOffset();
             System.Diagnostics.Debug.WriteLine($"ModText: UpdateContent");
             if (yes1 || yes2)
             {
@@ -136,7 +137,9 @@ namespace AllOnOnePage.Plugins
             }
             else if (TheHomenetServerShouldBeUsed())
             {
-                localValue = ReadValueDirectlyFromHomenetServer();
+                var dataObject2 = ReadValueDirectlyFromHomenetServer();
+                localValue = dataObject2?.Value ?? "???";
+                timestamp = dataObject2?.Timestamp ?? new DateTimeOffset();
             }
             else if (TheMqttBrokerShouldBeUsed())
             {
@@ -147,7 +150,8 @@ namespace AllOnOnePage.Plugins
                 localValue = _myConfiguration.Text;
             }
 
-            Value = MapTechnicalValueToDisplayValue(localValue);
+            Value = MapTechnicalValueToDisplayValue(localValue, timestamp);
+
             NotifyPropertyChanged(nameof(Value));
             SetWarningColorIfNecessary();
             SetValueControlVisible();
@@ -202,44 +206,135 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			return result;
         }
 
-        private string MapTechnicalValueToDisplayValue(string value)
+        private string MapTechnicalValueToDisplayValue(string value, DateTimeOffset timestamp)
         {
             if (value is null)
                 return value;
 
-			if (_myConfiguration.MaxLength > 0)
+            value = ReplaceTextRules(value, timestamp);
+            value = CutDecimalsFromNumbers(value);
+            value = ApplyFormatString(value);
+            value = ReplaceTextWithPredefinedServerValues(value);
+            value = AddUnitToValue(value);
+            value = CutToLength(value);
+
+            return value;
+        }
+
+        private string ReplaceTextRules(string value, DateTimeOffset timestamp)
+        {
+            if (!ReplaceRulesGiven())
+                return value;
+
+            var rules = ExtractRules();
+
+            foreach (var rule in rules)
             {
-                if (value.Length > _myConfiguration.MaxLength)
-				    value = value.Substring(0, _myConfiguration.MaxLength);
+                var ruleMatchesToCurrentValue = value == rule.Item1;
+                if (ruleMatchesToCurrentValue)
+                {
+                    if (rule.Item2.Contains("[TimestampSince]"))
+                    {
+                        var timestampSince = timestamp.ToString("HH:mm");
+                        value = rule.Item2.Replace("[TimestampSince]", timestampSince);
+                    }
+                    else if (rule.Item2.Contains("[Age]"))
+                    {
+                        var age = DateTime.Now - timestamp; 
+                        var ageFormatted = "";
+                        if (age.TotalDays > 1.0)
+                            ageFormatted = $"{age.TotalDays:N0}d";
+                        else if (age.TotalHours > 1.0)
+                            ageFormatted = $"{age.TotalHours:N0}h";
+                        else if (age.TotalMinutes > 1.0)
+                            ageFormatted = $"{age.TotalMinutes:N0}m";
+                        else 
+                            ageFormatted = $"{age.TotalSeconds:N0}s";
+
+                        value = rule.Item2.Replace("[Age]", ageFormatted);
+                    }
+                    else
+                    {
+                        value = value.Replace(rule.Item1, rule.Item2);
+                    }
+                }
             }
 
-			if (!string.IsNullOrWhiteSpace(_myConfiguration.ReplaceText))
+            return value;
+        }
+
+        private List<(string,string)> ExtractRules()
+        {
+            List<(string,string)> rules = new();
+
+            var srceTexts = _myConfiguration.ReplaceText.Split('|').ToList();
+            var destTexts = _myConfiguration.ReplaceWith.Split('|').ToList();
+            if (srceTexts.Count != destTexts.Count)
+                return rules;
+
+            for (var i = 0; i < srceTexts.Count; i++)
             {
-                value = value.Replace(_myConfiguration.ReplaceText, _myConfiguration.ReplaceWith);
+                rules.Add( (srceTexts[i], destTexts[i]) );
             }
 
+            return rules;
+        }
+
+        private bool ReplaceRulesGiven()
+        {
+            return !string.IsNullOrWhiteSpace(_myConfiguration.ReplaceText) &&
+                   !string.IsNullOrWhiteSpace(_myConfiguration.ReplaceWith);
+        }
+
+        private string CutDecimalsFromNumbers(string value)
+        {
             // if decimals are set, we try to convert the string to a number, then cut off the unwanted decimals
-			if (!string.IsNullOrWhiteSpace(_myConfiguration.Decimals))
+            if (!string.IsNullOrWhiteSpace(_myConfiguration.Decimals))
             {
                 if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out double numberValue))
-				    value = numberValue.ToString("N" + _myConfiguration.Decimals);
+                    value = numberValue.ToString("N" + _myConfiguration.Decimals);
             }
 
-			if (!string.IsNullOrWhiteSpace(_myConfiguration.FormatString))
+            return value;
+        }
+
+        private string ApplyFormatString(string value)
+        {
+            if (!string.IsNullOrWhiteSpace(_myConfiguration.FormatString))
             {
                 if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out double numberValue))
-				    value = numberValue.ToString(_myConfiguration.FormatString);
+                    value = numberValue.ToString(_myConfiguration.FormatString);
             }
 
-			if (_serverMessages is not null)
+            return value;
+        }
+
+        private string ReplaceTextWithPredefinedServerValues(string value)
+        {
+            if (_serverMessages is not null)
             {
                 var message = _serverMessages.Values.Where(x => x.Value == value).FirstOrDefault();
-			    if (message is not null)
+                if (message is not null)
                     value = message.Text;
             }
 
+            return value;
+        }
+
+        private string AddUnitToValue(string value)
+        {
             if (!string.IsNullOrEmpty(_myConfiguration.Unit))
                 value += " " + _myConfiguration.Unit;
+            return value;
+        }
+
+        private string CutToLength(string value)
+        {
+            if (_myConfiguration.MaxLength > 0)
+            {
+                if (value.Length > _myConfiguration.MaxLength)
+                    value = value.Substring(0, _myConfiguration.MaxLength);
+            }
 
             return value;
         }
@@ -285,16 +380,15 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
             return !string.IsNullOrWhiteSpace(_myConfiguration.ServerDataObject);
         }
 
-        private string ReadValueDirectlyFromHomenetServer()
+        private ServerDataObject ReadValueDirectlyFromHomenetServer()
         {
 			try
 			{
-				var dataObject = _config.ApplicationData._homenetGetter.TryGet(_myConfiguration.ServerDataObject);
-				return dataObject?.Value ?? "???";
+				return _config.ApplicationData._homenetGetter.TryGet(_myConfiguration.ServerDataObject);
 			}
 			catch (Exception)
 			{
-				return "???";
+				return new ServerDataObject(_myConfiguration.ServerDataObject, "???", new DateTimeOffset());
 			}
         }
         #endregion

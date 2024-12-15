@@ -248,7 +248,13 @@ namespace AllOnOnePage
 
 		private void LayoutManager_RestorePosition()
 		{
-            _windowLayoutManager.RestoreSizeAndPosition(this, nameof(MainWindow));
+            try
+            {
+                _windowLayoutManager.RestoreSizeAndPosition(this, nameof(MainWindow));
+            }
+            catch (Exception) 
+            {
+            }
 
             // hide mouse pointer and title bar in fullscreen mode
             if (_config.FullScreenDisplay)

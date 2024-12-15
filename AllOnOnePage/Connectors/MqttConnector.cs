@@ -30,7 +30,7 @@ namespace AllOnOnePage.Connectors
         public ServerDataObject TryGet(string topic)
         {
             var value = _mqttClient.TryGet(topic);
-            return new ServerDataObject(topic, value);
+            return new ServerDataObject(topic, value, new DateTime());
         }
         #endregion
 
@@ -104,7 +104,7 @@ namespace AllOnOnePage.Connectors
         #region ------------- Implementation ------------------------------------------------------
         private void OnDataobjectChangeLocal(string topic, string value)
         {
-            var eventData = new ServerDataObjectChange("MQTT", topic, value);
+            var eventData = new ServerDataObjectChange("MQTT", topic, value, new DateTimeOffset());
             OnDataobjectChange(eventData);
         }
         #endregion

@@ -32,7 +32,7 @@ namespace AllOnOnePage.Connectors
         public ServerDataObject TryGet(string dataObjectName)
         {
             var Do = _dataObjectsConnector.TryGet(dataObjectName);
-            return new ServerDataObject(Do.Name, Do.Value);
+            return new ServerDataObject(Do.Name, Do.Value, Do.Timestamp);
         }
         #endregion
 
@@ -110,7 +110,7 @@ namespace AllOnOnePage.Connectors
 
         private void OnDataobjectChangeLocal(Abraham.HomenetBase.Models.DataObject Do)
         {
-            var eventData = new ServerDataObjectChange("HOMENET", Do.Name, Do.Value);
+            var eventData = new ServerDataObjectChange("HOMENET", Do.Name, Do.Value, Do.Timestamp);
             OnDataobjectChange(eventData);
         }
 

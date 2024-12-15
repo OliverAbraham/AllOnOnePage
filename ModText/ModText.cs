@@ -6,6 +6,7 @@ using System.Windows.Media;
 using PluginBase;
 using System.Globalization;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace AllOnOnePage.Plugins
 {
@@ -107,6 +108,7 @@ namespace AllOnOnePage.Plugins
 
 		public override async Task<(bool success, string messages)> Test()
 		{
+            DeserializeConfig();
             return (false, "");
 		}
 
@@ -154,7 +156,8 @@ namespace AllOnOnePage.Plugins
 
             NotifyPropertyChanged(nameof(Value));
             SetWarningColorIfNecessary();
-            SetValueControlVisible();
+            //SetValueControlVisible();
+            SetVisibility(Value);
             return;
         }
 
@@ -172,30 +175,35 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
 		#region ------------- Implementation ------------------------------------------------------
 		private void InitConfiguration()
-		{
-			try
-			{
-				_myConfiguration = System.Text.Json.JsonSerializer.Deserialize<MyConfiguration>(_config.ModulePrivateData);
-			}
+        {
+            try
+            {
+                _myConfiguration = System.Text.Json.JsonSerializer.Deserialize<MyConfiguration>(_config.ModulePrivateData);
+            }
             catch (Exception)
-			{
-			}
+            {
+            }
 
-			if (_myConfiguration == null)
-				CreateSeedData();
+            if (_myConfiguration == null)
+                CreateSeedData();
 
-			try
-			{
-			    _serverMessages      = Deserialize(_myConfiguration.ServerMessages);
-			    _serverFadeOutValues = Deserialize(_myConfiguration.ServerFadeOutValues);
-			    _serverWarningValues = Deserialize(_myConfiguration.ServerWarningValues);
-			    _serverPlaySound     = Deserialize(_myConfiguration.ServerPlaySound);
-			    _fadeOutAfter        = Deserialize(_myConfiguration.FadeOutAfter);
-			}
+            DeserializeConfig();
+        }
+
+        private void DeserializeConfig()
+        {
+            try
+            {
+                _serverMessages      = Deserialize(_myConfiguration.ServerMessages);
+                _serverFadeOutValues = Deserialize(_myConfiguration.ServerFadeOutValues);
+                _serverWarningValues = Deserialize(_myConfiguration.ServerWarningValues);
+                _serverPlaySound     = Deserialize(_myConfiguration.ServerPlaySound);
+                _fadeOutAfter        = Deserialize(_myConfiguration.FadeOutAfter);
+            }
             catch (Exception)
-			{
-			}
-		}
+            {
+            }
+        }
 
         private Params Deserialize(string data)
         {
@@ -207,7 +215,13 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
             foreach (var part in parts)
 			{
 				var pair = part.Split('=', StringSplitOptions.RemoveEmptyEntries);
-				result.Values.Add(new Param(pair[0], pair[1]));
+                if (pair is not null)
+                {
+                    if (pair.Length < 2)
+                        result.Values.Add(new Param("", pair[0]));
+                    else
+                        result.Values.Add(new Param(pair[0], pair[1]));
+                }
 			}
 			return result;
         }
@@ -367,6 +381,35 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         {
             return _serverWarningValues is not null && _serverWarningValues.Values.Any();
         }
+
+        private void SetVisibility(string value)
+        {
+            _serverFadeOutValues = Deserialize(_myConfiguration.ServerFadeOutValues);
+            if (_serverFadeOutValues is null)
+                return;
+
+            foreach(var fadeValue in _serverFadeOutValues.Values)
+            {
+                if (fadeValue.Value == value)
+                {
+                    FadeOut();
+                    return;
+                }
+            }
+
+            FadeIn();
+        }
+        
+
+		private void FadeIn()
+        {
+			WpfAnimations.FadeIn(base._ValueControl, UIElement.OpacityProperty);
+		}
+
+		private void FadeOut()
+        {
+			WpfAnimations.FadeOutTextBlock(base._ValueControl);
+		}
         #endregion
 
 

@@ -184,11 +184,17 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			if (_myConfiguration == null)
 				CreateSeedData();
 
-			_serverMessages      = Deserialize(_myConfiguration.ServerMessages);
-			_serverFadeOutValues = Deserialize(_myConfiguration.ServerFadeOutValues);
-			_serverWarningValues = Deserialize(_myConfiguration.ServerWarningValues);
-			_serverPlaySound     = Deserialize(_myConfiguration.ServerPlaySound);
-			_fadeOutAfter        = Deserialize(_myConfiguration.FadeOutAfter);
+			try
+			{
+			    _serverMessages      = Deserialize(_myConfiguration.ServerMessages);
+			    _serverFadeOutValues = Deserialize(_myConfiguration.ServerFadeOutValues);
+			    _serverWarningValues = Deserialize(_myConfiguration.ServerWarningValues);
+			    _serverPlaySound     = Deserialize(_myConfiguration.ServerPlaySound);
+			    _fadeOutAfter        = Deserialize(_myConfiguration.FadeOutAfter);
+			}
+            catch (Exception)
+			{
+			}
 		}
 
         private Params Deserialize(string data)
@@ -267,8 +273,11 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         {
             List<(string,string)> rules = new();
 
-            var srceTexts = _myConfiguration.ReplaceText.Split('|').ToList();
-            var destTexts = _myConfiguration.ReplaceWith.Split('|').ToList();
+            var srceTexts = (_myConfiguration.ReplaceText is not null) ? _myConfiguration.ReplaceText.Split('|').ToList() : new();
+            var destTexts = (_myConfiguration.ReplaceWith is not null) ? _myConfiguration.ReplaceWith.Split('|').ToList() : new();
+            if (srceTexts.Count == 1 && destTexts.Count == 0)
+                destTexts.Add("");
+
             if (srceTexts.Count != destTexts.Count)
                 return rules;
 
@@ -282,8 +291,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
         private bool ReplaceRulesGiven()
         {
-            return !string.IsNullOrWhiteSpace(_myConfiguration.ReplaceText) &&
-                   !string.IsNullOrWhiteSpace(_myConfiguration.ReplaceWith);
+            return !string.IsNullOrWhiteSpace(_myConfiguration.ReplaceText);
         }
 
         private string CutDecimalsFromNumbers(string value)
@@ -323,7 +331,8 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
         private string AddUnitToValue(string value)
         {
-            if (!string.IsNullOrEmpty(_myConfiguration.Unit))
+            if (!string.IsNullOrEmpty(_myConfiguration.Unit) &&
+                !string.IsNullOrEmpty(value))
                 value += " " + _myConfiguration.Unit;
             return value;
         }

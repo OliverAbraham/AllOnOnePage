@@ -727,7 +727,6 @@ namespace AllOnOnePage
         private async Task InitAndReconnectConnectorsLoop()
         {
             _logger.Log(        $"InitAndReconnectConnectorsLoop");
-            StatusText.Content = "InitAndReconnectConnectorsLoop";
 
             foreach(var connector in _connectors)
             {
@@ -747,7 +746,6 @@ namespace AllOnOnePage
             WaitAndThenCallMethod(wait_time_seconds: 10, action: ReconnectLoop);
 
 
-            StatusText.Content = "Connected";
             _logger.Log("Connected");
         }
 
@@ -779,20 +777,11 @@ namespace AllOnOnePage
                 }
             }
 
-
             if (!_endTheReconnectorLoop)
                 WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectLoop);
 
-
             if (changes)
-            {
-                StatusText.Content = statusText;
                 _logger.Log(statusText);
-            }
-            else
-            {
-                StatusText.Content = "";
-            }
         }
 
         private void StopAllConnectors()

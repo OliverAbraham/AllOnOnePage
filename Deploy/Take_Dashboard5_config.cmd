@@ -15,5 +15,3 @@ set ROOT=\\server1\Dashboard5
 
 copy "%CONFIGDIR%\appsettings.hjson" "%USERPROFILE%\Documents\All on one page"
 
-cd "..\AllOnOnePage\bin\publish"
-AllOnOnePage.exe

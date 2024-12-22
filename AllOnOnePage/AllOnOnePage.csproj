@@ -205,6 +205,7 @@
     <Message Text="." Importance="high" />
 	<Message Text="---------------------------------------------------------------" Importance="high" />
 	<Message Text="Copy all Plugins to publish dir:" Importance="high" />
+	<Exec Command="del                                                                          C:\GIT\AllOnOnePage\AllOnOnePage\bin\publish\plugins\* /Q"   />
 	<Exec Command="xcopy C:\GIT\AllOnOnePage\AllOnOnePage\bin\Release\net6.0-windows\plugins\*  C:\GIT\AllOnOnePage\AllOnOnePage\bin\publish\plugins  /S" />
 	<Message Text="---------------------------------------------------------------" Importance="high" />
     <Message Text="---------------------------------------------------------------" Importance="high" />

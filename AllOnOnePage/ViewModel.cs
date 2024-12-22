@@ -865,6 +865,8 @@ namespace AllOnOnePage
             CreateEdge  (shape, dashed, thickness, strokeColor, hoverColor,    p.Right    , p.Top    + 7, p.Right     , p.Bottom - 7, mouse, ref _MouseOnRightEdge , mouseOnAnyCorner);
             CreateEdge  (shape, dashed, thickness, strokeColor, hoverColor,    p.Left  + 7, p.Bottom    , p.Right  - 7, p.Bottom    , mouse, ref _MouseOnBottomEdge, mouseOnAnyCorner);
 
+            CreateGridTextBlock(shape, strokeColor, 12, _CurrentModule.GetName(), p.Left+ 7, p.Top + 7);
+
             foreach (var element in shape.Elements)
                 _Canvas.Children.Add(element);
 
@@ -900,6 +902,20 @@ namespace AllOnOnePage
             if (dashed)
                 (e as Line).StrokeDashArray = new DoubleCollection { 2 };
             shape.Elements.Add(e);
+        }
+
+        private void CreateGridTextBlock(HighLight shape, Brush foreground, int fontSize, string text, double left, double top)
+        {
+            var control                 = new TextBlock();
+            control.Foreground          = foreground;
+            control.FontSize            = fontSize;
+            control.FontFamily          = new System.Windows.Media.FontFamily("Yu Gothic UI Light");
+            control.FontStretch         = FontStretch.FromOpenTypeStretch(3);
+            control.HorizontalAlignment = HorizontalAlignment.Left;
+            control.VerticalAlignment   = VerticalAlignment.Top;
+            control.Margin              = new Thickness(left, top, 0, 0);
+            control.Text                = text;
+            shape.Elements.Add(control);
         }
 
         private void CreateCorder(HighLight shape, int thickness, SolidColorBrush strokeColor, SolidColorBrush nearColor, SolidColorBrush fillColor, 
@@ -1049,6 +1065,7 @@ namespace AllOnOnePage
 				{
                     module.Plugin.Recreate();
 				    module.Plugin.UpdateLayout();
+				    module.Plugin.UpdateContent(null);
 				    SaveConfiguration();
 				}
 			}

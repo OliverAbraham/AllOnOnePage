@@ -74,7 +74,7 @@ namespace AllOnOnePage.Plugins
 		public void CopyPropertiesFrom(ModuleConfig source)
 		{
             ID                     = source.ID;
-            ModuleName             = source.ModuleName + " copy";
+            ModuleName             = source.ModuleName;
             X                      = source.X;
             Y                      = source.Y;
             W                      = source.W;

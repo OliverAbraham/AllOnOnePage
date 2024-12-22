@@ -95,6 +95,7 @@ Several configuration dialogs:
 - ModPrtg: Display PRTG topics
 - ModGoogleCalendar: Display appointments from a google calendar. Searches for up to four
 events by given search terms.
+- ModGoogleCalendar2: Display next n appointments from a google calendar (subject, date and time, up to 4).
 - a general calendar is planned.
 - Email: displays the number of unread emails in a given postbox
 - Notification Area: can display events. You can define a set of MQTT topics with values.

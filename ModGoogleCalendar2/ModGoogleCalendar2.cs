@@ -13,26 +13,17 @@ using System.IO;
 
 namespace AllOnOnePage.Plugins
 {
-    public class ModGoogleCalendar : ModBase, INotifyPropertyChanged
+    public class ModGoogleCalendar2 : ModBase, INotifyPropertyChanged
 	{
 		#region ------------- Settings ------------------------------------------------------------
 		public class MyConfiguration : ModuleSpecificConfig
 		{
             public string HeadingColor            { get; set; }
-            public bool   LoadDataFromHomenet     { get; set; }
-            public string HomenetDataObjectName   { get; set; }
-
-            public bool   LoadDataFromGoogle      { get; set; }
             public string GoogleCredentials       { get; set; }
             public string UpdateIntervalInMinutes { get; set; }
-            public int    DaysToReadInAdvance     { get; set; }
             public string DateFormatting          { get; set; }
-
-            public string Entry1                  { get; set; }
-            public string Entry2                  { get; set; }
-            public string Entry3                  { get; set; }
-            public string Entry4                  { get; set; }
-            public string WeekdayNames            { get; set; }
+            public int    DaysToReadInAdvance     { get; set; }
+            public int    NumberOfEntries         { get; set; }
         }
 		#endregion
 
@@ -92,17 +83,16 @@ namespace AllOnOnePage.Plugins
 
 
         #region ------------- Fields --------------------------------------------------------------
-		private MyConfiguration                  _myConfiguration;
-        private Grid                             _grid;
-        private List<Entry>                      _entries = new();
-		private Stopwatch                        _stopwatch;
-		private const int                        _oneMinute = 60 * 1000;
-		private int                              _updateIntervalInMinutes = 60;
-        private string                           _connectorMessages;
-        private SolidColorBrush                  _headingColor;
-        private List<Filter>                     _filters;
+		private MyConfiguration    _myConfiguration;
+        private Grid               _grid;
+        private List<Entry>        _entries = new();
+		private Stopwatch          _stopwatch;
+		private const int          _oneMinute = 60 * 1000;
+		private int                _updateIntervalInMinutes = 60;
+        private string             _connectorMessages;
+        private SolidColorBrush    _headingColor;
+        private List<Filter>       _filters;
         private List<GoogleCalendarReader.Event> _calendarEvents;
-        private string[]                         _weekdayNames;
         #endregion
 
 
@@ -129,16 +119,10 @@ namespace AllOnOnePage.Plugins
 		{
 			_myConfiguration                          = new MyConfiguration();
             _myConfiguration.HeadingColor             = "#FF90EE90"; //Brushes.LightGreen;
-            _myConfiguration.LoadDataFromHomenet      = false;
-            _myConfiguration.LoadDataFromGoogle       = true;
 			_myConfiguration.GoogleCredentials        = "(Enter your Google credentials)";
             _myConfiguration.UpdateIntervalInMinutes  = "60";
-            _myConfiguration.DaysToReadInAdvance      = 14;
+            _myConfiguration.NumberOfEntries          = 4;
             _myConfiguration.DateFormatting           = "dd.MM";
-            _myConfiguration.Entry1                   = "ABHOLUNG_BIOTONNE";
-            _myConfiguration.Entry2                   = "ABHOLUNG_GELBERSACK";
-            _myConfiguration.Entry3                   = "ABHOLUNG_PAPIERTONNE";
-            _myConfiguration.Entry4                   = "ABHOLUNG_RESTMUELL";
 		}
 
 		public override async Task Save()
@@ -192,17 +176,14 @@ namespace AllOnOnePage.Plugins
 
 		public override async Task<(bool success, string messages)> Test()
 		{
-            CopyFilterEntriesToFilterList();
             ReadCalendar();
             FindEventsInGoogleCalendarToDisplay();
             UpdateUI();
             
+            var selectedEvents = _calendarEvents.Take(_myConfiguration.NumberOfEntries).ToList();
             var formattedResult = 
                 "Events that were read from Google Calendar:\n\n" +
-                string.Join('\n', _calendarEvents) + 
-                "\n\n" + 
-                "Found these events by given filters:\n" +
-                string.Join('\n', _filters.Select(x => $"FilterKeyword: {x.Keyword} Results: {x.ResultsCount} events"));
+                string.Join('\n', selectedEvents) + "\n\n";
 
             return (false, formattedResult);
 		}
@@ -210,15 +191,7 @@ namespace AllOnOnePage.Plugins
 		public override Dictionary<string,string> GetHelp()
 		{
             var texts = new Dictionary<string,string>();
-            texts.Add("de-DE", 
-@"This module displays up to four events from your Google calendar, sorted by date
-You need to give a filter for each entry. The filter is a keyword that is contained in the event's title.
-This module was planned to list recurring events like garbage collection dates.
-In the four filter settings, specify the filter word, a separator | and the heading for the event.
-For example: 'Garbage can|Garbage:'
-The module will read the events from your Google calendar and search for the given filter 'Garbage can' in the subjects.
-The Word 'Garbage:' will be the heading.
-");
+            texts.Add("de-DE", @"This module displays up to four events from your Google calendar, sorted by date and time");
             return texts;
         }
         
@@ -253,36 +226,6 @@ The Word 'Garbage:' will be the heading.
                 CreateSeedData();
 
             _headingColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(_myConfiguration.HeadingColor));
-            CopyFilterEntriesToFilterList();
-            DeserializeWeekdayNames();
-        }
-
-        private void DeserializeWeekdayNames()
-        {
-            if (!string.IsNullOrEmpty(_myConfiguration.WeekdayNames))
-                _weekdayNames = _myConfiguration.WeekdayNames.Split('|', StringSplitOptions.RemoveEmptyEntries);
-            
-            if (_weekdayNames is null || _weekdayNames.GetLength(0) < (3+7))
-            {
-                _weekdayNames = new string[3] { "Yesterday", "Today", "Tomorrow" };
-                _myConfiguration.WeekdayNames = "Yesterday|Today|Tomorrow|Sun|Mon|Tue|Wed|Thu|Fri|Sat";
-            }
-        }
-
-        private void CopyFilterEntriesToFilterList()
-        {
-            _filters = new();
-            CopyEntry(ref _filters, _myConfiguration.Entry1);
-            CopyEntry(ref _filters, _myConfiguration.Entry2);
-            CopyEntry(ref _filters, _myConfiguration.Entry3);
-            CopyEntry(ref _filters, _myConfiguration.Entry4);
-        }
-
-        private void CopyEntry(ref List<Filter> filters, string entry)
-        {
-            Filter filter = Deserialize(entry);
-            if (filter is not null) 
-                _filters.Add(filter);
         }
 
         private Filter Deserialize(string data)
@@ -429,10 +372,7 @@ The Word 'Garbage:' will be the heading.
 
         private void ReadCalendar()
         {
-            if (_myConfiguration.LoadDataFromHomenet)
-                LoadCalendarEntriesFromHomenet();
-            else
-                LoadCalendarEntriesFromGoogle();
+            LoadCalendarEntriesFromGoogle();
         }
         #endregion
 		#region ------------- Load data from Google -----------------------------------------------
@@ -471,16 +411,11 @@ The Word 'Garbage:' will be the heading.
 			try
 			{
                 _entries.Clear();
-                foreach(var filter in _filters)
+                foreach(var @event in _calendarEvents.Take(_myConfiguration.NumberOfEntries).ToList())
                 {
-                    var @event = _calendarEvents.FirstOrDefault(e => e.Summary.Contains(filter.Keyword));
-                    if (@event is not null)
-                    {
-                        filter.ResultsCount = _calendarEvents.Where(e => e.Summary.Contains(filter.Keyword)).Count();
-                        var weekday = @event.When?.DayOfWeek.ToString() ?? "???";
-                        var formattedDate = @event.When?.ToString(_myConfiguration.DateFormatting) ?? "???";
-                        _entries.Add(new Entry(@event.When, filter.Heading, filter.Keyword, weekday, formattedDate));
-                    }
+                    var weekday = @event.When?.DayOfWeek.ToString() ?? "???";
+                    var formattedDate = @event.When?.ToString(_myConfiguration.DateFormatting) ?? "???";
+                    _entries.Add(new Entry(@event.When, @event.Summary, "???", weekday, formattedDate));
                 }
             }
 			catch (Exception ex)
@@ -490,38 +425,6 @@ The Word 'Garbage:' will be the heading.
         }
         #endregion
 		#region ------------- Load data from Homenet ----------------------------------------------
-        private void LoadCalendarEntriesFromHomenet()
-        {
-			try
-			{
-                _entries.Clear();
-                foreach (var filter in _filters)
-                {
-                    var entry = LoadEntry(filter);
-                    _entries.Add(entry);
-                }
-                FormatEventDates();
-            }
-			catch (Exception)
-			{
-			}
-        }
-
-        private Entry LoadEntry(Filter filter)
-        {
-            var entry = new Entry();
-            entry.Heading = filter.Heading;
-            try
-            {
-                entry.DataObject = _config.ApplicationData._homenetGetter.TryGet(filter.Keyword);
-            }
-            catch (Exception)
-            {
-                entry.DataObject = new ServerDataObject(filter.Keyword, "???", new DateTimeOffset());
-            }
-            return entry;
-        }
-
         private void FormatEventDates()
         {
             foreach (var entry in _entries)
@@ -578,13 +481,13 @@ The Word 'Garbage:' will be the heading.
         {
             switch (convertedDate.DayOfWeek)
             {
-                case DayOfWeek.Sunday   : return _weekdayNames[3]; // "Sun";
-                case DayOfWeek.Monday   : return _weekdayNames[4]; // "Mon";
-                case DayOfWeek.Tuesday  : return _weekdayNames[5]; // "Tue";
-                case DayOfWeek.Wednesday: return _weekdayNames[6]; // "Wed";
-                case DayOfWeek.Thursday : return _weekdayNames[7]; // "Thu";
-                case DayOfWeek.Friday   : return _weekdayNames[8]; // "Fri";
-                case DayOfWeek.Saturday : return _weekdayNames[9]; // "Sat";
+                case DayOfWeek.Sunday   : return "Sun";
+                case DayOfWeek.Monday   : return "Mon";
+                case DayOfWeek.Tuesday  : return "Tue";
+                case DayOfWeek.Wednesday: return "Wed";
+                case DayOfWeek.Thursday : return "Thu";
+                case DayOfWeek.Friday   : return "Fri";
+                case DayOfWeek.Saturday : return "Sat";
                 default                 : return "???";
             }
         }
@@ -601,27 +504,20 @@ The Word 'Garbage:' will be the heading.
         {
             foreach (var entry in entries)
             {
-                if (entry.ConvertedDate == DateTime.Today.AddDays(-1))
+                if (entry.ConvertedDate == DateTime.Today)
                 {
-                    entry.Weekday = _weekdayNames[0]; // "Yesterday";
-                    entry.Date    = "";
-                }
-                else if (entry.ConvertedDate == DateTime.Today)
-                {
-                    entry.Weekday = _weekdayNames[1]; // "Today";
+                    entry.Weekday = "Today";
                     entry.Date    = "";
                 }
                 else if (entry.ConvertedDate == DateTime.Today.AddDays(1))
                 {
-                    entry.Weekday = _weekdayNames[2]; // "Tomorrow";
+                    entry.Weekday = "Tomorrow";
                     entry.Date    = "";
                 }
-                else
+                else if (entry.ConvertedDate == DateTime.Today.AddDays(-1))
                 {
-                    var daysAhead = entry.ConvertedDate - DateTime.Today;
-                    if (daysAhead.TotalDays < 6)
-                        entry.Date    = "";
-                    entry.Weekday = GetWeekdayNameFromDate(entry.ConvertedDate);
+                    entry.Weekday = "Yesterday";
+                    entry.Date    = "";
                 }
             }
         }

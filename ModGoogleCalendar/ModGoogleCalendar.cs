@@ -194,7 +194,7 @@ namespace AllOnOnePage.Plugins
 		{
             CopyFilterEntriesToFilterList();
             ReadCalendar();
-            FindEventsInGoogleCalendarToDisplay();
+            FilterEntries();
             UpdateUI();
             
             var formattedResult = 
@@ -241,6 +241,14 @@ The Word 'Garbage:' will be the heading.
 		#region ------------- General -------------------------------------------------------------
 		private void InitConfiguration()
         {
+            DeserializeConfigurationSet();
+            ConvertColors();
+            CopyFilterEntriesToFilterList();
+            DeserializeWeekdayNames();
+        }
+
+        private void DeserializeConfigurationSet()
+        {
             try
             {
                 _myConfiguration = System.Text.Json.JsonSerializer.Deserialize<MyConfiguration>(_config.ModulePrivateData);
@@ -251,22 +259,11 @@ The Word 'Garbage:' will be the heading.
 
             if (_myConfiguration == null)
                 CreateSeedData();
-
-            _headingColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(_myConfiguration.HeadingColor));
-            CopyFilterEntriesToFilterList();
-            DeserializeWeekdayNames();
         }
 
-        private void DeserializeWeekdayNames()
+        private void ConvertColors()
         {
-            if (!string.IsNullOrEmpty(_myConfiguration.WeekdayNames))
-                _weekdayNames = _myConfiguration.WeekdayNames.Split('|', StringSplitOptions.RemoveEmptyEntries);
-            
-            if (_weekdayNames is null || _weekdayNames.GetLength(0) < (3+7))
-            {
-                _weekdayNames = new string[3] { "Yesterday", "Today", "Tomorrow" };
-                _myConfiguration.WeekdayNames = "Yesterday|Today|Tomorrow|Sun|Mon|Tue|Wed|Thu|Fri|Sat";
-            }
+            _headingColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(_myConfiguration.HeadingColor));
         }
 
         private void CopyFilterEntriesToFilterList()
@@ -299,9 +296,20 @@ The Word 'Garbage:' will be the heading.
             result.Heading =(parts.Length >= 2) ? parts[1] : parts[0];
 			return result;
         }
+
+        private void DeserializeWeekdayNames()
+        {
+            if (!string.IsNullOrEmpty(_myConfiguration.WeekdayNames))
+                _weekdayNames = _myConfiguration.WeekdayNames.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            
+            if (_weekdayNames is null || _weekdayNames.GetLength(0) < (3+7))
+            {
+                _weekdayNames = new string[3] { "Yesterday", "Today", "Tomorrow" };
+                _myConfiguration.WeekdayNames = "Yesterday|Today|Tomorrow|Sun|Mon|Tue|Wed|Thu|Fri|Sat";
+            }
+        }
         #endregion
 		#region ------------- Create Grid ---------------------------------------------------------
-
         public override void Delete()
 		{
             if (_grid is not null)
@@ -338,53 +346,58 @@ The Word 'Garbage:' will be the heading.
             Panel.SetZIndex(_NameControl, -1);
         }
 
-        protected void CreateTwoRowGroup(int group, string heading, string weekday, string date)
+        protected void CreateTwoRowGroup(int rowIndex, string row1TextPropertyName, string row2Col1TextPropertyName, string row2Col2TextPropertyName)
         {
-            CreateRow1(group, heading);
-            CreateRow2(group, weekday, date);
+            var row1Height   = _config.FontSize * 25 / 45;
+            var row2Height   = _config.FontSize;
+            var row1FontSize = _config.FontSize * 20 / 45;
+            var row2FontSize = _config.FontSize * 30 / 45;
+
+            CreateRow1(rowIndex  , row1Height, row1FontSize, _headingColor, row1TextPropertyName);
+            CreateRow2(rowIndex+1, row2Height, row2FontSize, _textColor   , row2Col1TextPropertyName, row2Col2TextPropertyName);
         }
 
-        private TextBlock CreateRow1(int row, string heading)
+        private void CreateRow1(int rowIndex, int height, int fontSize, SolidColorBrush textColor, string textPropertyName)
         {
-            var row1 = new RowDefinition() { Height = new GridLength(_config.FontSize*25/45) };
-            _grid.RowDefinitions.Add(row1);
+            var rowDef = new RowDefinition() { Height = new GridLength(height) };
+            _grid.RowDefinitions.Add(rowDef);
 
-            var textBlock = CreateGridTextBlock(_headingColor, _config.FontSize*20/45, heading);
-            Grid.SetRow(textBlock, row);
-            _grid.Children.Add(textBlock);
-            Panel.SetZIndex(textBlock, 2);
+            var row = new Grid();
+            Grid.SetRow(row, rowIndex);
 
-            var row2 = new RowDefinition() { Height = new GridLength(_config.FontSize) };
-            _grid.RowDefinitions.Add(row2);
-            Panel.SetZIndex(textBlock, 2);
-            return textBlock;
+            CreateCell(row, 0, textPropertyName, fontSize, textColor);
+
+            _grid.Children.Add(row);
         }
 
-        private void CreateRow2(int row, string weekday, string date)
+        private void CreateRow2(int rowIndex, int height, int fontsize, SolidColorBrush textColor, string col1PropertyName, string col2PropertyName)
         {
-            var columnGrid = new Grid();
-            Grid.SetRow(columnGrid, row+1);
+            var rowDef = new RowDefinition() { Height = new GridLength(height) };
+            _grid.RowDefinitions.Add(rowDef);
 
-            var col1 = new ColumnDefinition();
+            var row = new Grid();
+            Grid.SetRow(row, rowIndex);
+
+            CreateCell(row, 0, col1PropertyName, fontsize, textColor);
+            CreateCell(row, 1, col2PropertyName, fontsize, textColor);
+
+            _grid.Children.Add(row);
+        }
+
+        private void CreateCell(Grid row, int columnIndex, string textPropertyName, int fontSize, SolidColorBrush textColor)
+        {
             var col2 = new ColumnDefinition();
-            columnGrid.ColumnDefinitions.Add(col1);
-            columnGrid.ColumnDefinitions.Add(col2);
-            var textBlock1 = CreateGridTextBlock(_textColor, _config.FontSize*30/45, weekday);
-            var textBlock2 = CreateGridTextBlock(_textColor, _config.FontSize * 30 / 45, date);
-            Panel.SetZIndex(textBlock1, 2);
-            Panel.SetZIndex(textBlock2, 2);
-            Grid.SetColumn(textBlock2, 0);
-            Grid.SetColumn(textBlock2, 1);
-            columnGrid.Children.Add(textBlock1);
-            columnGrid.Children.Add(textBlock2);
-
-            _grid.Children.Add(columnGrid);
+            row.ColumnDefinitions.Add(col2);
+            var textBlock = CreateTextBlock(textColor, fontSize, textPropertyName);
+            Panel.SetZIndex(textBlock, 2);
+            Grid.SetColumn(textBlock, columnIndex);
+            row.Children.Add(textBlock);
         }
 
-        protected TextBlock CreateGridTextBlock(Brush foreground, int fontSize, string propertyName)
+        protected TextBlock CreateTextBlock(Brush foregroundColor, int fontSize, string propertyName)
         {
             var control                 = new TextBlock();
-            control.Foreground          = foreground;
+            control.Foreground          = foregroundColor;
             control.FontSize            = fontSize;
             control.FontFamily          = new System.Windows.Media.FontFamily("Yu Gothic UI Light");
             control.FontStretch         = FontStretch.FromOpenTypeStretch(3);
@@ -412,7 +425,7 @@ The Word 'Garbage:' will be the heading.
             {
 				_stopwatch = Stopwatch.StartNew();
                 ReadCalendar();
-                FindEventsInGoogleCalendarToDisplay();
+                FilterEntries();
 			    UpdateUI();
             }
             else
@@ -420,7 +433,7 @@ The Word 'Garbage:' will be the heading.
 				if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * _oneMinute)
 				{
 					ReadCalendar();
-                    FindEventsInGoogleCalendarToDisplay();
+                    FilterEntries();
 			        UpdateUI();
 					_stopwatch.Restart();
 				}
@@ -464,7 +477,7 @@ The Word 'Garbage:' will be the heading.
             }
         }
 
-        private void FindEventsInGoogleCalendarToDisplay()
+        private void FilterEntries()
         {
             if (_calendarEvents is null)
                 return;

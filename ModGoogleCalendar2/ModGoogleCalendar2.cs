@@ -21,9 +21,12 @@ namespace AllOnOnePage.Plugins
             public string HeadingColor            { get; set; }
             public string GoogleCredentials       { get; set; }
             public string UpdateIntervalInMinutes { get; set; }
-            public string DateFormatting          { get; set; }
             public int    DaysToReadInAdvance     { get; set; }
+            public string DateFormatting          { get; set; }
             public int    NumberOfEntries         { get; set; }
+
+            public string WeekdayNames            { get; set; }
+            public string SubjectBlacklist        { get; set; }
         }
 		#endregion
 
@@ -66,10 +69,6 @@ namespace AllOnOnePage.Plugins
         #region ------------- WPF Properties ------------------------------------------------------
         public Visibility   Visibility              { get; set; } = Visibility.Hidden;
 		public Thickness    Margin                  { get; set; }
-        public string       H1                      { get; set; } = "-";
-        public string       H2                      { get; set; } = "-";
-        public string       H3                      { get; set; } = "-";
-        public string       H4                      { get; set; } = "-";
         public string       W1                      { get; set; } = "-";
         public string       W2                      { get; set; } = "-";
         public string       W3                      { get; set; } = "-";
@@ -83,16 +82,17 @@ namespace AllOnOnePage.Plugins
 
 
         #region ------------- Fields --------------------------------------------------------------
-		private MyConfiguration    _myConfiguration;
-        private Grid               _grid;
-        private List<Entry>        _entries = new();
-		private Stopwatch          _stopwatch;
-		private const int          _oneMinute = 60 * 1000;
-		private int                _updateIntervalInMinutes = 60;
-        private string             _connectorMessages;
-        private SolidColorBrush    _headingColor;
-        private List<Filter>       _filters;
+		private MyConfiguration                  _myConfiguration;
+        private Grid                             _grid;
+        private List<Entry>                      _entries = new();
+		private Stopwatch                        _stopwatch;
+		private const int                        _oneMinute = 60 * 1000;
+		private int                              _updateIntervalInMinutes = 60;
+        private string                           _connectorMessages;
+        private SolidColorBrush                  _headingColor;
+        private List<Filter>                     _filters;
         private List<GoogleCalendarReader.Event> _calendarEvents;
+        private string[]                         _subjectBlacklist;
         #endregion
 
 
@@ -177,7 +177,7 @@ namespace AllOnOnePage.Plugins
 		public override async Task<(bool success, string messages)> Test()
 		{
             ReadCalendar();
-            FindEventsInGoogleCalendarToDisplay();
+            FilterEntries();
             UpdateUI();
             
             var selectedEvents = _calendarEvents.Take(_myConfiguration.NumberOfEntries).ToList();
@@ -214,6 +214,14 @@ namespace AllOnOnePage.Plugins
 		#region ------------- General -------------------------------------------------------------
 		private void InitConfiguration()
         {
+            DeserializeConfigurationSet();
+            ConvertColors();
+            DeserializeWeekdayNames();
+            DeserializeBlacklist();
+        }
+
+        private void DeserializeConfigurationSet()
+        {
             try
             {
                 _myConfiguration = System.Text.Json.JsonSerializer.Deserialize<MyConfiguration>(_config.ModulePrivateData);
@@ -224,23 +232,29 @@ namespace AllOnOnePage.Plugins
 
             if (_myConfiguration == null)
                 CreateSeedData();
+        }
 
+        private void ConvertColors()
+        {
             _headingColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(_myConfiguration.HeadingColor));
         }
 
-        private Filter Deserialize(string data)
+        private void DeserializeWeekdayNames()
         {
-			if (string.IsNullOrWhiteSpace(data))
-				return null;
+            if (!string.IsNullOrEmpty(_myConfiguration.WeekdayNames))
+                _subjectBlacklist = _myConfiguration.WeekdayNames.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            
+            if (_subjectBlacklist is null || _subjectBlacklist.GetLength(0) < (3+7))
+            {
+                _subjectBlacklist = new string[3] { "Yesterday", "Today", "Tomorrow" };
+                _myConfiguration.WeekdayNames = "Yesterday|Today|Tomorrow|Sun|Mon|Tue|Wed|Thu|Fri|Sat";
+            }
+        }
 
-            var parts = data.Split('|', StringSplitOptions.RemoveEmptyEntries);
-            if (parts is null || parts.Length < 1)
-                return null;
-
-			var result = new Filter();
-			result.Keyword = parts[0];
-            result.Heading =(parts.Length >= 2) ? parts[1] : parts[0];
-			return result;
+        private void DeserializeBlacklist()
+        {
+            if (!string.IsNullOrEmpty(_myConfiguration.SubjectBlacklist))
+                _subjectBlacklist = _myConfiguration.SubjectBlacklist.Split('|', StringSplitOptions.RemoveEmptyEntries);
         }
         #endregion
 		#region ------------- Create Grid ---------------------------------------------------------
@@ -271,60 +285,44 @@ namespace AllOnOnePage.Plugins
             CreatePropertyBinding(nameof(Height)         , _grid, Grid.HeightProperty);
             CreatePropertyBinding(nameof(ValueVisibility), _grid, Grid.VisibilityProperty);
             
-            CreateTwoRowGroup(0, nameof(H1), nameof(W1), nameof(D1));
-            CreateTwoRowGroup(2, nameof(H2), nameof(W2), nameof(D2));
-            CreateTwoRowGroup(4, nameof(H3), nameof(W3), nameof(D3));
-            CreateTwoRowGroup(6, nameof(H4), nameof(W4), nameof(D4));
+            CreateRow(0, nameof(W1), nameof(D1));
+            CreateRow(1, nameof(W2), nameof(D2));
+            CreateRow(2, nameof(W3), nameof(D3));
+            CreateRow(3, nameof(W4), nameof(D4));
  
             _Parent.Children.Add(_grid);
             Panel.SetZIndex(_ValueControl, -2);
             Panel.SetZIndex(_NameControl, -1);
         }
 
-        protected void CreateTwoRowGroup(int group, string heading, string weekday, string date)
+        protected void CreateRow(int rowIndex, string col1PropertyName, string col2PropertyName)
         {
-            CreateRow1(group, heading);
-            CreateRow2(group, weekday, date);
+            var rowHeight = _config.FontSize;
+            var fontSize = _config.FontSize * 30 / 45;
+
+            var rowDef = new RowDefinition() { Height = new GridLength(rowHeight) };
+            _grid.RowDefinitions.Add(rowDef);
+
+            var row = new Grid();
+            Grid.SetRow(row, rowIndex);
+
+            CreateCell(row, 0, col1PropertyName, fontSize);
+            CreateCell(row, 1, col2PropertyName, fontSize);
+
+            _grid.Children.Add(row);
         }
 
-        private TextBlock CreateRow1(int row, string heading)
+        private void CreateCell(Grid row, int columnIndex, string textPropertyName, int fontSize)
         {
-            var row1 = new RowDefinition() { Height = new GridLength(_config.FontSize*25/45) };
-            _grid.RowDefinitions.Add(row1);
-
-            var textBlock = CreateGridTextBlock(_headingColor, _config.FontSize*20/45, heading);
-            Grid.SetRow(textBlock, row);
-            _grid.Children.Add(textBlock);
-            Panel.SetZIndex(textBlock, 2);
-
-            var row2 = new RowDefinition() { Height = new GridLength(_config.FontSize) };
-            _grid.RowDefinitions.Add(row2);
-            Panel.SetZIndex(textBlock, 2);
-            return textBlock;
-        }
-
-        private void CreateRow2(int row, string weekday, string date)
-        {
-            var columnGrid = new Grid();
-            Grid.SetRow(columnGrid, row+1);
-
-            var col1 = new ColumnDefinition();
             var col2 = new ColumnDefinition();
-            columnGrid.ColumnDefinitions.Add(col1);
-            columnGrid.ColumnDefinitions.Add(col2);
-            var textBlock1 = CreateGridTextBlock(_textColor, _config.FontSize*30/45, weekday);
-            var textBlock2 = CreateGridTextBlock(_textColor, _config.FontSize * 30 / 45, date);
-            Panel.SetZIndex(textBlock1, 2);
-            Panel.SetZIndex(textBlock2, 2);
-            Grid.SetColumn(textBlock2, 0);
-            Grid.SetColumn(textBlock2, 1);
-            columnGrid.Children.Add(textBlock1);
-            columnGrid.Children.Add(textBlock2);
-
-            _grid.Children.Add(columnGrid);
+            row.ColumnDefinitions.Add(col2);
+            var textBlock = CreateTextBlock(_textColor, fontSize, textPropertyName);
+            Panel.SetZIndex(textBlock, 2);
+            Grid.SetColumn(textBlock, columnIndex);
+            row.Children.Add(textBlock);
         }
 
-        protected TextBlock CreateGridTextBlock(Brush foreground, int fontSize, string propertyName)
+        protected TextBlock CreateTextBlock(Brush foreground, int fontSize, string propertyName)
         {
             var control                 = new TextBlock();
             control.Foreground          = foreground;
@@ -355,7 +353,7 @@ namespace AllOnOnePage.Plugins
             {
 				_stopwatch = Stopwatch.StartNew();
                 ReadCalendar();
-                FindEventsInGoogleCalendarToDisplay();
+                FilterEntries();
 			    UpdateUI();
             }
             else
@@ -363,7 +361,7 @@ namespace AllOnOnePage.Plugins
 				if (_stopwatch.ElapsedMilliseconds > _updateIntervalInMinutes * _oneMinute)
 				{
 					ReadCalendar();
-                    FindEventsInGoogleCalendarToDisplay();
+                    FilterEntries();
 			        UpdateUI();
 					_stopwatch.Restart();
 				}
@@ -381,7 +379,7 @@ namespace AllOnOnePage.Plugins
             try
             {
                 if (_myConfiguration.DaysToReadInAdvance < 1)
-                    _myConfiguration.DaysToReadInAdvance = 1;
+                    _myConfiguration.DaysToReadInAdvance = 5;
 
                 // If we cannot find the credentials file, try to find it in the user directory (our subdirectory)
                 if (!File.Exists(_myConfiguration.GoogleCredentials))
@@ -404,18 +402,23 @@ namespace AllOnOnePage.Plugins
             }
         }
 
-        private void FindEventsInGoogleCalendarToDisplay()
+        private void FilterEntries()
         {
             if (_calendarEvents is null)
                 return;
 			try
 			{
                 _entries.Clear();
-                foreach(var @event in _calendarEvents.Take(_myConfiguration.NumberOfEntries).ToList())
+                foreach(var @event in _calendarEvents.Where(e => e.Summary is not null).Take(_myConfiguration.NumberOfEntries).ToList())
                 {
-                    var weekday = @event.When?.DayOfWeek.ToString() ?? "???";
-                    var formattedDate = @event.When?.ToString(_myConfiguration.DateFormatting) ?? "???";
-                    _entries.Add(new Entry(@event.When, @event.Summary, "???", weekday, formattedDate));
+                    var eventIsOnBlacklist = _subjectBlacklist.Any(b => @event.Summary.Contains(b));
+
+                    if (!eventIsOnBlacklist)
+                    {
+                        var weekday = @event.When?.DayOfWeek.ToString() ?? "???";
+                        var formattedDate = @event.When?.ToString(_myConfiguration.DateFormatting) ?? "???";
+                        _entries.Add(new Entry(@event.When, @event.Summary, "???", weekday, formattedDate));
+                    }
                 }
             }
 			catch (Exception ex)
@@ -424,7 +427,7 @@ namespace AllOnOnePage.Plugins
 			}
         }
         #endregion
-		#region ------------- Load data from Homenet ----------------------------------------------
+		#region ------------- Date formatting -----------------------------------------------------
         private void FormatEventDates()
         {
             foreach (var entry in _entries)
@@ -481,13 +484,13 @@ namespace AllOnOnePage.Plugins
         {
             switch (convertedDate.DayOfWeek)
             {
-                case DayOfWeek.Sunday   : return "Sun";
-                case DayOfWeek.Monday   : return "Mon";
-                case DayOfWeek.Tuesday  : return "Tue";
-                case DayOfWeek.Wednesday: return "Wed";
-                case DayOfWeek.Thursday : return "Thu";
-                case DayOfWeek.Friday   : return "Fri";
-                case DayOfWeek.Saturday : return "Sat";
+                case DayOfWeek.Sunday   : return _subjectBlacklist[3]; // "Sun";
+                case DayOfWeek.Monday   : return _subjectBlacklist[4]; // "Mon";
+                case DayOfWeek.Tuesday  : return _subjectBlacklist[5]; // "Tue";
+                case DayOfWeek.Wednesday: return _subjectBlacklist[6]; // "Wed";
+                case DayOfWeek.Thursday : return _subjectBlacklist[7]; // "Thu";
+                case DayOfWeek.Friday   : return _subjectBlacklist[8]; // "Fri";
+                case DayOfWeek.Saturday : return _subjectBlacklist[9]; // "Sat";
                 default                 : return "???";
             }
         }
@@ -496,7 +499,7 @@ namespace AllOnOnePage.Plugins
         private void UpdateUI()
         {
             SortByDate();
-            ReplaceNearEventByTodayTomorrow(_entries);
+            //ReplaceNearEventByTodayTomorrow(_entries);
             CopyToWpfProperties(_entries);
         }
 
@@ -504,20 +507,27 @@ namespace AllOnOnePage.Plugins
         {
             foreach (var entry in entries)
             {
-                if (entry.ConvertedDate == DateTime.Today)
+                if (entry.ConvertedDate == DateTime.Today.AddDays(-1))
                 {
-                    entry.Weekday = "Today";
+                    entry.Weekday = _subjectBlacklist[0]; // "Yesterday";
+                    entry.Date    = "";
+                }
+                else if (entry.ConvertedDate == DateTime.Today)
+                {
+                    entry.Weekday = _subjectBlacklist[1]; // "Today";
                     entry.Date    = "";
                 }
                 else if (entry.ConvertedDate == DateTime.Today.AddDays(1))
                 {
-                    entry.Weekday = "Tomorrow";
+                    entry.Weekday = _subjectBlacklist[2]; // "Tomorrow";
                     entry.Date    = "";
                 }
-                else if (entry.ConvertedDate == DateTime.Today.AddDays(-1))
+                else
                 {
-                    entry.Weekday = "Yesterday";
-                    entry.Date    = "";
+                    var daysAhead = entry.ConvertedDate - DateTime.Today;
+                    if (daysAhead.TotalDays < 6)
+                        entry.Date    = "";
+                    entry.Weekday = GetWeekdayNameFromDate(entry.ConvertedDate);
                 }
             }
         }
@@ -534,30 +544,26 @@ namespace AllOnOnePage.Plugins
 
             if (entries.Count >= 1)
             {
-                H1 = entries[0].Heading; NotifyPropertyChanged(nameof(H1));
-                W1 = entries[0].Weekday; NotifyPropertyChanged(nameof(W1));
-                D1 = entries[0].Date;    NotifyPropertyChanged(nameof(D1));
+                W1 = entries[0].Heading; NotifyPropertyChanged(nameof(W1));
+                D1 = entries[0].Weekday; NotifyPropertyChanged(nameof(D1));
             }
 
             if (entries.Count >= 2)
             {
-                H2 = entries[1].Heading; NotifyPropertyChanged(nameof(H2));
-                W2 = entries[1].Weekday; NotifyPropertyChanged(nameof(W2));
-                D2 = entries[1].Date;    NotifyPropertyChanged(nameof(D2));
+                W2 = entries[1].Heading; NotifyPropertyChanged(nameof(W2));
+                D2 = entries[1].Weekday; NotifyPropertyChanged(nameof(D2));
             }
 
             if (entries.Count >= 3)
             {
-                H3 = entries[2].Heading; NotifyPropertyChanged(nameof(H3));
-                W3 = entries[2].Weekday; NotifyPropertyChanged(nameof(W3));
-                D3 = entries[2].Date;    NotifyPropertyChanged(nameof(D3));
+                W3 = entries[2].Heading; NotifyPropertyChanged(nameof(W3));
+                D3 = entries[2].Weekday; NotifyPropertyChanged(nameof(D3));
             }
 
             if (entries.Count >= 4)
             {
-                H4 = entries[3].Heading; NotifyPropertyChanged(nameof(H4));
-                W4 = entries[3].Weekday; NotifyPropertyChanged(nameof(W4));
-                D4 = entries[3].Date;    NotifyPropertyChanged(nameof(D4));
+                W4 = entries[3].Heading; NotifyPropertyChanged(nameof(W4));
+                D4 = entries[3].Weekday; NotifyPropertyChanged(nameof(D4));
             }
         }
         #endregion

@@ -16,6 +16,8 @@ using PluginBase;
 using Abraham.WPFWindowLayoutManager;
 using System.Timers;
 using System.Diagnostics;
+using System.Windows.Media.Media3D;
+using System.Xml.Linq;
 
 namespace AllOnOnePage
 {
@@ -133,7 +135,8 @@ namespace AllOnOnePage
 		private bool                 _MouseIsOverWastebasket;
         private HighLight?           _HoveredModule;
         private HighLight?           _SelectedModule;
-        private const int            _mouseMoveEventThreshold = 100;
+        private HighLight?           _Ruler;
+        private const int            _mouseMoveEventThreshold = 200;
         private int                  _mouseMoveEventCounter;
         private Timer                _perimeterTimer;
         private const int            _removePerimeterAfter = 60;
@@ -284,7 +287,7 @@ namespace AllOnOnePage
                 if (ModulesAreNotTheSame(otherModule.Plugin, plugin))
                 {
                     var otherPos = otherModule.Plugin.GetPositionAndWidth();
-                    if (ModulesOverlap(ourPos, otherPos))
+                    if (TwoRectanglesOverlap(ourPos, otherPos))
                     {
                         otherModule.Plugin.OverlapEvent(visibility);
                     }
@@ -296,50 +299,33 @@ namespace AllOnOnePage
         {
             return a.GetHashCode() != b.GetHashCode();
         }
-
-        private bool ModulesOverlap(Thickness a, Thickness b)
-        {
-            return PointIsInsideRectangle(a.Left        , a.Top         , b) ||
-                   PointIsInsideRectangle(a.Left+a.Right, a.Top         , b) ||
-                   PointIsInsideRectangle(a.Left        , a.Top+a.Bottom, b) ||
-                   PointIsInsideRectangle(a.Left+a.Right, a.Top+a.Bottom, b) ||
-                   PointIsInsideRectangle(b.Left        , b.Top         , a) ||
-                   PointIsInsideRectangle(b.Left+a.Right, b.Top         , a) ||
-                   PointIsInsideRectangle(b.Left        , b.Top+a.Bottom, a) ||
-                   PointIsInsideRectangle(b.Left+a.Right, b.Top+a.Bottom, a);
-        }
-
-        private bool PointIsInsideRectangle(double x, double y, Thickness rect)
-        {
-            return rect.Left <= x && x <= rect.Right && 
-                   rect.Top  <= y && y <= rect.Bottom;
-        }
         #endregion
         #region ------------- Module editor -----------------------------------
         #region ------------- Mouse events ------------------------------------
-		private bool EnterOrLeaveEditMode()
-		{
-			_EditMode = !_EditMode;
-			EditModeControlsVisibility = _EditMode ? Visibility.Visible : Visibility.Hidden;
-			NotifyPropertyChanged(nameof(EditModeControlsVisibility));
+        #region ------------- Methods -----------------------------------------
+		public void Window_MouseMove(Window sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (_runtimeModules == null)
+                return;
 
-			if (_EditMode)
-			{
-                _configuration.EditModeWasEntered = true;
-				SetBackgroundForAllModules();
-			}
-			else
-			{
-                RemovePerimeterRectangles();
-				ResetBackgroundForAllModules();
-				HideDragRectangle();
-				Update_all_modules();
-				VisibilityStateChange_CompleteUpdate();
-                SaveConfiguration();
-			}
+            if (!EnoughMoveMovementsDetected(e))
+                return;
 
-			return _EditMode;
-		}
+            HighlightWastebasketIfMousePointerIsOver(e.GetPosition(sender));
+
+            if (AModuleIsSelected() && AnySizeChangeIsInProgress())
+            {
+                ChangeModule(sender, e, _CurrentModule);
+            }
+            else
+            {
+                var module = FindModuleUnderMouse(sender, e);
+                if (module == null)
+                    ChangeModuleEnd();
+                else
+                    ChangeModule(sender, e, module.Plugin);
+            }
+        }
 
         public void Window_MouseLeftButtonDown(Window sender, System.Windows.Input.MouseButtonEventArgs e)
         {
@@ -387,84 +373,10 @@ namespace AllOnOnePage
 
             if (_MouseIsOverWastebasket)
             {
-                if (Ask_if_user_wants_to_delete())
+                if (AskIfUserWantsToDelete())
                 {
                     DeleteModule(module);
                 }
-            }
-        }
-
-        private void ClearAllSizeChangers()
-        {
-            _ChangeModulePosition        = false;
-            _ChangeModuleWidthLeft       = false;
-            _ChangeModuleWidthRight      = false;
-            _ChangeModuleHeightTop       = false;
-            _ChangeModuleHeightBottom    = false;
-            _ChangeModuleSizeTopLeft     = false;
-            _ChangeModuleSizeTopRight    = false;
-            _ChangeModuleSizeBottomRight = false;
-            _ChangeModuleSizeBottomLeft  = false;
-        }
-
-        private bool AnySizeChangeIsInProgress()
-        {
-            return 
-                _ChangeModulePosition        ||
-                _ChangeModuleWidthLeft       ||
-                _ChangeModuleWidthRight      ||
-                _ChangeModuleHeightTop       ||
-                _ChangeModuleHeightBottom    ||
-                _ChangeModuleSizeTopLeft     ||
-                _ChangeModuleSizeTopRight    ||
-                _ChangeModuleSizeBottomRight ||
-                _ChangeModuleSizeBottomLeft;
-        }
-
-        private bool Ask_if_user_wants_to_delete()
-		{
-			var result = MessageBox.Show(_texts[HelpTexts.ID.DELETE_QUESTION], 
-                _texts[HelpTexts.ID.DELETE_TITLE], MessageBoxButton.YesNo);
-            return result == MessageBoxResult.Yes;
-		}
-
-		private void DeleteModule(RuntimeModule module)
-		{
-            RemovePerimeterRectangles();
-
-            module.Plugin.Delete();
-            _runtimeModules.Remove(module);
-			_parentWindow.InvalidateVisual();
-
-            var idToDelete = module.Plugin.GetModuleConfig().ID;
-            _configuration.Modules = (from c in _configuration.Modules 
-                                      where c.ID != idToDelete
-                                      select c).ToList();
-            SaveConfiguration();
-            module = null;
-		}
-
-		public void Window_MouseMove(Window sender, System.Windows.Input.MouseEventArgs e)
-        {
-            if (_runtimeModules == null)
-                return;
-
-            if (!EnoughMoveMovementDetected(e))
-                return;
-
-            Highlight_Wastebasket_if_mouse_pointer_is_over(e.GetPosition(sender));
-
-            if (_CurrentModule != null && AnySizeChangeIsInProgress())
-            {
-                ChangeModule(sender, e, _CurrentModule);
-            }
-            else
-            {
-                var module = FindModuleUnderMouse(sender, e);
-                if (module == null)
-                    ChangeModuleEnd();
-                else
-                    ChangeModule(sender, e, module.Plugin);
             }
         }
 
@@ -493,6 +405,90 @@ namespace AllOnOnePage
             //    DuplicateModule(module, e);
         }
 
+		public void Button_Editmode_Click()
+		{
+			EnterOrLeaveEditMode();
+		}
+
+		public void Button_Wastebasket_Click()
+		{
+		}
+        #endregion
+
+        private bool EnterOrLeaveEditMode()
+		{
+			_EditMode = !_EditMode;
+			EditModeControlsVisibility = _EditMode ? Visibility.Visible : Visibility.Hidden;
+			NotifyPropertyChanged(nameof(EditModeControlsVisibility));
+
+			if (_EditMode)
+			{
+                _configuration.EditModeWasEntered = true;
+				SetBackgroundForAllModules();
+			}
+			else
+			{
+                RemovePerimeterRectangles();
+				ResetBackgroundForAllModules();
+				HideDragRectangle();
+				Update_all_modules();
+				VisibilityStateChange_CompleteUpdate();
+                SaveConfiguration();
+			}
+
+			return _EditMode;
+		}
+
+        private void ClearAllSizeChangers()
+        {
+            _ChangeModulePosition        = false;
+            _ChangeModuleWidthLeft       = false;
+            _ChangeModuleWidthRight      = false;
+            _ChangeModuleHeightTop       = false;
+            _ChangeModuleHeightBottom    = false;
+            _ChangeModuleSizeTopLeft     = false;
+            _ChangeModuleSizeTopRight    = false;
+            _ChangeModuleSizeBottomRight = false;
+            _ChangeModuleSizeBottomLeft  = false;
+        }
+
+        private bool AnySizeChangeIsInProgress()
+        {
+            return 
+                _ChangeModulePosition        ||
+                _ChangeModuleWidthLeft       ||
+                _ChangeModuleWidthRight      ||
+                _ChangeModuleHeightTop       ||
+                _ChangeModuleHeightBottom    ||
+                _ChangeModuleSizeTopLeft     ||
+                _ChangeModuleSizeTopRight    ||
+                _ChangeModuleSizeBottomRight ||
+                _ChangeModuleSizeBottomLeft;
+        }
+
+        private bool AskIfUserWantsToDelete()
+		{
+			var result = MessageBox.Show(_texts[HelpTexts.ID.DELETE_QUESTION], 
+                _texts[HelpTexts.ID.DELETE_TITLE], MessageBoxButton.YesNo);
+            return result == MessageBoxResult.Yes;
+		}
+
+		private void DeleteModule(RuntimeModule module)
+		{
+            RemovePerimeterRectangles();
+
+            module.Plugin.Delete();
+            _runtimeModules.Remove(module);
+			_parentWindow.InvalidateVisual();
+
+            var idToDelete = module.Plugin.GetModuleConfig().ID;
+            _configuration.Modules = (from c in _configuration.Modules 
+                                      where c.ID != idToDelete
+                                      select c).ToList();
+            SaveConfiguration();
+            module = null;
+		}
+
         private RuntimeModule FindModuleUnderMouse(Window sender, System.Windows.Input.MouseEventArgs e)
         {
             if (_runtimeModules is null)
@@ -510,25 +506,16 @@ namespace AllOnOnePage
                 if (size.Left - _BorderSnapPixels <= pos.X && pos.X <= size.Right  + _BorderSnapPixels &&
                     size.Top  - _BorderSnapPixels <= pos.Y && pos.Y <= size.Bottom + _BorderSnapPixels)
                     return module;
-
-                //if (module.Plugin.HitTest(element, pos))
-                //    return module;
             }
             return null;
         }
 
         private void SwitchToNextModule(IPlugin module)
         {
-            if (_CurrentModule != null)
+            if (AModuleIsSelected())
                 ResetModuleUnderMouse();
             else
                 SetModuleUnderMouse(module);
-        }
-
-        private void DisplayEditorStats(IPlugin plugin, Thickness pos, Thickness Deltas)
-        {
-            EditControlName = $"{plugin.GetName()}  {pos.Left}, {pos.Top}, {pos.Right}, {pos.Bottom}";
-            NotifyPropertyChanged(nameof(EditControlName));
         }
 
         private Thickness CalculateMouseDeltas(Point mouse, Thickness pos)
@@ -548,7 +535,7 @@ namespace AllOnOnePage
 
         private void ResetModuleUnderMouse()
         {
-            if (_CurrentModule != null)
+            if (AModuleIsSelected())
             {
                 ResetEditModeMouseOver();
                 _CurrentModule = null;
@@ -618,7 +605,7 @@ namespace AllOnOnePage
             _DragRect.Stroke = Brushes.Transparent;
         }
 
-		private void Highlight_Wastebasket_if_mouse_pointer_is_over(Point pos)
+		private void HighlightWastebasketIfMousePointerIsOver(Point pos)
 		{
    //         var basket = _parentWindow.Button_Wastebasket;
    //         var L = _parentWindow.Width 
@@ -639,15 +626,6 @@ namespace AllOnOnePage
    //             _parentWindow.Button_Wastebasket.Opacity = 0.5;
    //             _MouseIsOverWastebasket = false;
 			//}
-		}
-
-		internal void Button_Editmode_Click()
-		{
-			EnterOrLeaveEditMode();
-		}
-
-		internal void Button_Wastebasket_Click()
-		{
 		}
 
         private void ChangeModule(Window sender, MouseEventArgs e, IPlugin plugin)
@@ -673,7 +651,7 @@ namespace AllOnOnePage
             else if (_ChangeModuleWidthRight     ) ChangeWidthGrabbedRight(mouse);
             else if (_ChangeModuleHeightTop      ) ChangeHeightGrabbedTop(mouse);
             else if (_ChangeModuleHeightBottom   ) ChangeHeightGrabbedBottom(mouse);
-            else if (_ChangeModulePosition       ) Move(mouse);
+            else if (_ChangeModulePosition       ) MoveModule(mouse);
             else                                   updateSelectionIndicators = false;
 
             SetMouseCursorShape();
@@ -704,17 +682,26 @@ namespace AllOnOnePage
             SetStandardMouseCursorShape();
         }
         #endregion
-        #region ------------- Move and resize ---------------------------------
-        private void Move(Point mouse)
+        #region ------------- Move and resize objects -------------------------
+        
+        /// <summary>
+        /// The user drags a module to a new position.
+        /// </summary>
+        private void MoveModule(Point mouse)
         {
-            if (_CurrentModule != null)
+            if (AModuleIsSelected())
             {
                 var x = _InitialPosAndSize.Left + mouse.X - _InitialMouse.X;
                 var y = _InitialPosAndSize.Top  + mouse.Y - _InitialMouse.Y;
                 _CurrentModule.SetPosition(x, y);
-                //DisplayTextGuidelines(_CurrentModule);
+                //DisplayRulerIfWeAlignToAnotherModule(mouse);
             }
             ResetMousePointerOnBorderOfDragRect();
+        }
+
+        private bool AModuleIsSelected()
+        {
+            return _CurrentModule != null;
         }
 
         private void ChangeWidthGrabbedLeft(Point mouse)
@@ -802,6 +789,58 @@ namespace AllOnOnePage
             }
         }
         #endregion
+        #region ------------- Automatic ruler ---------------------------------
+        //private void DisplayRulerIfWeAlignToAnotherModule(Point ourPosition)
+        //{
+        //    var allOtherModulesExceptUs = _runtimeModules.Where(m => m.Plugin != _CurrentModule);
+        //
+        //    foreach (var module in allOtherModulesExceptUs)
+        //    {
+        //        var anotherModule = module.Plugin.GetPositionAndCorrectSize();
+        //        //if (size.Left - _BorderSnapPixels <= pos.X && pos.X <= size.Right  + _BorderSnapPixels &&
+        //        //    size.Top  - _BorderSnapPixels <= pos.Y && pos.Y <= size.Bottom + _BorderSnapPixels)
+        //        //    return module;
+        //
+        //        var weAlignToThisModule = ourPosition.Y == anotherModule.Top;
+        //        
+        //        if (weAlignToThisModule)
+        //        {
+        //            if (_Ruler is null)
+        //                CreateRuler(ourPosition, anotherModule);
+        //            else
+        //                UpdateRuler();
+        //        }
+        //
+        //    }
+        //}
+        //
+        //private void CreateRuler(Point ourPosition, Thickness anotherModule)
+        //{
+        //    var thickness = 1;
+        //    var strokeColor = Brushes.Yellow;
+        //    var dashed = true;
+        //
+        //    UIElement e = new Line
+        //    { 
+        //        Stroke          = strokeColor, 
+        //        StrokeThickness = thickness, 
+        //        X1              = 0, 
+        //        X2              = ourPosition.X - anotherModule.Left, 
+        //        Y1              = 0, 
+        //        Y2              = 0 
+        //    };
+        //    Canvas.SetLeft(e, ourPosition.X);
+        //    Canvas.SetTop(e, ourPosition.Y);
+        //    if (dashed)
+        //        (e as Line).StrokeDashArray = new DoubleCollection { 2 };
+        //    
+        //    _Canvas.Children.Add(e);
+        //}
+        //
+        //private void UpdateRuler()
+        //{
+        //}
+        #endregion
         #region ------------- Module highlight and module select --------------
 
         private void SelectModuleUnderMouse()
@@ -831,7 +870,7 @@ namespace AllOnOnePage
 
         private void RemoveModuleSelectionIndicator()
         {
-            RemovePerimeterRectangle(ref _HoveredModule);
+            RemovePerimeterRectangle(ref _SelectedModule);
         }
 
         private void UpdateModuleSelectionIndicator()
@@ -950,7 +989,9 @@ namespace AllOnOnePage
 
         /// <summary>
         /// Every time we display the perimeter rectangles, we also set a timer.
-        /// It will remove the perimeter rectangles after some minutes.
+        /// It will remove the perimeter rectangles after some time.
+        /// This is a safety net for production dashboards just in case somebody moves the mouse.
+        /// (i.e. on the touchscreen)
         /// </summary>
         private void StartPerimeterTimer()
         {
@@ -980,6 +1021,25 @@ namespace AllOnOnePage
                 RemoveModuleHoverIndicator();
                 SetStandardMouseCursorShape();
             });
+        }
+        #endregion
+        #region ------------- Graphics basics ---------------------------------
+        private bool TwoRectanglesOverlap(Thickness a, Thickness b)
+        {
+            return PointIsInRectangle(a.Left        , a.Top         , b) ||
+                   PointIsInRectangle(a.Left+a.Right, a.Top         , b) ||
+                   PointIsInRectangle(a.Left        , a.Top+a.Bottom, b) ||
+                   PointIsInRectangle(a.Left+a.Right, a.Top+a.Bottom, b) ||
+                   PointIsInRectangle(b.Left        , b.Top         , a) ||
+                   PointIsInRectangle(b.Left+a.Right, b.Top         , a) ||
+                   PointIsInRectangle(b.Left        , b.Top+a.Bottom, a) ||
+                   PointIsInRectangle(b.Left+a.Right, b.Top+a.Bottom, a);
+        }
+
+        private bool PointIsInRectangle(double x, double y, Thickness rect)
+        {
+            return rect.Left <= x && x <= rect.Right && 
+                   rect.Top  <= y && y <= rect.Bottom;
         }
         #endregion
         #region ------------- Add new module ----------------------------------
@@ -1056,7 +1116,7 @@ namespace AllOnOnePage
 			{
                 if (wnd.DeleteModule)
 				{
-                    if (Ask_if_user_wants_to_delete())
+                    if (AskIfUserWantsToDelete())
 				    {
                         DeleteModule(module);
 				    }
@@ -1142,13 +1202,17 @@ namespace AllOnOnePage
         #endregion
         #region ------------- Mouse movement detector -----------------------------------
         /// <summary>
-        /// When running on a dashboard, nobody moves the mouse and the mouse pointer will most likely always be in the middle of the screen.
-        /// My DashboardController will send left mouse clicks to reactivate the screen when the blank screen saver is running.
-        /// The problem is that the mouse pointer will activate the highlight function of the module editor,
+        /// On a dashboard, nobody moves the mouse and the mouse pointer will most likely always be in the middle of the screen.
+        /// My DashboardPowerManager (separate Project) sends mouse clicks to reactivate the screen 
+        /// when the screen is off and a motion detector detects a person.
+        /// 
+        /// The problem is now that a mouse click will activate the highlight function of the module editor here,
         /// when there's a module in the middle of the screen.
-        /// To avoid this, I check if the mouse has moved at least 100 events before enabling the module editor.
+        /// 
+        /// To avoid this, the editor only gets activated after at least 200 mouse events have encountered.
+        /// So the editor will only do sth when a real person is moving the mouse.
         /// </summary>
-        private bool EnoughMoveMovementDetected(MouseEventArgs e)
+        private bool EnoughMoveMovementsDetected(MouseEventArgs e)
         {
             if (_mouseMoveEventCounter >= _mouseMoveEventThreshold)
                 return true;

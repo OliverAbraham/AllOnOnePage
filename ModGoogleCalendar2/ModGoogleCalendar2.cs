@@ -389,6 +389,17 @@ namespace AllOnOnePage.Plugins
                         _myConfiguration.GoogleCredentials = tryInUserDirectory;
                 }
 
+                if (string.IsNullOrEmpty(_myConfiguration.GoogleCredentials))
+                {
+                    _myConfiguration.GoogleCredentials = "GoogleCredentialsOlli.json";
+                    var currentdir = Directory.GetCurrentDirectory();
+                    if (!File.Exists(_myConfiguration.GoogleCredentials))
+                    {
+                        var json = "{ \"installed\": { \"client_id\": \"\", \"project_id\": \"\", \"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\", \"token_uri\": \"https://www.googleapis.com/oauth2/v3/token\", \"auth_provider_x509_cert_url\": \"https://www.googleapis.com/oauth2/v1/certs\", \"client_secret\": \"\", \"redirect_uris\": [ \"urn:ietf:wg:oauth:2.0:oob\", \"http://localhost\" ] } }";
+                        File.WriteAllText(_myConfiguration.GoogleCredentials, json);
+                    }
+                }
+
                 var reader = new GoogleCalendarReader()
                     .UseCredentialsFile(_myConfiguration.GoogleCredentials)
                     .UseApplicationName("AllOnOnePage");

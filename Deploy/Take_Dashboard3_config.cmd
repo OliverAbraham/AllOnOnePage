@@ -8,13 +8,10 @@
 @ECHO -----------------------------------------------------------------------------------
 @ECHO off
 
-set CONFIGDIR=C:\Credentials\AllOnOnePage\Config_Dashboard5
+set CONFIGDIR=C:\Credentials\AllOnOnePage\Config_Dashboard3
 set BIN_SOURCE=..\AllOnOnePage\bin\publish\*
 set SETTINGS_SOURCE=%USERPROFILE%\Documents\All on one page\*.hjson
-set ROOT=\\server1\Dashboard5
+set ROOT=\\server1\Dashboard3
 
-xcopy "%SETTINGS_SOURCE%" "%CONFIGDIR%"
+copy "%CONFIGDIR%\appsettings.hjson" "%USERPROFILE%\Documents\All on one page"
 
-call BackupAllSettings.cmd
-
-call worker.cmd

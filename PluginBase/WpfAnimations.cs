@@ -109,7 +109,10 @@ namespace AllOnOnePage.Plugins
 
 		public static void FadeOut(TextBlock control, DependencyProperty propertyToAnimate)
 		{
-			control.Opacity = 1.0;
+			if (control.Opacity == 0.0)
+                return; // do nothing if already invisible
+
+            control.Opacity = 1.0;
 			control.Visibility = System.Windows.Visibility.Visible;
 
 			Create_and_start_animation(control, 1.0, 0.0,
@@ -119,6 +122,9 @@ namespace AllOnOnePage.Plugins
 
 		public static void FadeIn(TextBlock control, DependencyProperty propertyToAnimate)
 		{
+			if (control.Opacity == 1.0)
+                return; // do nothing if already visible
+
 			control.Opacity = 0.0;
 			control.Visibility = System.Windows.Visibility.Visible;
 

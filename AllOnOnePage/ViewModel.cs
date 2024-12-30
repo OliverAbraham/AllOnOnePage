@@ -16,8 +16,6 @@ using PluginBase;
 using Abraham.WPFWindowLayoutManager;
 using System.Timers;
 using System.Diagnostics;
-using System.Windows.Media.Media3D;
-using System.Xml.Linq;
 
 namespace AllOnOnePage
 {
@@ -137,9 +135,10 @@ namespace AllOnOnePage
         private HighLight?           _SelectedModule;
         private HighLight?           _Ruler;
         private const int            _mouseMoveEventThreshold = 200;
-        private int                  _mouseMoveEventCounter;
         private Timer                _perimeterTimer;
         private const int            _removePerimeterAfter = 60;
+        private int                  _mouseMoveEventCounter = 0;
+        private Timer                _mouseMoveDetectorTimer;
         #endregion
         #endregion
 
@@ -186,6 +185,7 @@ namespace AllOnOnePage
             }
 
             CreateDragRectInvisible();
+            StartMouseMoveDetectorTimer();
         }
 
         public void Stop_all_modules(PluginLoader pluginLoader, List<Processor> processors, Grid mainGrid, Canvas canvas)
@@ -194,6 +194,7 @@ namespace AllOnOnePage
             {
 			    foreach (var module in _runtimeModules)
     			    module.Plugin.Stop();
+                StopMouseMoveDetectorTimer();
             }
             catch(Exception ex)
             {
@@ -305,10 +306,10 @@ namespace AllOnOnePage
         #region ------------- Methods -----------------------------------------
 		public void Window_MouseMove(Window sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (_runtimeModules == null)
+            if (!EnoughMoveMovementsDetected(e))
                 return;
 
-            if (!EnoughMoveMovementsDetected(e))
+            if (_runtimeModules == null)
                 return;
 
             HighlightWastebasketIfMousePointerIsOver(e.GetPosition(sender));
@@ -1200,7 +1201,7 @@ namespace AllOnOnePage
 			}
 		}
         #endregion
-        #region ------------- Mouse movement detector -----------------------------------
+        #region ------------- Mouse movement detector -------------------------
         /// <summary>
         /// On a dashboard, nobody moves the mouse and the mouse pointer will most likely always be in the middle of the screen.
         /// My DashboardPowerManager (separate Project) sends mouse clicks to reactivate the screen 
@@ -1219,6 +1220,37 @@ namespace AllOnOnePage
             _mouseMoveEventCounter++;
             return false;
         }
+
+        private void StartMouseMoveDetectorTimer()
+        {
+            System.Diagnostics.Debug.WriteLine("StartMouseMoveDetectorTimer");
+            if (_mouseMoveDetectorTimer is null)
+            {
+                _mouseMoveDetectorTimer = new Timer();
+                _mouseMoveDetectorTimer.Interval = 1 * 1000;
+                _mouseMoveDetectorTimer.Elapsed += MouseMoveDetectorReset;
+                _mouseMoveDetectorTimer.Start();
+            }
+            else
+            {
+                _mouseMoveDetectorTimer.Stop();
+                _mouseMoveDetectorTimer.Start();
+            }
+        }
+
+        private void StopMouseMoveDetectorTimer()
+        {
+            System.Diagnostics.Debug.WriteLine("StopMouseMoveDetectorTimer");
+            if (_mouseMoveDetectorTimer is not null)
+                _mouseMoveDetectorTimer.Stop();
+        }
+
+        private void MouseMoveDetectorReset(object sender, ElapsedEventArgs e)
+        {
+            if (_mouseMoveEventCounter > 0) 
+                _mouseMoveEventCounter--; 
+        }
+
         #endregion
         #endregion
         #endregion

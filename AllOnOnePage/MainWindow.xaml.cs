@@ -603,7 +603,7 @@ namespace AllOnOnePage
             _vm.MouseRightButtonDown(this, e);
         }
 		#endregion
-		#region ------------- Keyboard events ------------------------------------
+		#region ------------- Keyboard events ---------------------------------
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)

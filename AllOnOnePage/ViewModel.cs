@@ -244,8 +244,7 @@ namespace AllOnOnePage
 
 
 
-        #region ------------- Implementation ------------------------------------------------------
-        #region ------------- Basic -------------------------------------------
+        #region ------------- Implementation: Module management -----------------------------------
         private void Init_one_module(RuntimeModule moduleDef)
         {
             try
@@ -319,7 +318,10 @@ namespace AllOnOnePage
             return a.GetHashCode() != b.GetHashCode();
         }
         #endregion
-        #region ------------- Module editor -----------------------------------
+        
+
+
+        #region ------------- Implementation: Module editor ---------------------------------------
         #region ------------- Mouse events ------------------------------------
         #region ------------- Methods -----------------------------------------
 		public void Window_MouseMove(Window sender, System.Windows.Input.MouseEventArgs e)
@@ -1477,7 +1479,6 @@ namespace AllOnOnePage
             if (_mouseMoveEventCounter > 0) 
                 _mouseMoveEventCounter--; 
         }
-        #endregion
         #endregion
         #endregion
     }

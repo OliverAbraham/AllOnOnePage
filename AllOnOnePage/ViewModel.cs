@@ -156,6 +156,7 @@ namespace AllOnOnePage
         private SolidColorBrush      _rulerStrokeColor = Brushes.Yellow;
         private bool                 _rulerDashedLine  = false;
         private HighLight?           _ruler;
+        private Exception _lastException;
         #endregion
         #endregion
 
@@ -323,6 +324,18 @@ namespace AllOnOnePage
         #region ------------- Methods -----------------------------------------
 		public void Window_MouseMove(Window sender, System.Windows.Input.MouseEventArgs e)
         {
+            try
+            {
+                Window_MouseMoveInternal(sender, e);
+            }
+            catch (Exception ex)
+            {
+                _lastException = ex;
+            }
+        }
+
+        private void Window_MouseMoveInternal(Window sender, MouseEventArgs e)
+        {
             if (!EnoughMoveMovementsDetected(e))
                 return;
 
@@ -347,7 +360,19 @@ namespace AllOnOnePage
 
         public void Window_MouseLeftButtonDown(Window sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (_runtimeModules is null) 
+            try
+            {
+                Window_MouseLeftButtonDownInternal(sender, e);
+            }
+            catch (Exception ex)
+            {
+                _lastException = ex;
+            }
+        }
+
+        private void Window_MouseLeftButtonDownInternal(Window sender, MouseButtonEventArgs e)
+        {
+            if (_runtimeModules is null)
                 return;
             var module = FindModuleUnderMouse(sender, e);
             if (module == null)
@@ -359,14 +384,14 @@ namespace AllOnOnePage
 
             UpdateDragRectangle(module.Plugin.GetPositionAndWidth());
 
-            if      (_mouseOnCorner1)     _changeModuleSizeTopLeft     = true;
-            else if (_mouseOnCorner2)     _changeModuleSizeTopRight    = true;
-            else if (_mouseOnCorner3)     _changeModuleSizeBottomLeft  = true;
-            else if (_mouseOnCorner4)     _changeModuleSizeBottomRight = true;
-            else if (_mouseOnLeftEdge)    _changeModuleWidthLeft       = true;
-            else if (_mouseOnRightEdge)   _changeModuleWidthRight      = true;
-            else if (_mouseOnTopEdge)     _changeModuleHeightTop       = true;
-            else if (_mouseOnBottomEdge)  _changeModuleHeightBottom    = true;
+            if (_mouseOnCorner1) _changeModuleSizeTopLeft = true;
+            else if (_mouseOnCorner2) _changeModuleSizeTopRight = true;
+            else if (_mouseOnCorner3) _changeModuleSizeBottomLeft = true;
+            else if (_mouseOnCorner4) _changeModuleSizeBottomRight = true;
+            else if (_mouseOnLeftEdge) _changeModuleWidthLeft = true;
+            else if (_mouseOnRightEdge) _changeModuleWidthRight = true;
+            else if (_mouseOnTopEdge) _changeModuleHeightTop = true;
+            else if (_mouseOnBottomEdge) _changeModuleHeightBottom = true;
 
             SetMouseCursorShape();
             _changeModulePosition = true;
@@ -374,6 +399,18 @@ namespace AllOnOnePage
         }
 
         public void Window_MouseLeftButtonUp(Window sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            try
+            {
+                Window_MouseLeftButtonUpInternal(sender, e);
+            }
+            catch (Exception ex)
+            {
+                _lastException = ex;
+            }
+        }
+
+        private void Window_MouseLeftButtonUpInternal(Window sender, MouseButtonEventArgs e)
         {
             if (!_editMode)
                 return;
@@ -403,37 +440,85 @@ namespace AllOnOnePage
 
         public void MouseDoubleClick(Window sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            try
+            {
+                MouseDoubleClickInternal(sender, e);
+            }
+            catch (Exception ex)
+            {
+                _lastException = ex;
+            }
+        }
+
+        private void MouseDoubleClickInternal(Window sender, MouseButtonEventArgs e)
+        {
             var module = FindModuleUnderMouse(sender, e);
             if (module != null)
             {
                 if (!_editMode)
                     EnterOrLeaveEditMode();
                 OpenEditDialog(e, module);
-			}
+            }
             else
-			{
+            {
                 if (_editMode)
                     EnterOrLeaveEditMode();
                 else
                     OpenBackgroundEditDialog();
-			}
+            }
         }
 
         public void MouseRightButtonDown(Window sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                MouseRightButtonDownInternal(sender, e);
+            }
+            catch (Exception ex)
+            {
+                _lastException = ex;
+            }
+        }
+
+        private void MouseRightButtonDownInternal(Window sender, MouseButtonEventArgs e)
         {
             //var module = FindModuleUnderMouse(sender, e);
             //if (module != null)
             //    DuplicateModule(module, e);
         }
 
-		public void Button_Editmode_Click()
+        public void ButtonEditmodeClick()
 		{
-			EnterOrLeaveEditMode();
+            try
+            {
+                ButtonEditModeClickInternal();
+            }
+            catch (Exception ex)
+            {
+                _lastException = ex;
+            }
 		}
 
-		public void Button_Wastebasket_Click()
+        private void ButtonEditModeClickInternal()
+        {
+            EnterOrLeaveEditMode();
+        }
+
+        public void ButtonWastebasketClick()
 		{
+            try
+            {
+                ButtonWastebasketClickInternal();
+            }
+            catch (Exception ex)
+            {
+                _lastException = ex;
+            }
 		}
+
+        private void ButtonWastebasketClickInternal()
+        {
+        }
         #endregion
         #region ------------- Implementation ----------------------------------
         private bool EnterOrLeaveEditMode()

@@ -563,12 +563,12 @@ namespace AllOnOnePage
 
 		private void Button_Wastebasket_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
-            _vm.Button_Wastebasket_Click();
+            _vm.ButtonWastebasketClick();
 		}
 
 		private void Button_Editmode_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
-            _vm.Button_Editmode_Click();
+            _vm.ButtonEditmodeClick();
 		}
 
 		private void Button_AddNewModule_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)

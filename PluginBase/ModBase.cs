@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using PluginBase;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace AllOnOnePage.Plugins
 {
@@ -33,6 +34,8 @@ namespace AllOnOnePage.Plugins
         protected ModuleConfig                        _config;
         protected Grid                                _Parent;
         protected System.Windows.Threading.Dispatcher _Dispatcher { get; set; }
+        protected string                              _fontName = "Yu Gothic UI Light";
+        protected FontFamily                          _fontFamily;
         protected TextBlock                           _ValueControl;
         protected TextBlock                           _NameControl;
         protected Timer                               _FadeOutTimer;
@@ -44,14 +47,16 @@ namespace AllOnOnePage.Plugins
 		protected SolidColorBrush                     _editModeBackgroundColor;
 		protected SolidColorBrush                     _editModeBackgroundColorMouseOver;
 		protected Canvas                              _canvas;
-		#endregion
+        protected double                              _fontRelativeCapsHeight = 1.0;
+        protected double                              _fontRelativeLineSpacing = 1.0;
+        #endregion
 
 
 
-		#region ------------- Init ----------------------------------------------------------------
-		public ModBase()
+        #region ------------- Init ----------------------------------------------------------------
+        public ModBase()
 		{
-			TextBlockMargin = new Thickness(100, 100, 100, 100);
+			TextBlockMargin = new Thickness(0);
 			ValueVisibility = Visibility.Visible;
 			NameVisibility = Visibility.Hidden;
 			Create_FadeOut_Timer();
@@ -226,7 +231,7 @@ namespace AllOnOnePage.Plugins
 			_frameBrush                       = ColorManager.CreateBrush(_config.FrameColor);
 			_textColor                        = ColorManager.CreateBrush(_config.TextColor);
 			_editModeBackgroundColor          = Brushes.DarkGray;
-			_editModeBackgroundColorMouseOver = _backgroundBrush; //Brushes.Transparent;// Brushes.Gray;
+			_editModeBackgroundColorMouseOver = _backgroundBrush;
 
 			_canvas = new Canvas();
 			_Parent.Children.Add(_canvas);
@@ -250,7 +255,7 @@ namespace AllOnOnePage.Plugins
 
 
 
-			TextBlockMargin = new Thickness(_config.X, 0, 0, 0);
+			TextBlockMargin = new Thickness(0);
 			NotifyPropertyChanged(nameof(TextBlockMargin));
 
 			Width = _config.W;
@@ -266,18 +271,22 @@ namespace AllOnOnePage.Plugins
             Frame.Width = _config.W;
             Frame.Height = _config.H;
 
-            TextBlockMargin = new Thickness(_config.X, _config.Y, 0, 0);
+            TextBlockMargin = new Thickness(_config.X, _config.Y - _config.FontSize * _fontRelativeCapsHeight/2, 0, 0);
             NotifyPropertyChanged(nameof(TextBlockMargin));
             
             Width = _config.W;
             NotifyPropertyChanged(nameof(Width));
             
-            Height = _config.H;
+            Height = _config.H * _fontRelativeLineSpacing;
             NotifyPropertyChanged(nameof(Height));
         }
 
         protected void CreateValueControl()
         {
+            _fontFamily = new System.Windows.Media.FontFamily(_fontName);
+            _fontRelativeCapsHeight  = (_fontFamily.FamilyTypefaces.Any()) ? _fontFamily.FamilyTypefaces[0].CapsHeight : 1.0;
+            _fontRelativeLineSpacing = _fontFamily.LineSpacing;
+
             _ValueControl = CreateTextBlock(_textColor, _config.FontSize);
             _canvas.Children.Add(_ValueControl);
             _ValueControl.FontSize = _config.FontSize; 
@@ -302,7 +311,7 @@ namespace AllOnOnePage.Plugins
             control.Padding             = new Thickness(_config.TextPadding);
             control.Foreground          = foreground;
             control.FontSize            = fontSize;
-            control.FontFamily          = new System.Windows.Media.FontFamily("Yu Gothic UI Light");
+            control.FontFamily          = new System.Windows.Media.FontFamily(_fontName);
             control.HorizontalAlignment = HorizontalAlignment.Left;
             control.VerticalAlignment   = VerticalAlignment.Top;
             CreatePropertyBinding(nameof(TextBlockMargin), control , TextBlock.MarginProperty);

@@ -793,6 +793,12 @@ namespace AllOnOnePage
         }
         #endregion
         #endregion
+        #region ------------- Keyboard events ---------------------------------
+        public void OnEscapeKey()
+        {
+            RemovePerimeterRectangles();
+        }
+        #endregion
         #region ------------- Move and resize objects -------------------------
        
         /// <summary>
@@ -1471,7 +1477,6 @@ namespace AllOnOnePage
             if (_mouseMoveEventCounter > 0) 
                 _mouseMoveEventCounter--; 
         }
-
         #endregion
         #endregion
         #endregion

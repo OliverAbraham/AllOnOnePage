@@ -603,6 +603,15 @@ namespace AllOnOnePage
             _vm.MouseRightButtonDown(this, e);
         }
 		#endregion
+		#region ------------- Keyboard events ------------------------------------
+        private void Window_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                _vm.OnEscapeKey();
+            }   
+        }
+        #endregion
         #region ------------- UI background -----------------------------------
         private void Init_Background_Size_and_Position()
 		{
@@ -834,6 +843,7 @@ namespace AllOnOnePage
             }
         }
         #endregion
+
         #endregion
     }
 }

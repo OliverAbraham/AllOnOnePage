@@ -18,6 +18,7 @@
         MouseLeftButtonUp="Window_MouseLeftButtonUp"
         MouseRightButtonDown="Window_MouseRightButtonDown"
         MouseMove="Window_MouseMove" 
+        KeyUp="Window_KeyUp"
         Icon="/Icons/AllOnOnePage_80x80.ico">
     <Grid Name="MainGrid">
         <Grid Name="VisualEditor" Margin="0,0,0,0">

@@ -9,7 +9,8 @@
         Title="Settings" Width="779" MinWidth="430" Height="686" MinHeight="500"
         ResizeMode="CanResizeWithGrip"  Style="{StaticResource StandardDialogBackground}"
         Loaded="Window_Loaded"
-        Closing="Window_Closing">
+        Closing="Window_Closing"
+        KeyUp="Window_KeyUp">
     <Grid Margin="20">
 
         <xctk:PropertyGrid x:Name="_propertyGrid" 

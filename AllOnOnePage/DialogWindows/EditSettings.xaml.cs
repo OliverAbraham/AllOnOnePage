@@ -37,6 +37,12 @@ namespace AllOnOnePage.DialogWindows
         {
             LayoutManager.SaveSizeAndPosition(this, nameof(EditSettings));
         }
+
+        private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Escape)
+                Close();
+        }
 		#endregion
 
 

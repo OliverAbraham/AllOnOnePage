@@ -839,7 +839,7 @@ namespace AllOnOnePage
                 return position;
 
             // Shift keys disable the ruler
-            if (Keyboard.IsKeyDown(Key.LeftShift))
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
                 return position;
 
             var ourModule = _runtimeModules.Where(m => m.Plugin == _currentModule).FirstOrDefault();

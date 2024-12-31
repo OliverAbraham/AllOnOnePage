@@ -117,7 +117,7 @@ namespace AllOnOnePage
         private Canvas               _canvas;
         private Rectangle            _dragRect;
         private const int            _dragRectStroke = 4;
-        private const int            _borderSnapPixels = 10;
+        private const int            _borderSnapPixels = 5;
         private bool                 _mouseOnTopEdge;
         private bool                 _mouseOnLeftEdge;
         private bool                 _mouseOnRightEdge;
@@ -628,26 +628,26 @@ namespace AllOnOnePage
 
 		private void HighlightWastebasketIfMousePointerIsOver(Point pos)
 		{
-   //         var basket = _parentWindow.Button_Wastebasket;
-   //         var L = _parentWindow.Width 
-   //                 -_delta_to_Subtract_from_Window_width 
-   //                 - basket.Margin.Right 
-   //                 - basket.ActualWidth;
-   //         var R = L+basket.ActualWidth;
-   //         var T = basket.Margin.Top;
-   //         var B = T+basket.ActualHeight;
-
-   //         if (L <= pos.X && pos.X <= R && T <= pos.Y && pos.Y <= B)
-			//{
-   //             _parentWindow.Button_Wastebasket.Opacity = 1.0;
-   //             _mouseIsOverWastebasket = true;
-			//}
-   //         else
-			//{
-   //             _parentWindow.Button_Wastebasket.Opacity = 0.5;
-   //             _mouseIsOverWastebasket = false;
-			//}
-		}
+            // var basket = _parentWindow.Button_Wastebasket;
+            // var L = _parentWindow.Width
+            //         - _delta_to_Subtract_from_Window_width
+            //         - basket.Margin.Right
+            //         - basket.ActualWidth;
+            // var R = L + basket.ActualWidth;
+            // var T = basket.Margin.Top;
+            // var B = T + basket.ActualHeight;
+            // 
+            // if (L <= pos.X && pos.X <= R && T <= pos.Y && pos.Y <= B)
+            // {
+            //     _parentWindow.Button_Wastebasket.Opacity = 1.0;
+            //     _mouseIsOverWastebasket = true;
+            // }
+            // else
+            // {
+            //     _parentWindow.Button_Wastebasket.Opacity = 0.5;
+            //     _mouseIsOverWastebasket = false;
+            // }
+        }
 
         private void ChangeModule(Window sender, MouseEventArgs e, IPlugin plugin)
         {
@@ -738,6 +738,8 @@ namespace AllOnOnePage
             _currentModule.SetPosition(x, y);
             UpdateModuleSelectionIndicator();
             UpdateModuleHoverIndicator(mouse);
+
+            DeleteRuler();
         }
 
         private bool AModuleIsSelected()
@@ -834,6 +836,10 @@ namespace AllOnOnePage
         private Point DisplayRulerIfWeAlignToAnotherModuleAndSnapIn(Point position)
         {
             if (!_enableRuler)
+                return position;
+
+            // Shift keys disable the ruler
+            if (Keyboard.IsKeyDown(Key.LeftShift))
                 return position;
 
             var ourModule = _runtimeModules.Where(m => m.Plugin == _currentModule).FirstOrDefault();
@@ -947,6 +953,12 @@ namespace AllOnOnePage
             if (_ruler is not null)
                 foreach(var element in _ruler.Elements)
                     _canvas.Children.Remove(element);
+        }
+
+        private void DeleteRuler()
+        {
+            RemoveRuler();
+            _ruler = null;
         }
         #endregion
         #region ------------- Module highlight and module select --------------

@@ -435,7 +435,7 @@ namespace AllOnOnePage
 		{
 		}
         #endregion
-
+        #region ------------- Implementation ----------------------------------
         private bool EnterOrLeaveEditMode()
 		{
 			_editMode = !_editMode;
@@ -655,8 +655,12 @@ namespace AllOnOnePage
             var pos = plugin.GetPositionAndWidth();
             UpdateDragRectangle(pos);
 
-            if (plugin != _currentModule)
-                SwitchToNextModule(plugin);
+            // Don't switch to another module if the current one is selected!
+            if (!SelectIndicatorIsVisible())
+            {
+                if (plugin != _currentModule)
+                    SwitchToNextModule(plugin);
+            }
 
             if (_currentModule is not null)
                 UpdateModuleHoverIndicator(mouse);
@@ -703,8 +707,9 @@ namespace AllOnOnePage
             SetStandardMouseCursorShape();
         }
         #endregion
+        #endregion
         #region ------------- Move and resize objects -------------------------
-        
+       
         /// <summary>
         /// The user drags a module to a new position.
         /// </summary>
@@ -778,6 +783,9 @@ namespace AllOnOnePage
 
         private void ChangeHeightGrabbedBottom(Point mouse)
         {
+            if (_currentModule is null)
+                return;
+
             var width = _initialPosAndSize.Right;
             var height = _initialPosAndSize.Bottom + mouse.Y - _initialMouse.Y;
             if (width > 0 && height > 0)
@@ -961,20 +969,16 @@ namespace AllOnOnePage
             _ruler = null;
         }
         #endregion
-        #region ------------- Module highlight and module select --------------
-
-        private void SelectModuleUnderMouse()
-        {
-            if (_currentModule is null)
-                return;
-            RemovePerimeterRectangle(ref _selectedModule);
-            CreatePerimeterRectangle(ref _selectedModule, null, false);
-        }
-
         private void RemovePerimeterRectangles()
         {
             RemovePerimeterRectangle(ref _selectedModule);
             RemovePerimeterRectangle(ref _hoveredModule);
+        }
+
+        #region ------------- Module hover indicator (dashed line) -----------
+        private bool HoverIndicatorIsVisible()
+        {
+            return _hoveredModule is not null;
         }
 
         private void UpdateModuleHoverIndicator(Point mouse)
@@ -986,6 +990,21 @@ namespace AllOnOnePage
         private void RemoveModuleHoverIndicator()
         {
             RemovePerimeterRectangle(ref _hoveredModule);
+        }
+
+        #endregion
+        #region ------------- Module select indicator (solid line) ------------
+        private bool SelectIndicatorIsVisible()
+        {
+            return _selectedModule is not null;
+        }
+
+        private void SelectModuleUnderMouse()
+        {
+            if (_currentModule is null)
+                return;
+            RemovePerimeterRectangle(ref _selectedModule);
+            CreatePerimeterRectangle(ref _selectedModule, null, false);
         }
 
         private void RemoveModuleSelectionIndicator()

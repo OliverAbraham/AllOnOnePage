@@ -16,6 +16,7 @@ using PluginBase;
 using Abraham.WPFWindowLayoutManager;
 using System.Timers;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace AllOnOnePage
 {
@@ -82,18 +83,27 @@ namespace AllOnOnePage
         private class HighLight
         {
             public List<UIElement> Elements;
+            public Align Align;
+            public Point SnapPoint;
 
             public HighLight()
             {
                 Elements = new List<UIElement>();
+                SnapPoint = new Point();
             }
+        }
+
+        private enum Align
+        {
+            Top,
+            Left
         }
         #endregion
 
 
 
         #region ------------- Fields --------------------------------------------------------------
-		private Configuration                _configuration;
+        private Configuration                _configuration;
 		private HelpTexts                    _texts;
 		private PluginLoader                 _pluginManager;
 		private List<Processor>              _processors;
@@ -133,12 +143,19 @@ namespace AllOnOnePage
 		private bool                 _MouseIsOverWastebasket;
         private HighLight?           _HoveredModule;
         private HighLight?           _SelectedModule;
-        private HighLight?           _Ruler;
-        private const int            _mouseMoveEventThreshold = 200;
+        private const int            _mouseMoveEventThreshold = 100;
         private Timer                _perimeterTimer;
         private const int            _removePerimeterAfter = 60;
         private int                  _mouseMoveEventCounter = 0;
         private Timer                _mouseMoveDetectorTimer;
+
+        private bool                 _enableRuler      = true;
+        private bool                 _snapToRuler      = true;
+        private int                  _rulerSnapPixels  = 20;
+        private double               _rulerThickness   = 1;
+        private SolidColorBrush      _rulerStrokeColor = Brushes.Yellow;
+        private bool                 _rulerDashedLine  = false;
+        private HighLight?           _ruler;
         #endregion
         #endregion
 
@@ -365,7 +382,10 @@ namespace AllOnOnePage
             if (module != null)
             {
                 if (AnySizeChangeIsInProgress())
+                {
+                    SnapToRulerTheLastTime();
                     SaveConfiguration();
+                }
             }
 
             UpdateModuleSelectionIndicator();
@@ -639,7 +659,7 @@ namespace AllOnOnePage
                 SwitchToNextModule(plugin);
 
             if (_CurrentModule is not null)
-                DisplayModuleHoverIndicator(mouse);
+                UpdateModuleHoverIndicator(mouse);
 
             var updateSelectionIndicators = true;
             if      (_ChangeModuleSizeTopLeft    ) ChangeWidthGrabbedTopLeft(mouse);
@@ -692,12 +712,32 @@ namespace AllOnOnePage
         {
             if (AModuleIsSelected())
             {
+                DisplayRulerIfWeAlignToAnotherModuleAndSnapIn(mouse);
                 var x = _InitialPosAndSize.Left + mouse.X - _InitialMouse.X;
                 var y = _InitialPosAndSize.Top  + mouse.Y - _InitialMouse.Y;
                 _CurrentModule.SetPosition(x, y);
-                //DisplayRulerIfWeAlignToAnotherModule(mouse);
+                UpdateModuleSelectionIndicator();
+                UpdateModuleHoverIndicator(mouse);
             }
             ResetMousePointerOnBorderOfDragRect();
+        }
+
+        /// <summary>
+        /// When releasing the mouse button, often the mouse moves a bit.
+        /// We snap onto the visible ruler one last time.
+        /// </summary>
+        private void SnapToRulerTheLastTime()
+        {
+            if (!_enableRuler || !_snapToRuler || _ruler is null)
+                return;
+
+            var mouse = _ruler.SnapPoint;
+
+            var x = _InitialPosAndSize.Left + mouse.X - _InitialMouse.X;
+            var y = _InitialPosAndSize.Top  + mouse.Y - _InitialMouse.Y;
+            _CurrentModule.SetPosition(x, y);
+            UpdateModuleSelectionIndicator();
+            UpdateModuleHoverIndicator(mouse);
         }
 
         private bool AModuleIsSelected()
@@ -791,56 +831,123 @@ namespace AllOnOnePage
         }
         #endregion
         #region ------------- Automatic ruler ---------------------------------
-        //private void DisplayRulerIfWeAlignToAnotherModule(Point ourPosition)
-        //{
-        //    var allOtherModulesExceptUs = _runtimeModules.Where(m => m.Plugin != _CurrentModule);
-        //
-        //    foreach (var module in allOtherModulesExceptUs)
-        //    {
-        //        var anotherModule = module.Plugin.GetPositionAndCorrectSize();
-        //        //if (size.Left - _BorderSnapPixels <= pos.X && pos.X <= size.Right  + _BorderSnapPixels &&
-        //        //    size.Top  - _BorderSnapPixels <= pos.Y && pos.Y <= size.Bottom + _BorderSnapPixels)
-        //        //    return module;
-        //
-        //        var weAlignToThisModule = ourPosition.Y == anotherModule.Top;
-        //        
-        //        if (weAlignToThisModule)
-        //        {
-        //            if (_Ruler is null)
-        //                CreateRuler(ourPosition, anotherModule);
-        //            else
-        //                UpdateRuler();
-        //        }
-        //
-        //    }
-        //}
-        //
-        //private void CreateRuler(Point ourPosition, Thickness anotherModule)
-        //{
-        //    var thickness = 1;
-        //    var strokeColor = Brushes.Yellow;
-        //    var dashed = true;
-        //
-        //    UIElement e = new Line
-        //    { 
-        //        Stroke          = strokeColor, 
-        //        StrokeThickness = thickness, 
-        //        X1              = 0, 
-        //        X2              = ourPosition.X - anotherModule.Left, 
-        //        Y1              = 0, 
-        //        Y2              = 0 
-        //    };
-        //    Canvas.SetLeft(e, ourPosition.X);
-        //    Canvas.SetTop(e, ourPosition.Y);
-        //    if (dashed)
-        //        (e as Line).StrokeDashArray = new DoubleCollection { 2 };
-        //    
-        //    _Canvas.Children.Add(e);
-        //}
-        //
-        //private void UpdateRuler()
-        //{
-        //}
+        private Point DisplayRulerIfWeAlignToAnotherModuleAndSnapIn(Point position)
+        {
+            if (!_enableRuler)
+                return position;
+
+            var ourModule = _runtimeModules.Where(m => m.Plugin == _CurrentModule).FirstOrDefault();
+            var allOtherModulesExceptUs = _runtimeModules.Where(m => m.Plugin != _CurrentModule);
+
+            foreach (var module in allOtherModulesExceptUs)
+            {
+                var us = ourModule.Plugin.GetPositionAndCorrectSize();
+                var it = module.Plugin.GetPositionAndCorrectSize();
+
+                var weAlignOnTop = PointsAreNear(us.Top, it.Top);
+                if (weAlignOnTop)
+                {
+                    CreateOrUpdateRuler(us, it, Align.Top);
+                    if (_snapToRuler)
+                    {
+                        var delta = Math.Floor(it.Top - us.Top);
+                        if (delta != 0.0)
+                        {
+                            position.Y += delta;
+                            _ruler.SnapPoint.X = position.X;
+                            _ruler.SnapPoint.Y = position.Y;
+                        }
+                    }
+                    return position;
+                }
+
+                var weAlignLeft = PointsAreNear(us.Left, it.Left);
+                if (weAlignLeft)
+                {
+                    CreateOrUpdateRuler(us, it, Align.Left);
+                    if (_snapToRuler)
+                    {
+                        var delta = Math.Floor(it.Left - us.Left);
+                        if (delta != 0.0)
+                        {
+                            position.X += delta;
+                            _ruler.SnapPoint.X = position.X;
+                            _ruler.SnapPoint.Y = position.Y;
+                        }
+                    }
+                    return position;
+                }
+            }
+
+            RemoveRuler();
+
+            if (_ruler is not null)
+            {
+                _ruler.SnapPoint.X = position.X;
+                _ruler.SnapPoint.Y = position.Y;
+            }
+            return position;
+        }
+
+        private bool PointsAreNear(double p1, double p2)
+        {
+            return Math.Abs(p1 - p2) < _rulerSnapPixels;
+        }
+
+        private void CreateOrUpdateRuler(Thickness ourPosition, Thickness anotherModule, Align align)
+        {
+            Line line;
+            if (_ruler is null)
+            {
+                _ruler = new HighLight();
+                _ruler.Align = align;
+
+                line = new Line { Stroke = _rulerStrokeColor, StrokeThickness = _rulerThickness };
+                if (_rulerDashedLine)
+                    line.StrokeDashArray = new DoubleCollection { 2 };
+
+                _ruler.Elements.Add(line);
+            }
+            else
+            {
+                line = _ruler.Elements[0] as Line;
+            }
+
+            if (align == Align.Top)
+            {
+                line.X1 = Math.Min(ourPosition.Left, anotherModule.Left);
+                line.X2 = Math.Max(ourPosition.Right, anotherModule.Right);
+                line.Y1 = anotherModule.Top;
+                line.Y2 = anotherModule.Top;
+            }
+            else if (align == Align.Left)
+            {
+                line.X1 = anotherModule.Left;
+                line.X2 = anotherModule.Left;
+                line.Y1 = Math.Min(ourPosition.Top, anotherModule.Top);
+                line.Y2 = Math.Max(ourPosition.Bottom, anotherModule.Bottom);
+            }
+
+            Canvas.SetLeft(line, 0);
+            Canvas.SetTop(line, 0);
+
+            RemoveRuler();
+            AddRuler();
+        }
+
+        private void AddRuler()
+        {
+            if (_ruler is not null)
+                foreach(var element in _ruler.Elements)
+                    _Canvas.Children.Add(element);
+        }
+
+        private void RemoveRuler()
+        {
+            if (_ruler is not null)
+                foreach(var element in _ruler.Elements)
+                    _Canvas.Children.Remove(element);
+        }
         #endregion
         #region ------------- Module highlight and module select --------------
 
@@ -858,7 +965,7 @@ namespace AllOnOnePage
             RemovePerimeterRectangle(ref _HoveredModule);
         }
 
-        private void DisplayModuleHoverIndicator(Point mouse)
+        private void UpdateModuleHoverIndicator(Point mouse)
         {
             RemovePerimeterRectangle(ref _HoveredModule);
             CreatePerimeterRectangle(ref _HoveredModule, mouse, true);
@@ -996,7 +1103,6 @@ namespace AllOnOnePage
         /// </summary>
         private void StartPerimeterTimer()
         {
-            System.Diagnostics.Debug.WriteLine("StartPerimeterTimer");
             if (_perimeterTimer is null)
             {
                 _perimeterTimer = new Timer();
@@ -1014,7 +1120,6 @@ namespace AllOnOnePage
 
         private void RemovePerimeterIndicator(object? sender, ElapsedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("RemovePerimeterIndicator");
             _perimeterTimer.Stop();
             Dispatcher.Invoke(() =>
             {

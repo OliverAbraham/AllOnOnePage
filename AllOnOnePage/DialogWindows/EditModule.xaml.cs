@@ -137,6 +137,8 @@ namespace AllOnOnePage.DialogWindows
         {
             if (e.Key == System.Windows.Input.Key.Escape)
                 Close();
+            else if (e.Key == System.Windows.Input.Key.Enter)
+                Button_Save_Click(null,null);
         }
         #endregion
 

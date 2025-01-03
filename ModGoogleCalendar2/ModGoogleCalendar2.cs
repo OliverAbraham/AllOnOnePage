@@ -408,7 +408,7 @@ namespace AllOnOnePage.Plugins
                     DateTime.Now, 
                     DateTime.Now.AddDays(_myConfiguration.DaysToReadInAdvance));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
             }
         }

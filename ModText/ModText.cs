@@ -7,6 +7,7 @@ using PluginBase;
 using System.Globalization;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Timers;
 
 namespace AllOnOnePage.Plugins
 {
@@ -58,6 +59,13 @@ namespace AllOnOnePage.Plugins
                 Text  = text;
             }
         }
+
+        private class ValueWithAge
+        {
+            public string         Topic     { get; set; }
+            public string         Value     { get; set; }
+            public DateTimeOffset Timestamp { get; set; }
+        }
 		#endregion
 
 
@@ -69,6 +77,8 @@ namespace AllOnOnePage.Plugins
         private Params _serverWarningValues;
         private Params _serverPlaySound;
         private Params _fadeOutAfter;
+        private Dictionary<string, ValueWithAge> _savedValues = new();
+        private Timer _fadeOutTimer;
         #endregion
 
 
@@ -130,7 +140,7 @@ namespace AllOnOnePage.Plugins
             if (yes2 && !forUs2)
                 return;
 
-            var timestamp = new DateTimeOffset();
+            var timestamp = (dataObject is not null) ? dataObject.Timestamp : new DateTimeOffset();
             System.Diagnostics.Debug.WriteLine($"ModText: UpdateContent");
             if (yes1 || yes2)
             {
@@ -156,8 +166,8 @@ namespace AllOnOnePage.Plugins
 
             NotifyPropertyChanged(nameof(Value));
             SetWarningColorIfNecessary();
-            //SetValueControlVisible();
-            SetVisibility(Value);
+
+            SetVisibility(localValue, timestamp, (dataObject is not null) ? dataObject.Name : "");
             return;
         }
 
@@ -382,24 +392,143 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
             return _serverWarningValues is not null && _serverWarningValues.Values.Any();
         }
 
-        private void SetVisibility(string value)
+        private void SetVisibility(string value, DateTimeOffset currentTimestamp, string topic)
         {
-            _serverFadeOutValues = Deserialize(_myConfiguration.ServerFadeOutValues);
-            if (_serverFadeOutValues is null)
+            if (String.IsNullOrEmpty(topic))
+                return;
+            if (_serverFadeOutValues is null || !_serverFadeOutValues.Values.Any())
                 return;
 
-            foreach(var fadeValue in _serverFadeOutValues.Values)
+            // if the current value is in the list, we fade out after the time set
+            int index = 0;
+            foreach (var fadeValue in _serverFadeOutValues.Values)
             {
-                if (fadeValue.Value == value)
+                if (fadeValue.Text == value)
                 {
-                    FadeOut();
+                    if (_fadeOutAfter is not null && _fadeOutAfter.Values.Any())
+                    {
+                        var fadeOutTimeInSeconds = TakeNthElement(_fadeOutAfter.Values, index);
+                        var currentAgeInSeconds = AgeOf(topic, currentTimestamp, value);
+                        if (currentAgeInSeconds >= fadeOutTimeInSeconds)
+                        {
+                            FadeOut();
+                            return;
+                        }
+                        else
+                        {
+                            SetFadeOutTimer(fadeOutTimeInSeconds - currentAgeInSeconds);
+                            return;
+                        }
+                    }
                     return;
                 }
+                index++;
             }
 
+            ClearFadeOutTimer();
             FadeIn();
+            SaveCurrentValue(topic, value);
         }
-        
+
+        private void SetFadeOutTimer(double seconds)
+        {
+            if (_fadeOutTimer is null)
+            {
+                _fadeOutTimer = new Timer(1);
+                _fadeOutTimer.AutoReset = false;
+                _fadeOutTimer.Elapsed += FadeOutTimer_Elapsed;
+            }
+
+            _fadeOutTimer.Interval = seconds * 1000;  
+            _fadeOutTimer.Start();
+        }
+
+        private void ClearFadeOutTimer()
+        {
+            if (_fadeOutTimer is not null)
+                _fadeOutTimer.Stop();
+        }
+
+        private void FadeOutTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            _Dispatcher.Invoke(() => FadeOut());
+        }
+
+        private double TakeNthElement(List<Param> values, int index)
+        {
+            string nthElement = (values.Count == 0)
+                ? "0"
+                : ( (values.Count > index)
+                    ? values[index].Text
+                    : values.Last().Text
+                  );
+
+            if (String.IsNullOrEmpty(nthElement))
+                nthElement = "0";
+
+            double seconds;
+            if (nthElement.EndsWith('s'))
+            {
+                seconds = ExtractNumberFrom(nthElement) * 1;
+            }
+            else if (nthElement.EndsWith('m'))
+            {
+                seconds = ExtractNumberFrom(nthElement) * 60;
+            }
+            else if (nthElement.EndsWith('h'))
+            {
+                seconds = ExtractNumberFrom(nthElement) * 60 * 60;
+            }
+            else if (nthElement.EndsWith('d'))
+            {
+                seconds = ExtractNumberFrom(nthElement) * 60 * 60 * 24;
+            }
+            else 
+            {
+                seconds = ExtractNumberFrom(nthElement);
+            }
+            return seconds;
+        }
+
+        private double ExtractNumberFrom(string text)
+        {
+            try
+            {
+                var number = text.Substring(0, text.Length - 1);
+                return double.Parse(number, CultureInfo.InvariantCulture);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        private double AgeOf(string topic, DateTimeOffset currentTimestamp, string value)
+        {
+            if (currentTimestamp.Year >= 2000)
+                return (DateTimeOffset.Now - currentTimestamp).TotalSeconds;
+           
+            if (String.IsNullOrEmpty(topic))
+                return 0;
+
+            var savedValue = _savedValues.GetValueOrDefault(topic);
+            if (savedValue is not null)
+                return (DateTimeOffset.Now - savedValue.Timestamp).TotalSeconds;
+
+            _savedValues.Add(topic, new ValueWithAge { Topic = topic, Value = value, Timestamp = DateTimeOffset.Now });
+            return 0;
+        }
+
+        private void SaveCurrentValue(string topic, string value)
+        {
+            if (String.IsNullOrEmpty(topic))
+                return;
+
+            if (_savedValues.ContainsKey(topic))
+                _savedValues[topic].Timestamp = DateTimeOffset.Now;
+            else
+                _savedValues.Add(topic, new ValueWithAge { Topic = topic, Value = value, Timestamp = DateTimeOffset.Now });
+        }
 
 		private void FadeIn()
         {

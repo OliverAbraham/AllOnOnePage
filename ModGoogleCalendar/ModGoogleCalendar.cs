@@ -472,7 +472,7 @@ The Word 'Garbage:' will be the heading.
                     DateTime.Now, 
                     DateTime.Now.AddDays(_myConfiguration.DaysToReadInAdvance));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
             }
         }

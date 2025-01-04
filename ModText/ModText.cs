@@ -108,7 +108,8 @@ namespace AllOnOnePage.Plugins
 		public override async Task Save()
 		{
 			_config.ModulePrivateData = System.Text.Json.JsonSerializer.Serialize(_myConfiguration);
-		}
+            DeserializeConfig();
+        }
 
 		public override async Task<(bool,string)> Validate()
 		{
@@ -167,7 +168,7 @@ namespace AllOnOnePage.Plugins
             NotifyPropertyChanged(nameof(Value));
             SetWarningColorIfNecessary();
 
-            SetVisibility(localValue, timestamp, (dataObject is not null) ? dataObject.Name : "");
+            SetVisibility(localValue, timestamp, _myConfiguration.ServerDataObject);
             return;
         }
 
@@ -411,6 +412,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
                         var currentAgeInSeconds = AgeOf(topic, currentTimestamp, value);
                         if (currentAgeInSeconds >= fadeOutTimeInSeconds)
                         {
+                            ClearFadeOutTimer();
                             FadeOut();
                             return;
                         }

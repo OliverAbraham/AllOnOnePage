@@ -16,7 +16,6 @@ using PluginBase;
 using Abraham.WPFWindowLayoutManager;
 using System.Timers;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace AllOnOnePage
 {
@@ -156,7 +155,7 @@ namespace AllOnOnePage
         private SolidColorBrush      _rulerStrokeColor = Brushes.Yellow;
         private bool                 _rulerDashedLine  = false;
         private HighLight?           _ruler;
-        private Exception _lastException;
+        private Exception            _lastException;
         #endregion
         #endregion
 
@@ -266,6 +265,11 @@ namespace AllOnOnePage
 			Processor processor = FindProcessorByType(moduleDef.Config.TileType);
 			if (processor == null)
 			{
+                if (moduleDef.Config.X < 0)
+                    moduleDef.Config.X = 0;
+                if (moduleDef.Config.Y < 0)
+                    moduleDef.Config.Y = 0;
+
                 moduleDef.Plugin = new ModDummy();
 			    moduleDef.Plugin.Init(moduleDef.Config, _parentGrid, Dispatcher);
 			    moduleDef.Plugin.UpdateLayout();
@@ -386,14 +390,14 @@ namespace AllOnOnePage
 
             UpdateDragRectangle(module.Plugin.GetPositionAndWidth());
 
-            if (_mouseOnCorner1) _changeModuleSizeTopLeft = true;
-            else if (_mouseOnCorner2) _changeModuleSizeTopRight = true;
-            else if (_mouseOnCorner3) _changeModuleSizeBottomLeft = true;
-            else if (_mouseOnCorner4) _changeModuleSizeBottomRight = true;
-            else if (_mouseOnLeftEdge) _changeModuleWidthLeft = true;
-            else if (_mouseOnRightEdge) _changeModuleWidthRight = true;
-            else if (_mouseOnTopEdge) _changeModuleHeightTop = true;
-            else if (_mouseOnBottomEdge) _changeModuleHeightBottom = true;
+            if (     _mouseOnCorner1)    _changeModuleSizeTopLeft     = true;
+            else if (_mouseOnCorner2)    _changeModuleSizeTopRight    = true;
+            else if (_mouseOnCorner3)    _changeModuleSizeBottomLeft  = true;
+            else if (_mouseOnCorner4)    _changeModuleSizeBottomRight = true;
+            else if (_mouseOnLeftEdge)   _changeModuleWidthLeft       = true;
+            else if (_mouseOnRightEdge)  _changeModuleWidthRight      = true;
+            else if (_mouseOnTopEdge)    _changeModuleHeightTop       = true;
+            else if (_mouseOnBottomEdge) _changeModuleHeightBottom    = true;
 
             SetMouseCursorShape();
             _changeModulePosition = true;
@@ -422,7 +426,7 @@ namespace AllOnOnePage
             {
                 if (AnySizeChangeIsInProgress())
                 {
-                    SnapToRulerTheLastTime();
+                    //SnapToRulerTheLastTime();
                     SaveConfiguration();
                 }
             }
@@ -793,6 +797,11 @@ namespace AllOnOnePage
             RemoveModuleHoverIndicator();
             SetStandardMouseCursorShape();
         }
+        private void RemovePerimeterRectangles()
+        {
+            RemovePerimeterRectangle(ref _selectedModule);
+            RemovePerimeterRectangle(ref _hoveredModule);
+        }
         #endregion
         #endregion
         #region ------------- Keyboard events ---------------------------------
@@ -813,11 +822,20 @@ namespace AllOnOnePage
                 DisplayRulerIfWeAlignToAnotherModuleAndSnapIn(mouse);
                 var x = _initialPosAndSize.Left + mouse.X - _initialMouse.X;
                 var y = _initialPosAndSize.Top  + mouse.Y - _initialMouse.Y;
+
+                (x,y) = SnapToGrid(x,y);
                 _currentModule.SetPosition(x, y);
                 UpdateModuleSelectionIndicator();
                 UpdateModuleHoverIndicator(mouse);
             }
             ResetMousePointerOnBorderOfDragRect();
+        }
+
+        private (double x, double y) SnapToGrid(double x, double y)
+        {
+            x = ((int)x / 10) * 10;
+            y = ((int)y / 10) * 10;
+            return (x,y);
         }
 
         /// <summary>
@@ -1062,12 +1080,6 @@ namespace AllOnOnePage
             _ruler = null;
         }
         #endregion
-        private void RemovePerimeterRectangles()
-        {
-            RemovePerimeterRectangle(ref _selectedModule);
-            RemovePerimeterRectangle(ref _hoveredModule);
-        }
-
         #region ------------- Module hover indicator (dashed line) -----------
         private bool HoverIndicatorIsVisible()
         {

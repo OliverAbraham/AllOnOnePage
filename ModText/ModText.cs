@@ -120,7 +120,8 @@ namespace AllOnOnePage.Plugins
 		public override async Task<(bool success, string messages)> Test()
 		{
             DeserializeConfig();
-            return (false, "");
+            UpdateContent(null);
+            return (true, Value);
 		}
 
         public override void UpdateLayout()

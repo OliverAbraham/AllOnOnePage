@@ -1,4 +1,13 @@
-﻿using System;
+﻿using Abraham.AutoUpdater;
+using Abraham.OpenWeatherMap;
+using Abraham.WPFWindowLayoutManager;
+using AllOnOnePage.Connectors;
+using AllOnOnePage.DialogWindows;
+using AllOnOnePage.Libs;
+using AllOnOnePage.Plugins;
+using Newtonsoft.Json.Linq;
+using PluginBase;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,14 +16,6 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
-using Abraham.AutoUpdater;
-using Abraham.OpenWeatherMap;
-using Abraham.WPFWindowLayoutManager;
-using AllOnOnePage.Connectors;
-using AllOnOnePage.DialogWindows;
-using AllOnOnePage.Libs;
-using AllOnOnePage.Plugins;
-using PluginBase;
 
 namespace AllOnOnePage
 {
@@ -808,13 +809,14 @@ namespace AllOnOnePage
             try
             {
                 if (connector.Name == "MQTT")
-                    _applicationData._mqttGetter = connector.Getter;
+                    _applicationData._mqttGetter = new ServerGetter2(_dataObjectsCache); //connector.Getter;
                 else
                     _applicationData._homenetGetter = connector.Getter;
 
                 connector.OnDataobjectChange += 
                     delegate(ServerDataObjectChange Do)
                     {
+                        System.Diagnostics.Debug.WriteLine($"MQTT event {Do.Name}= {Do.Value}");
                         if (_dataObjectsCache.ContainsKey(Do.Name))
                         {
                             if (_dataObjectsCache[Do.Name] == Do.Value)
@@ -845,5 +847,23 @@ namespace AllOnOnePage
         #endregion
 
         #endregion
+    }
+
+    internal class ServerGetter2 : IServerGetter
+    {
+        private Dictionary<string, string> _dataObjectsCache;
+
+        public ServerGetter2(Dictionary<string, string> dataObjectsCache)
+        {
+            _dataObjectsCache = dataObjectsCache;
+        }
+
+        public ServerDataObject TryGet(string dataObjectName)
+        {
+            if (_dataObjectsCache.ContainsKey(dataObjectName))
+                return new ServerDataObject(dataObjectName, _dataObjectsCache[dataObjectName], DateTime.UtcNow);
+            else
+                return new ServerDataObject(dataObjectName, "????", DateTime.UtcNow);
+        }
     }
 }

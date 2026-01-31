@@ -8,6 +8,10 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Timers;
+using System.Collections.Immutable;
+using System.IO;
+using System.Diagnostics;
+using System.Windows.Threading;
 
 namespace AllOnOnePage.Plugins
 {
@@ -79,6 +83,7 @@ namespace AllOnOnePage.Plugins
         private Params _fadeOutAfter;
         private Dictionary<string, ValueWithAge> _savedValues = new();
         private Timer _fadeOutTimer;
+        private string _serverPlaySoundPreviousValue;
         #endregion
 
 
@@ -170,6 +175,7 @@ namespace AllOnOnePage.Plugins
             SetWarningColorIfNecessary();
 
             SetVisibility(localValue, timestamp, _myConfiguration.ServerDataObject);
+            WaitAndThenCallMethod(wait_time_seconds:1, action:PlaySoundIfValueChanges);
             return;
         }
 
@@ -542,6 +548,34 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         {
 			WpfAnimations.FadeOutTextBlock(base._ValueControl);
 		}
+
+        private void PlaySoundIfValueChanges()
+        {
+            if (_serverPlaySound is not null)
+            {
+                if (_serverPlaySoundPreviousValue is null)
+                {
+                    _serverPlaySoundPreviousValue = Value;
+                    return;
+                }
+                if (_serverPlaySoundPreviousValue == Value)
+                    return;
+                _serverPlaySoundPreviousValue = Value;
+
+                var firstSoundFile = _serverPlaySound.Values.Count > 0 ? _serverPlaySound.Values.First().Text : "";
+                if (!string.IsNullOrEmpty(firstSoundFile))
+                {
+                    var programDirectory = _config.ApplicationData.ProgramDirectory;
+                    var path = Path.Combine(programDirectory, "Sounds", firstSoundFile);
+                    if (File.Exists(path))
+                    {
+                        var player = new AllOnOnePage.Plugins.SoundPlayer();
+                        player.Play(path);
+                        return;
+                    }
+                }
+            }
+        }
         #endregion
 
 

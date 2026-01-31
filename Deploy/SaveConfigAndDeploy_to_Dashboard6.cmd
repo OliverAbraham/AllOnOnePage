@@ -10,10 +10,10 @@
 
 set ALLSETTINGS=C:\Credentials\AllOnOnePage
 set BACKUPTO=C:\Credentials\AllOnOnePage
-set CONFIGDIR=C:\Credentials\AllOnOnePage\Config_Dashboard3
+set CONFIGDIR=C:\Credentials\AllOnOnePage\Config_Dashboard6
 set BIN_SOURCE=..\AllOnOnePage\bin\publish\*
 set SETTINGS_SOURCE=%USERPROFILE%\Documents\All on one page\*.hjson
-set ROOT=\\server1\Dashboard3
+set ROOT=\\server1\Dashboard6
 
 xcopy "%SETTINGS_SOURCE%" "%CONFIGDIR%"
 

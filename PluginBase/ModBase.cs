@@ -1,16 +1,17 @@
-﻿using System;
+﻿using PluginBase;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Shapes;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
-using System.Collections.Generic;
-using System.Reflection;
-using PluginBase;
-using System.Threading.Tasks;
-using System.Linq;
+using System.Windows.Shapes;
 
 namespace AllOnOnePage.Plugins
 {
@@ -361,6 +362,39 @@ namespace AllOnOnePage.Plugins
                 Value = "---------------------------------------";
                 NotifyPropertyChanged(nameof(Value));
             }
+        }
+
+        protected Timer WaitAndThenCallMethod(int wait_time_seconds, Action action)
+        {
+			return CreateAndStartTimer(
+                delegate(object sender, ElapsedEventArgs e)
+                {
+                    try
+                    {
+						_Dispatcher.Invoke(() =>
+						{
+                            try
+							{
+                                action();
+							}
+							catch (Exception ex)
+							{
+                                Debug.WriteLine(ex.ToString());
+							}
+						});
+                    }
+                    catch (Exception) { }
+                }, wait_time_seconds, repeatedly:false);
+        }
+
+        protected Timer CreateAndStartTimer(ElapsedEventHandler timerProc, int interval_in_seconds, bool repeatedly = true)
+        {
+            var timer = new Timer();
+            timer.Interval = interval_in_seconds * 1000;
+            timer.Elapsed += timerProc;
+            timer.AutoReset = repeatedly;
+            timer.Start();
+            return timer;
         }
 
         #endregion

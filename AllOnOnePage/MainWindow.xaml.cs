@@ -744,11 +744,15 @@ namespace AllOnOnePage
             {
                 if (connector.IsConfigured(_config) && !connector.IsConnected)
                 {
-                    _logger.Log(      $"Connecting to {connector.Name}...");
-                    SetServerInfotext($"Connecting to {connector.Name}...");
+                    _logger.Log(      $"Connection to {connector.Name} in progress...");
+                    SetServerInfotext($"Connection to {connector.Name} in progress...");
                     await connector.Connect(_config);
                     LinkConnector(connector);
                     System.Diagnostics.Debug.WriteLine($"{connector.ConnectionStatus}");
+                    if (connector.IsConnected)
+                        _logger.Log(  $"Connection to {connector.Name} OK");
+                    else
+                        _logger.Log(  $"Connection to {connector.Name} failed");
                 }
             }
 
@@ -786,6 +790,10 @@ namespace AllOnOnePage
                         statusText += $"{connector.Name} still disconnected after reconnect attempt";
                         changes = true;
                     }
+                    else
+                    {
+                        statusText += $"{connector.Name} OK";
+                    }
                 }
             }
 
@@ -809,7 +817,7 @@ namespace AllOnOnePage
             try
             {
                 if (connector.Name == "MQTT")
-                    _applicationData._mqttGetter = new ServerGetter2(_dataObjectsCache); //connector.Getter;
+                    _applicationData._mqttGetter = connector.Getter;
                 else
                     _applicationData._homenetGetter = connector.Getter;
 

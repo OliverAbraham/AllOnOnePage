@@ -10,8 +10,6 @@ using System.Windows;
 using System.Timers;
 using System.Collections.Immutable;
 using System.IO;
-using System.Diagnostics;
-using System.Windows.Threading;
 
 namespace AllOnOnePage.Plugins
 {
@@ -138,6 +136,7 @@ namespace AllOnOnePage.Plugins
         public override void UpdateContent(ServerDataObjectChange? dataObject)
         {
             var localValue = "";
+            var topic = "";
 
             (var yes1, var forUs1) = WeHaveReceivedAHomenetEvent(dataObject);
             if (yes1 && !forUs1)
@@ -159,10 +158,14 @@ namespace AllOnOnePage.Plugins
                 var dataObject2 = ReadValueDirectlyFromHomenetServer();
                 localValue = dataObject2?.Value ?? "???";
                 timestamp = dataObject2?.Timestamp ?? new DateTimeOffset();
+                topic = _myConfiguration.ServerDataObject;
             }
             else if (TheMqttBrokerShouldBeUsed())
             {
-                localValue = ReadValueDirectlyFromMqtt();
+                var dataObject2 = ReadValueDirectlyFromMqtt();
+                localValue = dataObject2?.Value ?? "???";
+                timestamp = dataObject2?.Timestamp ?? new DateTimeOffset();
+                topic = _myConfiguration.MqttTopic;
             }
             else
             {
@@ -174,7 +177,7 @@ namespace AllOnOnePage.Plugins
             NotifyPropertyChanged(nameof(Value));
             SetWarningColorIfNecessary();
 
-            SetVisibility(localValue, timestamp, _myConfiguration.ServerDataObject);
+            SetVisibility(localValue, timestamp, topic);
             WaitAndThenCallMethod(wait_time_seconds:1, action:PlaySoundIfValueChanges);
             return;
         }
@@ -243,7 +246,9 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 			}
 			return result;
         }
+        #endregion
 
+		#region ------------- Text formatting -----------------------------------------------------
         private string MapTechnicalValueToDisplayValue(string value, DateTimeOffset timestamp)
         {
             if (value is null)
@@ -379,7 +384,9 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
             return value;
         }
+        #endregion
 
+		#region ------------- Coloring ------------------------------------------------------------
         private void SetWarningColorIfNecessary()
         {
             if (WarningTextColorIsSet() && WarningValuesAreSet())
@@ -399,44 +406,71 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         {
             return _serverWarningValues is not null && _serverWarningValues.Values.Any();
         }
+        #endregion
 
+		#region ------------- Fade in / fade out --------------------------------------------------
         private void SetVisibility(string value, DateTimeOffset currentTimestamp, string topic)
         {
-            if (String.IsNullOrEmpty(topic))
-                return;
-            if (_serverFadeOutValues is null || !_serverFadeOutValues.Values.Any())
+            if (string.IsNullOrEmpty(topic))
                 return;
 
-            // if the current value is in the list, we fade out after the time set
-            int index = 0;
-            foreach (var fadeValue in _serverFadeOutValues.Values)
+            if (_fadeOutAfter is null || !_fadeOutAfter.Values.Any())
+                return;
+
+            // if the user has set fadeout only for certain values, and the current value is one of those, we fade out after the time set
+            var weNowHaveOneOfThoseValues = true;
+            if (FadeoutWasSetOnlyForCertainValues())
+                weNowHaveOneOfThoseValues = WeNowHaveOneOfThoseValues(value);
+            
+            if (weNowHaveOneOfThoseValues)
             {
-                if (fadeValue.Text == value)
+                var secondsValue = _fadeOutAfter.Values.First().Text;
+                var fadeOutTimeInSeconds = ConvertToSeconds(secondsValue);
+                var currentAgeInSeconds = (int)((DateTimeOffset.Now - currentTimestamp).TotalSeconds);
+                if (currentAgeInSeconds >= fadeOutTimeInSeconds)
                 {
-                    if (_fadeOutAfter is not null && _fadeOutAfter.Values.Any())
-                    {
-                        var fadeOutTimeInSeconds = TakeNthElement(_fadeOutAfter.Values, index);
-                        var currentAgeInSeconds = AgeOf(topic, currentTimestamp, value);
-                        if (currentAgeInSeconds >= fadeOutTimeInSeconds)
-                        {
-                            ClearFadeOutTimer();
-                            FadeOut();
-                            return;
-                        }
-                        else
-                        {
-                            SetFadeOutTimer(fadeOutTimeInSeconds - currentAgeInSeconds);
-                            return;
-                        }
-                    }
-                    return;
+                    ClearFadeOutTimer();
+                    FadeOut();
                 }
-                index++;
+                else
+                {
+                    SetFadeOutTimer(fadeOutTimeInSeconds - currentAgeInSeconds);
+                }
+                return;
             }
+            else
+            {
+                ClearFadeOutTimer();
+                FadeIn();
+                SaveCurrentValue(topic, value);
+            }
+        }
 
-            ClearFadeOutTimer();
-            FadeIn();
-            SaveCurrentValue(topic, value);
+        private bool FadeoutWasSetOnlyForCertainValues()
+        {
+            return _serverFadeOutValues is not null && 
+                _serverFadeOutValues.Values is not null && 
+                _serverFadeOutValues.Values.Any();
+        }
+
+        private bool WeNowHaveOneOfThoseValues(string value)
+        {
+            return _serverFadeOutValues is not null && 
+                _serverFadeOutValues.Values is not null && 
+                _serverFadeOutValues.Values.Any(v => v.Text == value);
+        }
+
+        private int ConvertToSeconds(string value)
+        {
+            if (value.EndsWith("d"))
+                return Convert.ToInt32(value.Substring(0,value.Length-1)) * 60 * 60 * 24;
+            if (value.EndsWith("h"))
+                return Convert.ToInt32(value.Substring(0,value.Length-1)) * 60 * 60;
+            if (value.EndsWith("m"))
+                return Convert.ToInt32(value.Substring(0,value.Length-1)) * 60;
+            if (value.EndsWith("s"))
+                return Convert.ToInt32(value.Substring(0,value.Length-1));
+            return Convert.ToInt32(value);
         }
 
         private void SetFadeOutTimer(double seconds)
@@ -548,7 +582,9 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         {
 			WpfAnimations.FadeOutTextBlock(base._ValueControl);
 		}
+        #endregion
 
+		#region ------------- Sound playback for certain values -----------------------------------
         private void PlaySoundIfValueChanges()
         {
             if (_serverPlaySound is not null)
@@ -577,8 +613,6 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
             }
         }
         #endregion
-
-
 
 		#region ------------- Homenet -------------------------------------------------------------
 		private (bool,bool) WeHaveReceivedAHomenetEvent(ServerDataObjectChange dataObject)
@@ -611,8 +645,6 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         }
         #endregion
 
-
-
 		#region ------------- MQTT ----------------------------------------------------------------
 		private (bool, bool) WeHaveReceivedAnMqttEvent(ServerDataObjectChange dataObject)
         {
@@ -631,16 +663,16 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
             return !string.IsNullOrWhiteSpace(_myConfiguration.MqttTopic);
         }
 
-        private string ReadValueDirectlyFromMqtt()
+        private ServerDataObject ReadValueDirectlyFromMqtt()
         {
 			try
 			{
 				var dataObject = _config.ApplicationData._mqttGetter.TryGet(_myConfiguration.MqttTopic);
-				return dataObject?.Value ?? "???";
+				return dataObject;
 			}
 			catch (Exception)
 			{
-				return "???";
+				return new ServerDataObject(_myConfiguration.ServerDataObject, "???", new DateTimeOffset());
 			}
         }
         #endregion

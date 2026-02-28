@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 
 namespace AllOnOnePage
@@ -32,6 +33,10 @@ namespace AllOnOnePage
 				try
 				{
 					string Line = $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}    {message}\r\n";
+					
+					//#if DEBUG
+					//_configuration.LogfileName = @"C:\Temp\AllOnOnePage.log";
+					//#endif
 					File.AppendAllText(_configuration.LogfileName, Line);
 				}
 				catch (Exception) { }

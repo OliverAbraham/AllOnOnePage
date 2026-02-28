@@ -1,7 +1,11 @@
 ﻿using Abraham.MQTTClient;
 using AllOnOnePage.Plugins;
+using Newtonsoft.Json;
 using PluginBase;
 using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace AllOnOnePage.Connectors
@@ -14,6 +18,16 @@ namespace AllOnOnePage.Connectors
         private string     _serverPassword;
         private int        _serverTimeout;
         private MQTTClient _mqttClient;
+
+        private class TopicTimestamp
+        {
+            public string         Topic     { get; set; }
+            public string         Value     { get; set; }
+            public DateTimeOffset Timestamp { get; set; }
+        }
+        private Dictionary<string, TopicTimestamp> _topicTimestamps = new();
+        private string _valueCacheFilename = "AllOnOnePage_MQTT_timestamps.json";
+        private DateTimeOffset _lastValueCacheSave = new DateTimeOffset();
         #endregion
 
 
@@ -21,6 +35,7 @@ namespace AllOnOnePage.Connectors
         #region ------------- Init ----------------------------------------------------------------
         public MqttConnector()
         {
+            ReadValueCacheFromDisk();
         }
         #endregion
 
@@ -30,7 +45,15 @@ namespace AllOnOnePage.Connectors
         public ServerDataObject TryGet(string topic)
         {
             var value = _mqttClient.TryGet(topic);
-            return new ServerDataObject(topic, value, new DateTime());
+            if (value != null)
+            {
+                var timestamp = GetTimestamp(topic, value);
+                return new ServerDataObject(topic, value, timestamp);
+            }
+            else
+            {
+                return new ServerDataObject(topic, null, DateTimeOffset.Now);
+            }
         }
         #endregion
 
@@ -104,8 +127,69 @@ namespace AllOnOnePage.Connectors
         #region ------------- Implementation ------------------------------------------------------
         private void OnDataobjectChangeLocal(string topic, string value)
         {
-            var eventData = new ServerDataObjectChange("MQTT", topic, value, new DateTimeOffset());
+            var timestamp = GetTimestamp(topic, value);
+            var eventData = new ServerDataObjectChange("MQTT", topic, value, timestamp);
             OnDataobjectChange(eventData);
+
+            SaveValueCacheToDiskPeriodically();
+        }
+        #endregion
+
+
+
+        #region ------------- Value Cache ---------------------------------------------------------
+        private DateTimeOffset GetTimestamp(string topic, string value)
+        {
+            if (_topicTimestamps.ContainsKey(topic))
+            {
+                if (_topicTimestamps[topic].Value != value)
+                {
+                    _topicTimestamps[topic].Value = value;
+                    _topicTimestamps[topic].Timestamp = DateTimeOffset.Now;
+                }
+            }
+            else
+            {
+                _topicTimestamps[topic] = new TopicTimestamp { Topic = topic, Value = value, Timestamp = DateTimeOffset.Now };
+            }
+
+            return _topicTimestamps[topic].Timestamp;
+        }
+
+        private void SaveValueCacheToDiskPeriodically()
+        {
+            try
+            {
+                var age = DateTimeOffset.Now - _lastValueCacheSave;
+                if (age > TimeSpan.FromMinutes(10))
+                {
+                    SaveValueCacheToDisk();
+                    _lastValueCacheSave = DateTimeOffset.Now;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error saving MQTT value cache to disk: {ex}");
+            }
+        }
+
+        private void ReadValueCacheFromDisk()
+        {
+            var filename = Path.Combine(Path.GetTempPath(), _valueCacheFilename);
+            if (File.Exists(filename))
+            {
+                var json = File.ReadAllText(filename);
+                var tempDictionary = JsonConvert.DeserializeObject<Dictionary<string, TopicTimestamp>>(json) ?? null;
+                if (tempDictionary is not null)
+                    _topicTimestamps = tempDictionary;
+            }
+        }
+
+        private void SaveValueCacheToDisk()
+        {
+            var filename = Path.Combine(Path.GetTempPath(), _valueCacheFilename);
+            var json = JsonConvert.SerializeObject(_topicTimestamps);
+            File.WriteAllText(filename, json);
         }
         #endregion
     }

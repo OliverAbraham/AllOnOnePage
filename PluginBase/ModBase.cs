@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -490,7 +491,25 @@ namespace AllOnOnePage.Plugins
             WpfAnimations.FadeOutTextBlock(_ValueControl);
         }
 
-		#endregion
+        protected bool PlaySound(string filename)
+        {
+            if (!string.IsNullOrEmpty(filename))
+            {
+                var programDirectory = _config.ApplicationData.ProgramDirectory;
+                var path = System.IO.Path.Combine(programDirectory, "Sounds", filename);
+                if (File.Exists(path))
+                {
+                    MonitorPower.SwitchOnDisplayIfOff();
+                    var player = new AllOnOnePage.Plugins.SoundPlayer();
+                    player.Play(path);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        #endregion
 
 
 

@@ -153,7 +153,7 @@ namespace AllOnOnePage.Plugins
                 System.Diagnostics.Debug.WriteLine($"ModText: ServerDataObjectChange: {dataObject}");
                 localValue = dataObject.Value;
             }
-            else if (TheHomenetServerShouldBeUsed())
+            if (TheHomenetServerShouldBeUsed())
             {
                 var dataObject2 = ReadValueDirectlyFromHomenetServer();
                 localValue = dataObject2?.Value ?? "???";
@@ -589,6 +589,8 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         {
             if (_serverPlaySound is not null)
             {
+                if (Value == "0" || Value == "")
+                    return;
                 if (_serverPlaySoundPreviousValue is null)
                 {
                     _serverPlaySoundPreviousValue = Value;
@@ -598,24 +600,14 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
                     return;
                 _serverPlaySoundPreviousValue = Value;
 
-                var firstSoundFile = _serverPlaySound.Values.Count > 0 ? _serverPlaySound.Values.First().Text : "";
-                if (!string.IsNullOrEmpty(firstSoundFile))
-                {
-                    var programDirectory = _config.ApplicationData.ProgramDirectory;
-                    var path = Path.Combine(programDirectory, "Sounds", firstSoundFile);
-                    if (File.Exists(path))
-                    {
-                        var player = new AllOnOnePage.Plugins.SoundPlayer();
-                        player.Play(path);
-                        return;
-                    }
-                }
+                var soundFile = _serverPlaySound.Values.Count > 0 ? _serverPlaySound.Values.First().Text : "";
+                PlaySound(soundFile);
             }
         }
         #endregion
 
-		#region ------------- Homenet -------------------------------------------------------------
-		private (bool,bool) WeHaveReceivedAHomenetEvent(ServerDataObjectChange dataObject)
+        #region ------------- Homenet -------------------------------------------------------------
+        private (bool,bool) WeHaveReceivedAHomenetEvent(ServerDataObjectChange dataObject)
         {
             bool yes = 
                 dataObject is not null && 

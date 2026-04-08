@@ -178,7 +178,8 @@ namespace AllOnOnePage.Plugins
             SetWarningColorIfNecessary();
 
             SetVisibility(localValue, timestamp, topic);
-            WaitAndThenCallMethod(wait_time_seconds:1, action:PlaySoundIfValueChanges);
+            WaitAndThenCallMethod(wait_time_seconds:1, 
+                action:()=>{ PlaySoundIfValueChanges(localValue); });
             return;
         }
 
@@ -585,24 +586,34 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         #endregion
 
 		#region ------------- Sound playback for certain values -----------------------------------
-        private void PlaySoundIfValueChanges()
+        private void PlaySoundIfValueChanges(string value)
         {
             if (_serverPlaySound is not null)
             {
-                if (Value == "0" || Value == "")
+                if (ValueDidntChange(value))
                     return;
-                if (_serverPlaySoundPreviousValue is null)
-                {
-                    _serverPlaySoundPreviousValue = Value;
+
+                if (Value == "") // when no text is displayed, we assume we don't need a sound either
                     return;
-                }
-                if (_serverPlaySoundPreviousValue == Value)
-                    return;
-                _serverPlaySoundPreviousValue = Value;
 
                 var soundFile = _serverPlaySound.Values.Count > 0 ? _serverPlaySound.Values.First().Text : "";
                 PlaySound(soundFile);
             }
+        }
+
+        private bool ValueDidntChange(string value)
+        {
+            if (_serverPlaySoundPreviousValue is null)
+            {
+                _serverPlaySoundPreviousValue = value;
+                return false;
+            }
+
+            if (_serverPlaySoundPreviousValue == value)
+                return true;
+
+            _serverPlaySoundPreviousValue = value;
+            return false;
         }
         #endregion
 

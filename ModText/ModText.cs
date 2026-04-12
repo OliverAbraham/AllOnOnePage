@@ -419,7 +419,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
                 return;
 
             // if the user has set fadeout only for certain values, and the current value is one of those, we fade out after the time set
-            var weNowHaveOneOfThoseValues = true;
+            var weNowHaveOneOfThoseValues = false;
             if (FadeoutWasSetOnlyForCertainValues())
                 weNowHaveOneOfThoseValues = WeNowHaveOneOfThoseValues(value);
             
@@ -593,7 +593,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
                 if (ValueDidntChange(value))
                     return;
 
-                if (Value == "") // when no text is displayed, we assume we don't need a sound either
+                if (string.IsNullOrWhiteSpace(Value) || Value == "???") // when no text is displayed, we assume we don't need a sound either
                     return;
 
                 var soundFile = _serverPlaySound.Values.Count > 0 ? _serverPlaySound.Values.First().Text : "";

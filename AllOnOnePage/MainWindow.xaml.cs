@@ -810,7 +810,20 @@ namespace AllOnOnePage
                 connector.Stop();
         }
 
-        Dictionary<string, string> _dataObjectsCache = new Dictionary<string, string>();
+        private class DataObjectCacheElement
+        {
+            public string Value { get; set; }
+            public DateTime Timestamp { get; set; }
+            public int Age  => (int)((DateTime.Now - Timestamp).TotalSeconds);
+
+            public DataObjectCacheElement(string name)
+            {
+                Value = name;
+                Timestamp = DateTime.Now;
+            }
+        }
+        private Dictionary<string, DataObjectCacheElement> _dataObjectsCache = new Dictionary<string, DataObjectCacheElement>();
+
 
         private void LinkConnector(IConnector connector)
         {
@@ -827,13 +840,15 @@ namespace AllOnOnePage
                         System.Diagnostics.Debug.WriteLine($"MQTT event {Do.Name}= {Do.Value}");
                         if (_dataObjectsCache.ContainsKey(Do.Name))
                         {
-                            if (_dataObjectsCache[Do.Name] == Do.Value)
-                                return; // duplicate message!
-                            _dataObjectsCache[Do.Name] = Do.Value; // value has changed!
+                            var e = _dataObjectsCache[Do.Name];
+                            if (e.Value == Do.Value && e.Age < 10)
+                                return; // we treat the same MQTT message within 10 seconds as a duplicate message!
+                            e.Value = Do.Value; // value has changed!
+                            e.Timestamp = DateTime.Now;
                         }
                         else
                         {
-                            _dataObjectsCache.Add(Do.Name, Do.Value);
+                            _dataObjectsCache.Add(Do.Name, new DataObjectCacheElement(Do.Value));
                         }
 
                         Dispatcher.Invoke(() => 

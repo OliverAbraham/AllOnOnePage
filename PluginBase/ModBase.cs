@@ -36,6 +36,8 @@ namespace AllOnOnePage.Plugins
         protected ModuleConfig                        _config;
         protected Grid                                _Parent;
         protected System.Windows.Threading.Dispatcher _Dispatcher { get; set; }
+        public static Stopwatch PlaySoundInhibitorAfterProgramStart { get; private set; } = Stopwatch.StartNew();
+
         protected string                              _fontName = "Yu Gothic UI Light";
         protected FontFamily                          _fontFamily;
         protected TextBlock                           _ValueControl;
@@ -493,6 +495,9 @@ namespace AllOnOnePage.Plugins
 
         protected bool PlaySound(string filename)
         {
+            if (PlaySoundInhibitorAfterProgramStart.Elapsed < TimeSpan.FromSeconds(15))
+                return false;
+
             if (!string.IsNullOrEmpty(filename))
             {
                 var programDirectory = _config.ApplicationData.ProgramDirectory;

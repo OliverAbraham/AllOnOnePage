@@ -774,11 +774,17 @@ namespace AllOnOnePage
             {
                 if (connector.IsConfigured(_config))
                 {
-                    if (!connector.IsConnected && !connector.ConnectionIsInProgress)
+                    if (!connector.ConnectionIsInProgress)
                     {
-                        _logger.Log(          $"Reconnecting to {connector.Name}...");
-                        connector.Reconnect();
-                        changes = true;
+                        int lastReactionAgeInMinutes = (int)(DateTime.Now - connector.LastReaction).TotalMinutes;
+                        bool connectorNeedsRestart = !connector.IsConnected || lastReactionAgeInMinutes > 5;
+                        if (connectorNeedsRestart)
+                        {
+                            var reason = !connector.IsConnected ? "he's disconnected" : $"last reaction was {lastReactionAgeInMinutes} minutes ago";
+                            _logger.Log(          $"Connector {connector.Name} needs a restart, because {reason}.");
+                            connector.Reconnect();
+                            changes = true;
+                        }
                     }
                     if (connector.ConnectionIsInProgress)
                     {

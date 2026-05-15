@@ -18,6 +18,7 @@ namespace AllOnOnePage.Connectors
         private string     _serverPassword;
         private int        _serverTimeout;
         private MQTTClient _mqttClient;
+        private DateTime   _lastReaction;
 
         private class TopicTimestamp
         {
@@ -35,6 +36,7 @@ namespace AllOnOnePage.Connectors
         #region ------------- Init ----------------------------------------------------------------
         public MqttConnector()
         {
+            _lastReaction = DateTime.Now;
             ReadValueCacheFromDisk();
         }
         #endregion
@@ -70,6 +72,8 @@ namespace AllOnOnePage.Connectors
         public IServerGetter Getter => this;
 
         public ServerDataObjectChange_Handler OnDataobjectChange { get; set; }
+        
+        public DateTime LastReaction => _lastReaction;
 
         public bool IsConfigured(Configuration config)
         {
@@ -100,6 +104,7 @@ namespace AllOnOnePage.Connectors
                 await _mqttClient.SubscribeToAllTopicsAsync();
                 _mqttClient.OnEvent = OnDataobjectChangeLocal;
                 IsConnected = true;
+                _lastReaction = DateTime.Now;
             }
             catch (Exception ex)
             {
@@ -127,6 +132,7 @@ namespace AllOnOnePage.Connectors
         #region ------------- Implementation ------------------------------------------------------
         private void OnDataobjectChangeLocal(string topic, string value)
         {
+            _lastReaction = DateTime.Now;
             var timestamp = GetTimestamp(topic, value);
             var eventData = new ServerDataObjectChange("MQTT", topic, value, timestamp);
             OnDataobjectChange(eventData);

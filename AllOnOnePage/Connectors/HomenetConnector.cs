@@ -16,6 +16,7 @@ namespace AllOnOnePage.Connectors
         private int                  _serverTimeout;
         private DataObjectsConnector _dataObjectsConnector;
         private SignalrClient        _signalrClient;
+        private DateTime             _lastReaction;
         #endregion
 
 
@@ -23,6 +24,7 @@ namespace AllOnOnePage.Connectors
         #region ------------- Init ----------------------------------------------------------------
         public HomenetConnector()
         {
+            _lastReaction = DateTime.Now;
         }
         #endregion
 
@@ -50,6 +52,8 @@ namespace AllOnOnePage.Connectors
         public IServerGetter Getter => this;
 
         public ServerDataObjectChange_Handler OnDataobjectChange { get; set; }
+        
+        public DateTime LastReaction => _lastReaction;
 
         public bool IsConfigured(Configuration config)
         {
@@ -110,6 +114,7 @@ namespace AllOnOnePage.Connectors
 
         private void OnDataobjectChangeLocal(Abraham.HomenetBase.Models.DataObject Do)
         {
+            _lastReaction = DateTime.Now;
             var eventData = new ServerDataObjectChange("HOMENET", Do.Name, Do.Value, Do.Timestamp);
             OnDataobjectChange(eventData);
         }

@@ -15,7 +15,7 @@ set BIN_SOURCE=..\AllOnOnePage\bin\publish\*
 set SETTINGS_SOURCE=%USERPROFILE%\Documents\All on one page\*.hjson
 set ROOT=\\server1\Dashboard1
 
-xcopy "%SETTINGS_SOURCE%" "%CONFIGDIR%"
+xcopy "%SETTINGS_SOURCE%" "%CONFIGDIR%" /Y
 
 call BackupAllSettings.cmd
 

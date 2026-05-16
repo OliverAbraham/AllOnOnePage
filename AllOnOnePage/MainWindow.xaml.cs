@@ -386,7 +386,7 @@ namespace AllOnOnePage
             System.Diagnostics.Debug.WriteLine("HibernationDetector started");
             _hibernationDetectorLastTick = DateTime.Now;
             _hibernationDetector = new Timer();
-            _hibernationDetector.Interval = 1000;
+            _hibernationDetector.Interval = 10000;
             _hibernationDetector.Elapsed += HibernationDetector_elapsed;
             _hibernationDetector.Start();
         }
@@ -790,7 +790,7 @@ namespace AllOnOnePage
                     if (!connector.ConnectionIsInProgress)
                     {
                         int lastReactionAgeInMinutes = (int)(DateTime.Now - connector.LastReaction).TotalMinutes;
-                        bool connectorNeedsRestart = !connector.IsConnected || lastReactionAgeInMinutes > 5;
+                        bool connectorNeedsRestart = !connector.IsConnected || lastReactionAgeInMinutes > 3;
                         if (connectorNeedsRestart)
                         {
                             var reason = !connector.IsConnected ? "he's disconnected" : $"last reaction was {lastReactionAgeInMinutes} minutes ago";
@@ -817,7 +817,7 @@ namespace AllOnOnePage
             }
 
             if (!_endTheReconnectorLoop)
-                WaitAndThenCallMethod(wait_time_seconds: 60, action: Reconnect);
+                WaitAndThenCallMethod(wait_time_seconds: 30, action: Reconnect);
 
             if (changes)
                 _logger.Log(statusText);
@@ -832,7 +832,7 @@ namespace AllOnOnePage
         private class DataObjectCacheElement
         {
             public string Value { get; set; }
-            public DateTime Timestamp { get; set; }
+            public DateTimeOffset Timestamp { get; set; }
             public int Age  => (int)((DateTime.Now - Timestamp).TotalSeconds);
 
             public DataObjectCacheElement(string name)
@@ -855,13 +855,14 @@ namespace AllOnOnePage
                 connector.OnDataobjectChange += 
                     delegate(ServerDataObjectChange Do)
                     {
+                        System.Diagnostics.Debug.WriteLine($"Received data object change: {Do.Name} = {Do.Value}");
                         if (_dataObjectsCache.ContainsKey(Do.Name))
                         {
                             var e = _dataObjectsCache[Do.Name];
-                            if (e.Value == Do.Value && e.Age < 10)
-                                return; // we treat the same MQTT message within 10 seconds as a duplicate message!
+                            if (e.Value == Do.Value && e.Age < 3)
+                                return; // we treat the same MQTT message within 3 seconds as a duplicate message!
                             e.Value = Do.Value; // value has changed!
-                            e.Timestamp = DateTime.Now;
+                            e.Timestamp = Do.Timestamp;
                         }
                         else
                         {

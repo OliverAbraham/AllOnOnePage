@@ -147,7 +147,6 @@ namespace AllOnOnePage.Plugins
                 return;
 
             var timestamp = (dataObject is not null) ? dataObject.Timestamp : new DateTimeOffset();
-            System.Diagnostics.Debug.WriteLine($"ModText: UpdateContent");
             if (yes1 || yes2)
             {
                 System.Diagnostics.Debug.WriteLine($"ModText: ServerDataObjectChange: {dataObject}");

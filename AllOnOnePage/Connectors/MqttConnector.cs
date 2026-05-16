@@ -29,6 +29,21 @@ namespace AllOnOnePage.Connectors
         private Dictionary<string, TopicTimestamp> _topicTimestamps = new();
         private string _valueCacheFilename = "AllOnOnePage_MQTT_timestamps.json";
         private DateTimeOffset _lastValueCacheSave = new DateTimeOffset();
+
+        private record Telegram(string topic, string value);
+        private Dictionary<string,string> _topicsToIgnore = new();
+
+        public class MqttEntity
+		{
+			public string value;
+			public string timestamp;
+
+			public MqttEntity(string topic, string timestamp)
+			{
+				this.value = topic;
+				this.timestamp = timestamp;
+			}
+		}
         #endregion
 
 
@@ -141,9 +156,38 @@ namespace AllOnOnePage.Connectors
         private void OnDataobjectChangeLocal(string topic, string value)
         {
             _lastReaction = DateTime.Now;
-            var timestamp = GetTimestamp(topic, value);
-            var eventData = new ServerDataObjectChange("MQTT", topic, value, timestamp);
-            OnDataobjectChange(eventData);
+            var timestamp = new DateTimeOffset();
+
+            // if we receive a topic that ends with "/timestamp", this is a json structure holding value AND timestamp
+            if (topic.EndsWith("/timestamp"))
+            {
+                var entity = JsonConvert.DeserializeObject<MqttEntity>(value);
+                if (DateTimeOffset.TryParse(entity.timestamp, out var parsedTimestamp))
+                    timestamp = parsedTimestamp;
+                value = entity.value;
+
+                // we keep in mind that we can ignore all further Telegrams with the same topic, but ending with /state or no suffix,
+                // because we already have the timestamp from the /timestamp topic.
+                var baseTopic = topic.Replace("/timestamp", "");
+                if (!_topicsToIgnore.ContainsKey(baseTopic))
+                    _topicsToIgnore.TryAdd(baseTopic, baseTopic);
+
+                var eventData = new ServerDataObjectChange("MQTT", baseTopic, value, timestamp);
+                OnDataobjectChange(eventData);
+            }
+            else
+            {
+                // we ignore all MQTT telegrams where we already received a timestamp topic for the same base topic
+                var baseTopic = topic.Replace("/state", "");
+                if (_topicsToIgnore.ContainsKey(baseTopic))
+                    return;
+
+                // for all other telegrams we generate an artificial timestamp
+                timestamp = GetTimestamp(topic, value);
+                var eventData = new ServerDataObjectChange("MQTT", topic, value, timestamp);
+                OnDataobjectChange(eventData);
+            }
+
 
             SaveValueCacheToDiskPeriodically();
         }

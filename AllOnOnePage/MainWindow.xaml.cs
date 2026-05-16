@@ -326,10 +326,22 @@ namespace AllOnOnePage
             if (_periodicTimer != null)
                 _periodicTimer.Stop();
         }
+
+        private void TriggerUpdateAllModules()
+        {
+            if (_nowUpdating)
+                return;
+            if (_periodicTimer is null)
+                return;
+            _logger.Log("TriggerUpdateAllModules");   
+            _periodicTimer.Stop();
+            _periodicTimer.Interval = 100;
+            _periodicTimer.Start();
+        }
         
         private void Periodic_timer_elapsed(object sender, ElapsedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("Periodic_timer_elapsed");   
+            _logger.Log("Periodic_timer_elapsed");   
             _periodicTimer.Stop();
             
             Dispatcher.Invoke(() =>
@@ -346,14 +358,15 @@ namespace AllOnOnePage
 
         private void Update_all_modules(ServerDataObjectChange? Do = null)
         {
-            //if (Do is not null)
-            //    System.Diagnostics.Debug.WriteLine($"Update_all_modules: {Do.ConnectorName} change event: {Do.Name} = {Do.Value}");
-
             if (_nowUpdating)
                 return;
             _nowUpdating = true;
+            _logger.Log("Update_all_modules");   
+
             try
             {
+                System.Diagnostics.Debug.WriteLine("Update_all_modules");
+                _logger.Log("Update_all_modules");   
                 _vm.Update_all_modules(Do);
             }
             catch (Exception ex)
@@ -738,7 +751,7 @@ namespace AllOnOnePage
         /// </summary>
         private async Task InitAndReconnectConnectorsLoop()
         {
-            _logger.Log(        $"InitAndReconnectConnectorsLoop");
+            _logger.Log(        $"InitConnectors");
 
             foreach(var connector in _connectors)
             {
@@ -759,15 +772,15 @@ namespace AllOnOnePage
             _endTheReconnectorLoop = false;
             SetServerInfotext($"Connected");
             FadeOutServerInfo();
-            WaitAndThenCallMethod(wait_time_seconds: 10, action: ReconnectLoop);
+            WaitAndThenCallMethod(wait_time_seconds: 30, action: Reconnect);
 
 
             _logger.Log("Connected");
         }
 
-        private void ReconnectLoop()
+        private void Reconnect()
         {
-            var statusText = $"ReconnectLoop {++_reconnectCounter} ";
+            var statusText = $"ReconnectAttempt {++_reconnectCounter} ";
             var changes = false;
 
             foreach (var connector in _connectors)
@@ -804,7 +817,7 @@ namespace AllOnOnePage
             }
 
             if (!_endTheReconnectorLoop)
-                WaitAndThenCallMethod(wait_time_seconds: 30, action: ReconnectLoop);
+                WaitAndThenCallMethod(wait_time_seconds: 60, action: Reconnect);
 
             if (changes)
                 _logger.Log(statusText);
@@ -830,7 +843,6 @@ namespace AllOnOnePage
         }
         private Dictionary<string, DataObjectCacheElement> _dataObjectsCache = new Dictionary<string, DataObjectCacheElement>();
 
-
         private void LinkConnector(IConnector connector)
         {
             try
@@ -843,7 +855,6 @@ namespace AllOnOnePage
                 connector.OnDataobjectChange += 
                     delegate(ServerDataObjectChange Do)
                     {
-                        System.Diagnostics.Debug.WriteLine($"MQTT event {Do.Name}= {Do.Value}");
                         if (_dataObjectsCache.ContainsKey(Do.Name))
                         {
                             var e = _dataObjectsCache[Do.Name];
@@ -857,12 +868,11 @@ namespace AllOnOnePage
                             _dataObjectsCache.Add(Do.Name, new DataObjectCacheElement(Do.Value));
                         }
 
-                        Dispatcher.Invoke(() => 
-                        { 
+                        Dispatcher.Invoke(() =>
+                        {
                             FadeInImmediatelyServerInfo();
-                            System.Diagnostics.Debug.WriteLine($"{connector.Name} event ({Do.Name} = {Do.Value})");
                             SetServerInfotext($"{connector.Name} event ({Do.Name} = {Do.Value})");
-                            Update_all_modules(Do); 
+                            TriggerUpdateAllModules();
                         });
                     };
 

@@ -246,6 +246,7 @@ namespace AllOnOnePage
         #region ------------- Implementation: Module management -----------------------------------
         private void Init_one_module(RuntimeModule moduleDef)
         {
+            System.Diagnostics.Debug.WriteLine($"Initializing module {moduleDef.Config.ID} {moduleDef.Config.ModuleName} of type {moduleDef.Config.TileType}");
             try
 			{
                 Init_one_module_internal(moduleDef);

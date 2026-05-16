@@ -60,6 +60,7 @@ namespace AllOnOnePage.Connectors
         #endregion
 
 
+
         #region ------------- IConnector ----------------------------------------------------------
         public string Name => "MQTT";
 
@@ -94,6 +95,13 @@ namespace AllOnOnePage.Connectors
             try
             {
                 ConnectionIsInProgress = true;
+
+                if (_mqttClient is not null)
+                {
+                    _mqttClient.StopAllSubscriptions();
+                    _mqttClient = null;
+                }
+
                 _mqttClient = new MQTTClient()
                     .UseUrl(_serverUrl)
                     .UseUsername(_serverUser)

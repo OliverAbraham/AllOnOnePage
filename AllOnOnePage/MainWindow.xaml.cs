@@ -46,7 +46,7 @@ namespace AllOnOnePage
 		#region Updater
 		private Updater                _updater;
         #endregion
-		#region Connectors for Home automation servers
+		#region Connectors to Home automation servers
         private List<IConnector> _connectors = new List<IConnector>()
         {
             new HomenetConnector(),
@@ -54,6 +54,20 @@ namespace AllOnOnePage
         };
         private bool _endTheReconnectorLoop;
         private int _reconnectCounter = 0;
+
+        private class DataObjectCacheElement
+        {
+            public string Value { get; set; }
+            public DateTimeOffset Timestamp { get; set; }
+            public int Age  => (int)((DateTime.Now - Timestamp).TotalSeconds);
+
+            public DataObjectCacheElement(string name)
+            {
+                Value = name;
+                Timestamp = DateTime.Now;
+            }
+        }
+        private Dictionary<string, DataObjectCacheElement> _dataObjectsCache = new Dictionary<string, DataObjectCacheElement>();
         #endregion
         #endregion
 
@@ -169,16 +183,18 @@ namespace AllOnOnePage
 
         private void Startup()
         {
+            System.Diagnostics.Debug.WriteLine("--------------------------------- Startup");
             Dispatcher.BeginInvoke( 
                 async () => 
                 {
-                    InitAndReconnectConnectorsLoop();
+                    StartStateMachine();
                     WaitAndThenCallMethod(wait_time_seconds: 1, action: Startup2);
                 });
 		}
 
         private void Startup2()
         {
+            System.Diagnostics.Debug.WriteLine("--------------------------------- Startup2");
             try
             {
                 //Read_saved_state_from_disk();
@@ -386,7 +402,7 @@ namespace AllOnOnePage
             System.Diagnostics.Debug.WriteLine("HibernationDetector started");
             _hibernationDetectorLastTick = DateTime.Now;
             _hibernationDetector = new Timer();
-            _hibernationDetector.Interval = 10000;
+            _hibernationDetector.Interval = 10 * 1000;
             _hibernationDetector.Elapsed += HibernationDetector_elapsed;
             _hibernationDetector.Start();
         }
@@ -409,7 +425,7 @@ namespace AllOnOnePage
                 _logger.Log($"Hibernation detected! (program was paused for {elapsed.TotalMinutes:N0} minutes. Now reconnecting to home automation server and MQTT");
                 Dispatcher.Invoke(() =>
                 {
-                    InitAndReconnectConnectorsLoop();
+                    StateMachineLoop();
                 });
                 _hibernationDetector.Start();
             }
@@ -744,14 +760,15 @@ namespace AllOnOnePage
 			}
 		}
         #endregion
-        #region ------------- Home automation server connections --------------
+        #region ------------- State machine for server connections ------------
         /// <summary>
         /// This will connect every connector in the list, then call Startup2.
         /// Afterwards it will go into and endless loop, and reconnect every connector that has lost its connection.
         /// </summary>
-        private async Task InitAndReconnectConnectorsLoop()
+        private async Task StartStateMachine()
         {
-            _logger.Log(        $"InitConnectors");
+            _logger.Log($"StartStateMachine");
+            _endTheReconnectorLoop = false;
 
             foreach(var connector in _connectors)
             {
@@ -762,23 +779,16 @@ namespace AllOnOnePage
                     await connector.Connect(_config);
                     LinkConnector(connector);
                     System.Diagnostics.Debug.WriteLine($"{connector.ConnectionStatus}");
-                    if (connector.IsConnected)
-                        _logger.Log(  $"Connection to {connector.Name} OK");
-                    else
-                        _logger.Log(  $"Connection to {connector.Name} failed");
+                    _logger.Log(  $"Connection to {connector.Name} Status={connector.ConnectionStatus}");
                 }
             }
 
-            _endTheReconnectorLoop = false;
             SetServerInfotext($"Connected");
             FadeOutServerInfo();
-            WaitAndThenCallMethod(wait_time_seconds: 30, action: Reconnect);
-
-
-            _logger.Log("Connected");
+            WaitAndThenCallMethod(wait_time_seconds: 30, action: StateMachineLoop);
         }
 
-        private void Reconnect()
+        private void StateMachineLoop()
         {
             var statusText = $"ReconnectAttempt {++_reconnectCounter} ";
             var changes = false;
@@ -801,7 +811,7 @@ namespace AllOnOnePage
                     }
                     if (connector.ConnectionIsInProgress)
                     {
-                        statusText += $"{connector.Name} connecting... ";
+                        statusText += $"Connector {connector.Name} connection in progress... ";
                         changes = true;
                     }
                     else if (!connector.IsConnected)
@@ -811,16 +821,16 @@ namespace AllOnOnePage
                     }
                     else
                     {
-                        statusText += $"{connector.Name} OK";
+                        statusText += $"{connector.Name} OK, connected";
                     }
                 }
+                if (changes)
+                    _logger.Log(statusText);
+                if (_endTheReconnectorLoop)
+                    return;
             }
 
-            if (!_endTheReconnectorLoop)
-                WaitAndThenCallMethod(wait_time_seconds: 30, action: Reconnect);
-
-            if (changes)
-                _logger.Log(statusText);
+            WaitAndThenCallMethod(wait_time_seconds: 30, action: StateMachineLoop);
         }
 
         private void StopAllConnectors()
@@ -828,20 +838,6 @@ namespace AllOnOnePage
             foreach(var connector in _connectors)
                 connector.Stop();
         }
-
-        private class DataObjectCacheElement
-        {
-            public string Value { get; set; }
-            public DateTimeOffset Timestamp { get; set; }
-            public int Age  => (int)((DateTime.Now - Timestamp).TotalSeconds);
-
-            public DataObjectCacheElement(string name)
-            {
-                Value = name;
-                Timestamp = DateTime.Now;
-            }
-        }
-        private Dictionary<string, DataObjectCacheElement> _dataObjectsCache = new Dictionary<string, DataObjectCacheElement>();
 
         private void LinkConnector(IConnector connector)
         {
@@ -885,25 +881,6 @@ namespace AllOnOnePage
             }
         }
         #endregion
-
         #endregion
-    }
-
-    internal class ServerGetter2 : IServerGetter
-    {
-        private Dictionary<string, string> _dataObjectsCache;
-
-        public ServerGetter2(Dictionary<string, string> dataObjectsCache)
-        {
-            _dataObjectsCache = dataObjectsCache;
-        }
-
-        public ServerDataObject TryGet(string dataObjectName)
-        {
-            if (_dataObjectsCache.ContainsKey(dataObjectName))
-                return new ServerDataObject(dataObjectName, _dataObjectsCache[dataObjectName], DateTime.UtcNow);
-            else
-                return new ServerDataObject(dataObjectName, "????", DateTime.UtcNow);
-        }
     }
 }

@@ -73,15 +73,15 @@ namespace AllOnOnePage.Plugins
 
 
 		#region ------------- Fields --------------------------------------------------------------
-		private MyConfiguration _myConfiguration;
-        private Params _serverMessages;
-        private Params _serverFadeOutValues;
-        private Params _serverWarningValues;
-        private Params _serverPlaySound;
-        private Params _fadeOutAfter;
+		private MyConfiguration                  _myConfiguration;
+        private Params                           _serverMessages;
+        private Params                           _serverFadeOutValues;
+        private Params                           _serverWarningValues;
+        private Params                           _serverPlaySound;
+        private Params                           _fadeOutAfter;
         private Dictionary<string, ValueWithAge> _savedValues = new();
-        private Timer _fadeOutTimer;
-        private string _serverPlaySoundPreviousValue;
+        private Timer                            _fadeOutTimer;
+        private string                           _serverPlaySoundPreviousValue;
         #endregion
 
 

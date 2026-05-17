@@ -587,32 +587,36 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 		#region ------------- Sound playback for certain values -----------------------------------
         private void PlaySoundIfValueChanges(string value)
         {
-            if (_serverPlaySound is not null)
-            {
-                if (ValueDidntChange(value))
-                    return;
-
-                if (string.IsNullOrWhiteSpace(Value) || Value == "???") // when no text is displayed, we assume we don't need a sound either
-                    return;
-
-                var soundFile = _serverPlaySound.Values.Count > 0 ? _serverPlaySound.Values.First().Text : "";
-                PlaySound(soundFile);
-            }
+            if (_serverPlaySound is null)
+                return;
+            if (!ValueHasChanged(value))
+                return;
+            PlaySelectedSoundFile();
         }
 
-        private bool ValueDidntChange(string value)
+        private bool PlaySelectedSoundFile()
+        {
+            // when no text is displayed, we assume we don't need a sound either
+            if (string.IsNullOrWhiteSpace(Value) || Value == "???") 
+                return false;
+            var soundFile = _serverPlaySound.Values.Count > 0 ? _serverPlaySound.Values.First().Text : "";
+            PlaySound(soundFile);
+            return true;
+        }
+
+        private bool ValueHasChanged(string value)
         {
             if (_serverPlaySoundPreviousValue is null)
             {
                 _serverPlaySoundPreviousValue = value;
-                return false;
+                return true;
             }
 
             if (_serverPlaySoundPreviousValue == value)
-                return true;
+                return false;
 
             _serverPlaySoundPreviousValue = value;
-            return false;
+            return true;
         }
         #endregion
 
@@ -631,7 +635,8 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
 		private bool TheHomenetServerShouldBeUsed()
         {
-            return !string.IsNullOrWhiteSpace(_myConfiguration.ServerDataObject);
+            return !string.IsNullOrWhiteSpace(_myConfiguration.ServerDataObject) &&
+                _config.ApplicationData._homenetGetter is not null;
         }
 
         private ServerDataObject ReadValueDirectlyFromHomenetServer()
@@ -662,7 +667,8 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
 		private bool TheMqttBrokerShouldBeUsed()
         {
-            return !string.IsNullOrWhiteSpace(_myConfiguration.MqttTopic);
+            return !string.IsNullOrWhiteSpace(_myConfiguration.MqttTopic) &&
+                _config.ApplicationData._mqttGetter is not null;
         }
 
         private ServerDataObject ReadValueDirectlyFromMqtt()

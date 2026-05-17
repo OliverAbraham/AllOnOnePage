@@ -424,6 +424,8 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
             var weNowHaveOneOfThoseValues = false;
             if (FadeoutWasSetOnlyForCertainValues())
                 weNowHaveOneOfThoseValues = WeNowHaveOneOfThoseValues(value);
+            else
+                weNowHaveOneOfThoseValues = _fadeOutAfter.Values.Any();
             
             if (weNowHaveOneOfThoseValues)
             {

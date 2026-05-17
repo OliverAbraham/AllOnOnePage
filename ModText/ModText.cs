@@ -176,8 +176,12 @@ namespace AllOnOnePage.Plugins
             SetWarningColorIfNecessary();
 
             SetVisibility(localValue, timestamp, topic);
-            WaitAndThenCallMethod(wait_time_seconds:1, 
-                action:()=>{ PlaySoundIfValueChanges(localValue, timestamp); });
+
+            if (dataObject is not null)
+            {
+                WaitAndThenCallMethod(wait_time_seconds:1, 
+                    action:()=>{ PlaySoundIfValueChanges(localValue, timestamp); });
+            }
             return;
         }
 
@@ -560,7 +564,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         {
             if (_serverPlaySound is null)
                 return;
-            if (!ValueHasChanged(value))
+            if (!ValueHasChanged(value, timestamp))
                 return;
             PlaySelectedSoundFile();
         }
@@ -575,8 +579,11 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
             return true;
         }
 
-        private bool ValueHasChanged(string value)
+        private bool ValueHasChanged(string value, DateTimeOffset timestamp)
         {
+            if (value == "???")
+                return false;
+
             if (_serverPlaySoundPreviousValue is null)
             {
                 _serverPlaySoundPreviousValue = value;
@@ -584,6 +591,11 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
             }
 
             if (_serverPlaySoundPreviousValue == value)
+                return false;
+
+            // When the timestamp of last value change is old, we don't play the sound anymore.
+            var age = (DateTime.Now - timestamp).TotalMinutes;
+            if (age >= 1)
                 return false;
 
             _serverPlaySoundPreviousValue = value;
@@ -644,15 +656,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
 
         private ServerDataObject ReadValueDirectlyFromMqtt()
         {
-			try
-			{
-				var dataObject = _config.ApplicationData._mqttGetter.TryGet(_myConfiguration.MqttTopic);
-				return dataObject;
-			}
-			catch (Exception)
-			{
-				return new ServerDataObject(_myConfiguration.ServerDataObject, "???", new DateTimeOffset());
-			}
+			return _config.ApplicationData._mqttGetter.TryGet(_myConfiguration.MqttTopic);
         }
         #endregion
     }

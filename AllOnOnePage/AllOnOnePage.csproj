@@ -52,7 +52,7 @@
     <PackageReference Include="Abraham.HomenetBase" Version="1.0.2">
       <GeneratePathProperty>True</GeneratePathProperty>
     </PackageReference>
-    <PackageReference Include="Abraham.MQTTClient" Version="1.0.7">
+    <PackageReference Include="Abraham.MQTTClient" Version="1.0.14">
       <GeneratePathProperty>True</GeneratePathProperty>
     </PackageReference>
     <PackageReference Include="Abraham.OpenWeathermapClient" Version="1.0.2">

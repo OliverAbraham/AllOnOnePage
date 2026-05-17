@@ -26,9 +26,10 @@ namespace AllOnOnePage.Connectors
             public string         Value     { get; set; }
             public DateTimeOffset Timestamp { get; set; }
         }
-        private Dictionary<string, TopicTimestamp> _topicTimestamps = new();
-        private string _valueCacheFilename = "AllOnOnePage_MQTT_timestamps.json";
-        private DateTimeOffset _lastValueCacheSave = new DateTimeOffset();
+        private Dictionary<string, TopicTimestamp> _topicCache = new();
+        private string _topicCacheFilename = "AllOnOnePage_MQTT_timestamps.json";
+        private DateTimeOffset _topicCacheLastSaveAction = new DateTimeOffset();
+        private bool _topicCacheIsDirty = false;
 
         private record Telegram(string topic, string value);
         private Dictionary<string,string> _topicsToIgnore = new();
@@ -64,12 +65,11 @@ namespace AllOnOnePage.Connectors
             var value = _mqttClient.TryGet(topic);
             if (value != null)
             {
-                var timestamp = GetTimestamp(topic, value);
-                return new ServerDataObject(topic, value, timestamp);
+                return GetCreateOrUpdateEntityFromCache(topic, value, DateTimeOffset.Now);
             }
             else
             {
-                return new ServerDataObject(topic, null, DateTimeOffset.Now);
+                return GetCreateOrUpdateEntityFromCache(topic, "???", DateTimeOffset.Now);
             }
         }
         #endregion
@@ -161,10 +161,10 @@ namespace AllOnOnePage.Connectors
             // if we receive a topic that ends with "/timestamp", this is a json structure holding value AND timestamp
             if (topic.EndsWith("/timestamp"))
             {
-                var entity = JsonConvert.DeserializeObject<MqttEntity>(value);
-                if (DateTimeOffset.TryParse(entity.timestamp, out var parsedTimestamp))
+                var dto = JsonConvert.DeserializeObject<MqttEntity>(value);
+                if (DateTimeOffset.TryParse(dto.timestamp, out var parsedTimestamp))
                     timestamp = parsedTimestamp;
-                value = entity.value;
+                value = dto.value;
 
                 // we keep in mind that we can ignore all further Telegrams with the same topic, but ending with /state or no suffix,
                 // because we already have the timestamp from the /timestamp topic.
@@ -172,7 +172,8 @@ namespace AllOnOnePage.Connectors
                 if (!_topicsToIgnore.ContainsKey(baseTopic))
                     _topicsToIgnore.TryAdd(baseTopic, baseTopic);
 
-                var eventData = new ServerDataObjectChange("MQTT", baseTopic, value, timestamp);
+                var entity = GetCreateOrUpdateEntityFromCache(baseTopic, value, timestamp);
+                var eventData = new ServerDataObjectChange("MQTT", topic, entity.Value, entity.Timestamp);
                 OnDataobjectChange(eventData);
             }
             else
@@ -182,12 +183,11 @@ namespace AllOnOnePage.Connectors
                 if (_topicsToIgnore.ContainsKey(baseTopic))
                     return;
 
-                // for all other telegrams we generate an artificial timestamp
-                timestamp = GetTimestamp(topic, value);
-                var eventData = new ServerDataObjectChange("MQTT", topic, value, timestamp);
+                // for all other telegrams we generate an artifical timestamp
+                var entity = GetCreateOrUpdateEntityFromCache(topic, value, DateTimeOffset.Now);
+                var eventData = new ServerDataObjectChange("MQTT", topic, entity.Value, entity.Timestamp);
                 OnDataobjectChange(eventData);
             }
-
 
             SaveValueCacheToDiskPeriodically();
         }
@@ -196,33 +196,34 @@ namespace AllOnOnePage.Connectors
 
 
         #region ------------- Value Cache ---------------------------------------------------------
-        private DateTimeOffset GetTimestamp(string topic, string value)
+        private ServerDataObject GetCreateOrUpdateEntityFromCache(string topic, string newValue, DateTimeOffset newTimestamp)
         {
-            if (_topicTimestamps.ContainsKey(topic))
+            if (!_topicCache.ContainsKey(topic))
             {
-                if (_topicTimestamps[topic].Value != value)
-                {
-                    _topicTimestamps[topic].Value = value;
-                    _topicTimestamps[topic].Timestamp = DateTimeOffset.Now;
-                }
-            }
-            else
-            {
-                _topicTimestamps[topic] = new TopicTimestamp { Topic = topic, Value = value, Timestamp = DateTimeOffset.Now };
+                _topicCache.Add(topic, new TopicTimestamp { Topic = topic, Value = "???", Timestamp = newTimestamp });
+                _topicCacheIsDirty = true;
             }
 
-            return _topicTimestamps[topic].Timestamp;
+            if (_topicCache[topic].Value != newValue)
+            {
+                _topicCache[topic].Value = newValue;
+                _topicCache[topic].Timestamp = newTimestamp;
+                _topicCacheIsDirty = true;
+            }
+
+            return new ServerDataObject(topic, _topicCache[topic].Value, _topicCache[topic].Timestamp);
         }
 
         private void SaveValueCacheToDiskPeriodically()
         {
             try
             {
-                var age = DateTimeOffset.Now - _lastValueCacheSave;
-                if (age > TimeSpan.FromMinutes(10))
+                var ageInSeconds = (DateTimeOffset.Now - _topicCacheLastSaveAction).TotalSeconds;
+                if (_topicCacheIsDirty && ageInSeconds > 10)
                 {
                     SaveValueCacheToDisk();
-                    _lastValueCacheSave = DateTimeOffset.Now;
+                    _topicCacheLastSaveAction = DateTimeOffset.Now;
+                    _topicCacheIsDirty = false;
                 }
             }
             catch (Exception ex)
@@ -233,20 +234,20 @@ namespace AllOnOnePage.Connectors
 
         private void ReadValueCacheFromDisk()
         {
-            var filename = Path.Combine(Path.GetTempPath(), _valueCacheFilename);
+            var filename = Path.Combine(Path.GetTempPath(), _topicCacheFilename);
             if (File.Exists(filename))
             {
                 var json = File.ReadAllText(filename);
                 var tempDictionary = JsonConvert.DeserializeObject<Dictionary<string, TopicTimestamp>>(json) ?? null;
                 if (tempDictionary is not null)
-                    _topicTimestamps = tempDictionary;
+                    _topicCache = tempDictionary;
             }
         }
 
         private void SaveValueCacheToDisk()
         {
-            var filename = Path.Combine(Path.GetTempPath(), _valueCacheFilename);
-            var json = JsonConvert.SerializeObject(_topicTimestamps);
+            var filename = Path.Combine(Path.GetTempPath(), _topicCacheFilename);
+            var json = JsonConvert.SerializeObject(_topicCache);
             File.WriteAllText(filename, json);
         }
         #endregion

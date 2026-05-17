@@ -79,7 +79,6 @@ namespace AllOnOnePage.Plugins
         private Params                           _serverWarningValues;
         private Params                           _serverPlaySound;
         private Params                           _fadeOutAfter;
-        private Dictionary<string, ValueWithAge> _savedValues = new();
         private Timer                            _fadeOutTimer;
         private string                           _serverPlaySoundPreviousValue;
         #endregion
@@ -178,7 +177,7 @@ namespace AllOnOnePage.Plugins
 
             SetVisibility(localValue, timestamp, topic);
             WaitAndThenCallMethod(wait_time_seconds:1, 
-                action:()=>{ PlaySoundIfValueChanges(localValue); });
+                action:()=>{ PlaySoundIfValueChanges(localValue, timestamp); });
             return;
         }
 
@@ -442,7 +441,6 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
             {
                 ClearFadeOutTimer();
                 FadeIn();
-                SaveCurrentValue(topic, value);
             }
         }
 
@@ -546,33 +544,6 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
             }
         }
 
-        private double AgeOf(string topic, DateTimeOffset currentTimestamp, string value)
-        {
-            if (currentTimestamp.Year >= 2000)
-                return (DateTimeOffset.Now - currentTimestamp).TotalSeconds;
-           
-            if (String.IsNullOrEmpty(topic))
-                return 0;
-
-            var savedValue = _savedValues.GetValueOrDefault(topic);
-            if (savedValue is not null)
-                return (DateTimeOffset.Now - savedValue.Timestamp).TotalSeconds;
-
-            _savedValues.Add(topic, new ValueWithAge { Topic = topic, Value = value, Timestamp = DateTimeOffset.Now });
-            return 0;
-        }
-
-        private void SaveCurrentValue(string topic, string value)
-        {
-            if (String.IsNullOrEmpty(topic))
-                return;
-
-            if (_savedValues.ContainsKey(topic))
-                _savedValues[topic].Timestamp = DateTimeOffset.Now;
-            else
-                _savedValues.Add(topic, new ValueWithAge { Topic = topic, Value = value, Timestamp = DateTimeOffset.Now });
-        }
-
 		private void FadeIn()
         {
 			WpfAnimations.FadeIn(base._ValueControl, UIElement.OpacityProperty);
@@ -585,7 +556,7 @@ In den allgemeinen Einstellungen im Feld 'Text' kann der Text eingegeben werden.
         #endregion
 
 		#region ------------- Sound playback for certain values -----------------------------------
-        private void PlaySoundIfValueChanges(string value)
+        private void PlaySoundIfValueChanges(string value, DateTimeOffset timestamp)
         {
             if (_serverPlaySound is null)
                 return;

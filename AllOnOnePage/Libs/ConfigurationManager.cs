@@ -2,6 +2,7 @@
 using AllOnOnePage.Plugins;
 using System;
 using System.IO;
+using System.Net;
 using System.Reflection;
 
 namespace AllOnOnePage.Libs
@@ -71,9 +72,9 @@ namespace AllOnOnePage.Libs
 			_configurationManager.Save(_config);
 		}
 
-		public void UseDataDirectory(string directory)
+		public void UseConfigurationFile(string filename)
 		{
-			DataDirectory = directory;
+			_configurationFilename = filename;
 		}
 
 		public void SetCurrentDirectoryToDataDirectory()

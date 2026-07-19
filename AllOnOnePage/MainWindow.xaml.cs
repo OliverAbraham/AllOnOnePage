@@ -203,16 +203,14 @@ namespace AllOnOnePage
             _applicationData.ProgramDirectory = Directory.GetCurrentDirectory();
 			_texts = new HelpTexts();
 			_configurationManager = new ConfigurationManager(_texts, _applicationData);
+
             if (_commandLineArguments.ConfigurationFile != null && 
                 _commandLineArguments.ConfigurationFile != "" && 
                 File.Exists(_commandLineArguments.ConfigurationFile))
             {
-                _configurationManager.UseDataDirectory(_commandLineArguments.ConfigurationFile);
+                _configurationManager.UseConfigurationFile(_commandLineArguments.ConfigurationFile);
             }
-            else
-            {
-                _configurationManager.CreateDataDirectoryIfNotExists();
-            }
+            _configurationManager.CreateDataDirectoryIfNotExists();
 			_configurationManager.SetCurrentDirectoryToDataDirectory();
 			_configurationManager.Load();
             _applicationData.DataDirectory = _configurationManager.DataDirectory;

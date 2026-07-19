@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AllOnOnePage": {
+      "commandName": "Project",
+      "commandLineArgs": "--config=C:\\Credentials\\AllOnOnePage\\Config_Dashboard1\\appsettings.hjson"
+    }
+  }
+}

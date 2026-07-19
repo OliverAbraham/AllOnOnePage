@@ -11,7 +11,7 @@
 @rem ----------------------------------------------------------------------------------------------
 
 rem this will set variables FTP_URL, FTP_USERNAME and FTP_PASSWORD:
-call C:\Credentials\AllOnOnePageCredentials.cmd
+call C:\Credentials\AllOnOnePage\AllOnOnePageCredentials.cmd
 
 rem this will set variable ARCHIVER to the 7zip location
 call C:\Credentials\SetArchiver.cmd

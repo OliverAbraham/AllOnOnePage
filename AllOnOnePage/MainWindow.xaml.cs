@@ -1,4 +1,5 @@
-﻿using Abraham.AutoUpdater;
+﻿using CommandLine;
+using Abraham.AutoUpdater;
 using Abraham.OpenWeatherMap;
 using Abraham.WPFWindowLayoutManager;
 using AllOnOnePage.Connectors;
@@ -23,6 +24,7 @@ namespace AllOnOnePage
     {
 		#region ------------- Fields --------------------------------------------------------------
 		#region Configuration
+        private CommandLineArguments   _commandLineArguments;
         private ConfigurationManager   _configurationManager;
         private Configuration          _config => _configurationManager.Config;
    		private ApplicationData        _applicationData;
@@ -73,11 +75,29 @@ namespace AllOnOnePage
 
 
 
+        #region ------------- Command line arguments --------------------------------------------------
+        /// <summary>
+        /// Definition of all command line arguments. For detailed info how to use this, refer to 
+        /// https://github.com/commandlineparser/commandline
+        /// </summary>
+        private class CommandLineArguments
+        {
+            [Option('c', "config", Default = "appsettings.json", Required = false, HelpText =
+                "Configuration file (full path and filename). " +
+                "If you don't specify this option, the program will expect your configuration file " +
+                "named 'appsettings.json' in your documents folder, subdirectory AllOnOnePage.")]
+            public string ConfigurationFile { get; set; } = "";
+        }
+        #endregion
+
+
+
         #region ------------- Init ----------------------------------------------------------------
         public MainWindow()
 		{
 			try
             {
+                ParseCommandLineArguments();
                 Init_OpenWeatherMap_Connector();
                 Init_Configuration();
                 Init_Logger();
@@ -96,6 +116,19 @@ namespace AllOnOnePage
                 Close();
 			}
 		}
+
+        private void ParseCommandLineArguments()
+	    {
+            var args = Environment.GetCommandLineArgs();
+            _commandLineArguments = new CommandLineArguments();
+
+	        CommandLine.Parser.Default.ParseArguments<CommandLineArguments>(args)
+	            .WithParsed   <CommandLineArguments>(options => { _commandLineArguments = options; })
+	            .WithNotParsed<CommandLineArguments>(errors  => { Console.WriteLine(errors.ToString()); });
+    
+            if (_commandLineArguments is null)
+                _commandLineArguments = new CommandLineArguments();
+	    }
 
         private static void Init_OpenWeatherMap_Connector()
         {
@@ -170,7 +203,16 @@ namespace AllOnOnePage
             _applicationData.ProgramDirectory = Directory.GetCurrentDirectory();
 			_texts = new HelpTexts();
 			_configurationManager = new ConfigurationManager(_texts, _applicationData);
-			_configurationManager.CreateDataDirectoryIfNotExists();
+            if (_commandLineArguments.ConfigurationFile != null && 
+                _commandLineArguments.ConfigurationFile != "" && 
+                File.Exists(_commandLineArguments.ConfigurationFile))
+            {
+                _configurationManager.UseDataDirectory(_commandLineArguments.ConfigurationFile);
+            }
+            else
+            {
+                _configurationManager.CreateDataDirectoryIfNotExists();
+            }
 			_configurationManager.SetCurrentDirectoryToDataDirectory();
 			_configurationManager.Load();
             _applicationData.DataDirectory = _configurationManager.DataDirectory;

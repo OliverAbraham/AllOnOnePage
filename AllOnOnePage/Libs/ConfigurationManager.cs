@@ -71,6 +71,11 @@ namespace AllOnOnePage.Libs
 			_configurationManager.Save(_config);
 		}
 
+		public void UseDataDirectory(string directory)
+		{
+			DataDirectory = directory;
+		}
+
 		public void SetCurrentDirectoryToDataDirectory()
 		{
 			Directory.SetCurrentDirectory(DataDirectory);

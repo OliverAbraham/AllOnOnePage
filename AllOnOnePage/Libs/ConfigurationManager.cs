@@ -11,12 +11,13 @@ namespace AllOnOnePage.Libs
 	{
 		#region ------------- Types and constants -------------------------------------------------
 		private string _configurationFilename = $"appsettings.hjson";
-		#endregion
+        private string _specialFilename;
+        #endregion
 
 
 
-		#region ------------- Properties ----------------------------------------------------------
-		public Configuration Config => _config;
+        #region ------------- Properties ----------------------------------------------------------
+        public Configuration Config => _config;
 		public string DataDirectory { get; private set; }
 		#endregion
 
@@ -50,6 +51,7 @@ namespace AllOnOnePage.Libs
 
 			try
 			{
+				_configurationManager.UseFullPathAndFilename(_specialFilename);
 				_configurationManager.Load();
 				_config = _configurationManager.Data;
 			}
@@ -75,6 +77,7 @@ namespace AllOnOnePage.Libs
 		public void UseConfigurationFile(string filename)
 		{
 			_configurationFilename = filename;
+			_specialFilename = filename;
 		}
 
 		public void SetCurrentDirectoryToDataDirectory()

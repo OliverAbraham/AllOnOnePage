@@ -16,3 +16,5 @@ xcopy "%SETTINGS_SOURCE%" "%CONFIGDIR%" /Y
 call BackupAllSettings.cmd
 
 deploy --config appsettings_%AppName%.json --push --wait
+
+@choice /T 30 /C SN /D S /N /M "Dieses Fenster schliesst sich nach 30 Sekunden. S zum schliessen" 

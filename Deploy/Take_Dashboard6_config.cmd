@@ -1,10 +1,10 @@
 @ECHO -----------------------------------------------------------------------------------
-@ECHO
-@ECHO CIRIDATA DESKTOP APPLICATION RUNNER
-@ECHO
-@ECHO Oliver Abraham 2023, mail@oliver-abraham.de
-@ECHO This program is hosted at http://www.github.com/oliverabraham/desktopapplicationrunner
-@ECHO
+@ECHO.
+@ECHO ABRAHAM DEPLOY
+@ECHO.
+@ECHO Oliver Abraham 2026, mail@oliver-abraham.de
+@ECHO This program is hosted at http://www.github.com/oliverabraham/Deploy
+@ECHO.
 @ECHO -----------------------------------------------------------------------------------
 @ECHO off
 

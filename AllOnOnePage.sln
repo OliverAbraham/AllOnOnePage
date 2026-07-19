@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.4.11612.150 stable
+VisualStudioVersion = 18.4.11612.150
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllOnOnePage", "AllOnOnePage\AllOnOnePage.csproj", "{53B69204-2D39-4C10-B7EE-4A9DFDA6638D}"
 EndProject
@@ -13,7 +13,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 Crosscutting", "4 Crosscu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 Deploy", "5 Deploy", "{91B17C59-0906-4D30-95F5-43375EA6A3FE}"
 	ProjectSection(SolutionItems) = preProject
+		Deploy\appsettings_Dashboard1.json = Deploy\appsettings_Dashboard1.json
+		Deploy\appsettings_Dashboard5.json = Deploy\appsettings_Dashboard5.json
+		Deploy\appsettings_Dashboard6.json = Deploy\appsettings_Dashboard6.json
+		Deploy\BackupAllSettings.cmd = Deploy\BackupAllSettings.cmd
 		Deploy\Deploy_to_website_via_FTP.cmd = Deploy\Deploy_to_website_via_FTP.cmd
+		Deploy\Reboot_client.cmd = Deploy\Reboot_client.cmd
+		Deploy\SaveConfigAndDeploy_to_Dashboard1 - neu.cmd = Deploy\SaveConfigAndDeploy_to_Dashboard1 - neu.cmd
+		Deploy\SaveConfigAndDeploy_to_Dashboard5 - neu.cmd = Deploy\SaveConfigAndDeploy_to_Dashboard5 - neu.cmd
+		Deploy\SaveConfigAndDeploy_to_Dashboard6 - neu.cmd = Deploy\SaveConfigAndDeploy_to_Dashboard6 - neu.cmd
+		Deploy\StartLocally.cmd = Deploy\StartLocally.cmd
+		Deploy\Take_Dashboard1_config.cmd = Deploy\Take_Dashboard1_config.cmd
+		Deploy\Take_Dashboard5_config.cmd = Deploy\Take_Dashboard5_config.cmd
+		Deploy\Take_Dashboard6_config.cmd = Deploy\Take_Dashboard6_config.cmd
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 UI Libs", "2 UI Libs", "{11C73C62-8481-494F-A43B-4978AFD6E968}"

@@ -1,3 +1,13 @@
+@ECHO -----------------------------------------------------------------------------------
+@ECHO.
+@ECHO ABRAHAM DEPLOY
+@ECHO.
+@ECHO Oliver Abraham 2026, mail@oliver-abraham.de
+@ECHO This program is hosted at http://www.github.com/oliverabraham/Deploy
+@ECHO.
+@ECHO -----------------------------------------------------------------------------------
+@ECHO off
+
 set ALLSETTINGS=C:\Credentials\AllOnOnePage
 set BACKUPTO=\\server1\Archiv\_Backups\AllOnOnePage
 

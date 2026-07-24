@@ -208,6 +208,7 @@ namespace AllOnOnePage
                 _commandLineArguments.ConfigurationFile != "" && 
                 File.Exists(_commandLineArguments.ConfigurationFile))
             {
+
                 _configurationManager.UseConfigurationFile(_commandLineArguments.ConfigurationFile);
             }
             _configurationManager.CreateDataDirectoryIfNotExists();

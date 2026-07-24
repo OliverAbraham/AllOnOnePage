@@ -11,7 +11,7 @@
 set AppName=Dashboard1
 set CONFIGDIR=C:\Credentials\AllOnOnePage\Config_%AppName%
 set SETTINGS_SOURCE=%USERPROFILE%\Documents\All on one page\*.hjson
-xcopy "%SETTINGS_SOURCE%" "%CONFIGDIR%" /Y
+xcopy "%SETTINGS_SOURCE%\*" "%CONFIGDIR%" /Y
 
 call BackupAllSettings.cmd
 

@@ -51,7 +51,8 @@ namespace AllOnOnePage.Libs
 
 			try
 			{
-				_configurationManager.UseFullPathAndFilename(_specialFilename);
+				if (_specialFilename is not null)
+					_configurationManager.UseFullPathAndFilename(_specialFilename);
 				_configurationManager.Load();
 				_config = _configurationManager.Data;
 			}
